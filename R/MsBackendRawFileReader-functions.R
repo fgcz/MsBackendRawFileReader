@@ -1,11 +1,11 @@
-#' @rdname MsBackend
-#'
-#' @export MsBackendRawDiag
-MsBackendRawDiag <- function() {
+#' @export MsBackendRawFileReader
+#' @importFrom methods new
+#' @aliases MsBackendRawFileReader
+MsBackendRawFileReader <- function() {
     if (!requireNamespace("rawDiag", quietly = TRUE))
-        stop("The use of 'MsBackendRawDiag' requires package 'rawDiag'. Please ",
+        stop("The use of 'MsBackendRawFileReader' requires package 'rawDiag'. Please ",
              "install.")
-    new("MsBackendRawDiag")
+    new("MsBackendRawFileReader")
 }
 
 #' Read the header for each spectrum from the MS file `x`
@@ -14,7 +14,6 @@ MsBackendRawDiag <- function() {
 #' adapted from the MsBackendMzR-function.R file by Johannes Rainer
 #'
 #' @return `DataFrame` with the header.
-#' @importClassesFrom S4Vectors DataFrame
 #' @noRd
 .rawDiag_header <- function(x) {
    

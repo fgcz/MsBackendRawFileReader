@@ -1,9 +1,8 @@
-
 #' @title rawDiag-based backend
 #'
 #' @description
 #'
-#' The `MsBackendRawDiag` inherits all slots and methods from the base
+#' The `MsBackendRawFileReader` inherits all slots and methods from the base
 #' `MsBackendDataFrame` (in-memory) backend. It overrides the base `mz` and
 #' `intensity` methods as well as `peaks` to read the respective data from
 #' the original raw data files.
@@ -20,13 +19,11 @@
 #' adapted from the MsBackendMzR.R file by Johannes Rainer
 #' 
 #' @importClassesFrom Spectra MsBackendDataFrame 
-#'
-#' @noRd
-setClass("MsBackendRawDiag",
+setClass("MsBackendRawFileReader",
          contains = "MsBackendDataFrame",
          prototype = prototype(version = "0.1", readonly = TRUE))
 
-setValidity("MsBackendRawDiag", function(object) {
+setValidity("MsBackendRawFileReader", function(object) {
     msg <- Spectra:::.valid_spectra_data_required_columns(object@spectraData,
                                                 c("fromFile", "scanIndex"))
     msg <- c(msg, Spectra:::.valid_ms_backend_files_exist(object@files))
@@ -34,17 +31,13 @@ setValidity("MsBackendRawDiag", function(object) {
     else TRUE
 })
 
-#' @rdname hidden_aliases
 #'
 #' @importFrom methods callNextMethod
-#'
-#' @importMethodsFrom BiocParallel bpmapply
-#'
-#' @importFrom BiocParallel bpparam
-setMethod("backendInitialize", "MsBackendRawDiag",
+#' @importFrom rDotNet .cnew .cinit
+setMethod("backendInitialize", "MsBackendRawFileReader",
           function(object, files, spectraData, ..., BPPARAM = bpparam()) {
               if (missing(files) || !length(files))
-                  stop("Parameter 'files' is mandatory for 'MsBackendRawDiag'")
+                  stop("Parameter 'files' is mandatory for 'MsBackendRawFileReader'")
             
               files <- normalizePath(files)
               
@@ -76,7 +69,7 @@ setMethod("backendInitialize", "MsBackendRawDiag",
                              ...)
           })
 
-setMethod("show", "MsBackendRawDiag", function(object) {
+setMethod("show", "MsBackendRawFileReader", function(object) {
     callNextMethod()
     fls <- basename(object@files)
     if (length(fls)) {
