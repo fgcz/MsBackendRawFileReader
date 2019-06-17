@@ -1,16 +1,24 @@
 ---
 title: "Read Scans and XIC from raw data using the R package ..."
-author: "Christian Panse, Tobias Kockmann"
-date: "2019-06-17"
+author:
+- name: Christian Panse
+  affiliation: FGCZ
+- name: Tobias Kockmann
+  affiliation: FGCZ
+  email: tk@fgcz.ethz.ch
+package: MsBackendRawFileReader
 output:
-  html_document: default
-vignette: >
-  %\VignetteIndexEntry{read Thermo Finnigan raw files}
+  BiocStyle::html_document
+abstract: |
+  Description of your vignette
+vignette: |
+  %\VignetteIndexEntry{read Thermo Fisher raw files}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 # Simple usage
+
 ```{r}
 library(MsBackendRawFileReader)
 
