@@ -4,10 +4,9 @@ Title: Bridging Spectra and ThermoFinnigan raw files
 Version: 0.0.1
 Authors@R: c(person(given = "Christian", family = "Panse", email = "cp@fgcz.ethz.ch", role = c("aut", "cre"),
     comment = c(ORCID = "0000-0003-1975-3064")),
-	person(given = "Tobias", family = "Kockmann", email = "Tobias.Kockmann@fgcz.ethz.ch", role = "aut"), 
-    comment = c(ORCID = "0000-0002-1847-885X")
-	)
-Depends: R (>= 3.5),
+	person(given = "Tobias", family = "Kockmann", email = "Tobias.Kockmann@fgcz.ethz.ch", role = "aut", 
+    comment = c(ORCID = "0000-0002-1847-885X")))
+Depends: R (>= 3.6),
 	methods,
 	Spectra,
 	rDotNet (>= 0.9)
