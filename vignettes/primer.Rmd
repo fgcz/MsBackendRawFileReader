@@ -1,6 +1,6 @@
 ---
 title: "Read Scans and XIC from raw data using the R package ..."
-author: "Christian Panse, Toboas Kockmann"
+author: "Christian Panse, Tobias Kockmann"
 date: "2019-06-17"
 output:
   html_document: default
