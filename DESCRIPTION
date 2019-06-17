@@ -1,0 +1,25 @@
+Package: MsBackendRawFileReader
+Type: Package
+Title: Bridging Spectra and ThermoFinnigan raw files
+Version: 0.0.1
+Authors@R: c(person(given = "Christian", family = "Panse", email = "cp@fgcz.ethz.ch", role = c("aut", "cre"),
+    comment = c(ORCID = "0000-0003-1975-3064")),
+	person(given = "Tobias", family = "Kockmann", email = "Tobias.Kockmann@fgcz.ethz.ch", role = "aut"))
+Depends: R (>= 3.5),
+	methods,
+	Spectra,
+	rDotNet (>= 0.9)
+Suggests:
+	knitr,
+	lattice,
+	mzR,
+	testthat
+Description: Bridging Spectra and ThermoFinnigan raw files...
+SystemRequirements: mono 4.x or higher on OSX / Linux, .NET 4.x or
+        higher on Windows, 'msbuild' and 'nuget' available in the path
+URL: https://github.com/cpanse/MsBackendRawFileReader
+BugReports: https://github.com/cpanse/MsBackendRawFileReader/issues
+Encoding: UTF-8
+LazyData: true
+NeedsCompilation: no
+RoxygenNote: 6.1.1
