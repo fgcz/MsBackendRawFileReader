@@ -4,17 +4,17 @@ Title: Bridging Spectra and ThermoFinnigan raw files
 Version: 0.0.1
 Authors@R: c(person(given = "Christian", family = "Panse", email = "cp@fgcz.ethz.ch", role = c("aut", "cre"),
     comment = c(ORCID = "0000-0003-1975-3064")),
-	person(given = "Tobias", family = "Kockmann", email = "Tobias.Kockmann@fgcz.ethz.ch", role = "aut"))
+	person(given = "Tobias", family = "Kockmann", email = "Tobias.Kockmann@fgcz.ethz.ch", role = "aut"), 
+    comment = c(ORCID = "0000-0002-1847-885X")
+	)
 Depends: R (>= 3.5),
 	methods,
 	Spectra,
 	rDotNet (>= 0.9)
 Suggests:
 	knitr,
-	lattice,
-	mzR,
 	testthat
-Description: Bridging Spectra and ThermoFinnigan raw files...
+Description: provides a MsBackend for the New RawFileReader from Thermo Fisher Scientific.
 SystemRequirements: mono 4.x or higher on OSX / Linux, .NET 4.x or
         higher on Windows, 'msbuild' and 'nuget' available in the path
 URL: https://github.com/cpanse/MsBackendRawFileReader
