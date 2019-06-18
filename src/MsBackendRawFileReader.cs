@@ -2,7 +2,7 @@
 /// see URL http://planetorbitrap.com/rawfilereader#.WjkqIUtJmL4
 /// the ThermoFisher library has to be manual downloaded and installed
 /// Please read the License document
-/// Christian Panse <cp@fgcz.ethz.ch> and Christian Trachsel
+/// Christian Panse <cp@fgcz.ethz.ch> 
 /// 2019-05-29 initial using rDotNet; added class rawDiag 
  
 using System;
