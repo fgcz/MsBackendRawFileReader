@@ -1,33 +1,40 @@
 ---
-title: "Read Scans and XIC from raw data using the R package ..."
+title: "On how to a read Thermo Fisher raw file into R"
 author:
 - name: Christian Panse
-  affiliation: FGCZ
+  affiliation: Functional Genomics Center Zurich
+  email: cp@fgcz.ethz.ch
 - name: Tobias Kockmann
-  affiliation: FGCZ
-  email: tk@fgcz.ethz.ch
+  affiliation: Functional Genomics Center Zurich
+  email: tobias.Kockmann@fgcz.ethz.ch
 package: MsBackendRawFileReader
 output:
   BiocStyle::html_document
 abstract: |
-  Description of your vignette
+  xxx xxx xxx `r Biocpkg("Spectra")`  [@Huber2015, @Trachsel2018]
 vignette: |
-  %\VignetteIndexEntry{read Thermo Fisher raw files}
+  %\VignetteIndexEntry{Howto read Thermo-Fisher raw files?}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+bibliography:
+  - MsBackendRawFileReader.bib
 ---
 
+ 
 # Simple usage
 
-```{r}
+```{r librarySnippet, message=FALSE}
 library(MsBackendRawFileReader)
 
-fls <- rep(rawfile <- file.path(path.package(package = 'MsBackendRawFileReader'), 'extdata', 'sample.raw'), 1)
+(fls <- file.path(path.package(package = 'MsBackendRawFileReader'),
+                                'extdata', 'sample.raw'))
 
+```
+
+```{r HelloWorldSnippet, message=FALSE}
 be <- backendInitialize(MsBackendRawFileReader(), files = fls)
 
-sps_thermofinnigan <- Spectra(be)
-sps_thermofinnigan
+(sps_thermofinnigan <- Spectra(be))
 ```
 
 # Session Info

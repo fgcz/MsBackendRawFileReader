@@ -2,9 +2,11 @@ Package: MsBackendRawFileReader
 Type: Package
 Title: Bridging Spectra and ThermoFinnigan raw files
 Version: 0.0.1
-Authors@R: c(person(given = "Christian", family = "Panse", email = "cp@fgcz.ethz.ch", role = c("aut", "cre"),
+Authors@R: c(person(given = "Christian",
+    family = "Panse", email = "cp@fgcz.ethz.ch", role = c("aut", "cre"),
     comment = c(ORCID = "0000-0003-1975-3064")),
-	person(given = "Tobias", family = "Kockmann", email = "Tobias.Kockmann@fgcz.ethz.ch", role = "aut", 
+	person(given = "Tobias", family = "Kockmann",
+	  email = "Tobias.Kockmann@fgcz.ethz.ch", role = "aut", 
     comment = c(ORCID = "0000-0002-1847-885X")))
 Depends: R (>= 3.6),
 	methods,
@@ -13,7 +15,10 @@ Depends: R (>= 3.6),
 Suggests:
 	knitr,
 	testthat
-Description: provides a MsBackend for the New RawFileReader from Thermo Fisher Scientific.
+Description: implements an MsBackend for the Spectra package using
+  Thermo Fisher Scientific's NewRawFileReader .Net libraries.
+  The package is generalizing the functionallity introduced by the
+  rawDiag package (Trachsel, 2018 <doi:10.1021/acs.jproteome.8b00173>).
 SystemRequirements: mono 4.x or higher on OSX / Linux, .NET 4.x or
         higher on Windows, 'msbuild' and 'nuget' available in the path
 URL: https://github.com/cpanse/MsBackendRawFileReader
