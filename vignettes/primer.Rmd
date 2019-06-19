@@ -1,5 +1,5 @@
 ---
-title: "On how to a read Thermo Fisher raw file into R"
+title: "Howto use the MsBackendRawFileReader package?"
 author:
 - name: Christian Panse
   affiliation: Functional Genomics Center Zurich
@@ -11,7 +11,7 @@ package: MsBackendRawFileReader
 output:
   BiocStyle::html_document
 abstract: |
-  xxx xxx xxx `r Biocpkg("Spectra")`  [@Huber2015, @Trachsel2018]
+  xxx xxx xxx `r Githubpkg("rformassspectrometry/Spectra")`  [@Huber2015, @Trachsel2018]
 vignette: |
   %\VignetteIndexEntry{Howto read Thermo-Fisher raw files?}
   %\VignetteEngine{knitr::rmarkdown}
@@ -20,9 +20,11 @@ bibliography:
   - MsBackendRawFileReader.bib
 ---
 
- 
-# Simple usage
+# Usage
 
+## Read a raw file
+
+setup
 ```{r librarySnippet, message=FALSE}
 library(MsBackendRawFileReader)
 
@@ -31,10 +33,56 @@ library(MsBackendRawFileReader)
 
 ```
 
+initialize and populate the backend
 ```{r HelloWorldSnippet, message=FALSE}
 be <- backendInitialize(MsBackendRawFileReader(), files = fls)
+```
 
+the output of the show method:
+```{r}
 (sps_thermofinnigan <- Spectra(be))
+```
+
+for those who want to have fun please continue reading.
+
+## Some statistics
+
+```{r}
+table(msLevel(sps_thermofinnigan))
+```
+
+## Some graphics
+
+
+### LC-MS map
+```{r lcmsmap, fig.retina=3}
+plot(rtime(be), precursorMz(be),
+     main = basename(be@files),
+     pch = 16,
+     col = rgb(0.5, 0.5, 0.5, alpha = 0.5))
+```
+
+
+
+# Misc
+
+
+## Diagnostic plots
+
+to the benefit of diagnostic plot functions [@Trachsel2018] use the following
+method to coerce the Spectra object into an `r Githubpkg("fgcz/rawDiag")`
+object.
+Off note, the plots have been designed mainly for Orbitrap devices but are not
+limited to it.
+
+```{r rawDiag, eval=FALSE}
+RAW <- as.rawDiag(be)
+```
+
+## Generate a mascot generic file (mgf)
+
+```{r mgf, eval=FALSE}
+mgf(be, filename = 'sample.mgf')
 ```
 
 # Session Info

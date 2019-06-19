@@ -1,9 +1,10 @@
-﻿/// adapded from the ThermoFischer `Hello, world!` example provided by Jim Shofstahl 
+/// adapded from the ThermoFischer `Hello, world!` example provided by Jim Shofstahl 
 /// see URL http://planetorbitrap.com/rawfilereader#.WjkqIUtJmL4
 /// the ThermoFisher library has to be manual downloaded and installed
 /// Please read the License document
 /// Christian Panse <cp@fgcz.ethz.ch> 
 /// 2019-05-29 initial using rDotNet; added class rawDiag 
+/// 2019-06-15 created MsBackendRawFileReader project
  
 using System;
 using System.Collections.Generic;
@@ -20,8 +21,7 @@ using ThermoFisher.CommonCore.MassPrecisionEstimator;
 using ThermoFisher.CommonCore.RawFileReader;
 
 
-
-namespace rawDiag
+namespace MsBackendRawFileReader
 {
     public static class StringExtension
     {
@@ -41,7 +41,13 @@ namespace rawDiag
     }
     public class Rawfile {
 	    private string _rawfile = "";
+
+
+
+        private IEnumerable<int> scans;
 	    IRawDataPlus rawFile;
+        
+        
 
 	    public Rawfile(string rawfile) {
 		_rawfile = rawfile;
@@ -49,23 +55,26 @@ namespace rawDiag
 		rawFile.SelectInstrument(Device.MS, 1);
     	    }
 
-	    public bool check(){
-                if (!rawFile.IsOpen || rawFile.IsError)
-                {
-                    return false;
-                }
+        public bool check(){
+            if (!rawFile.IsOpen || rawFile.IsError)
+            {
+                return false;
+            }
 
-                if (rawFile.IsError)
-                {
-                    return false;
-                }
+            if (rawFile.IsError)
+            {
+                return false;
+            }
 
-                if (rawFile.InAcquisition)
-                {
-                    return false;
-                }
-		return true;
-	    }
+            if (rawFile.InAcquisition)
+            {
+                return false;
+            }
+	        
+            this.scans = Enumerable.Range(1, this.getLastScanNumber());
+	        
+            return true;
+        }
 
 	    public int getFirstScanNumber(){ 
 	    	return(rawFile.RunHeaderEx.FirstSpectrum);
@@ -101,6 +110,14 @@ namespace rawDiag
             }
         }
 
+        public double[] GetPepmass()
+        {
+            var pepmass = new double[this.getLastScanNumber()];
+            foreach (int scan in this.scans) pepmass[scan] = GetPepmass(scan);
+            return pepmass;
+        }
+
+        
         public string GetScanType(int scanNumber)
         {
             var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
@@ -111,7 +128,14 @@ namespace rawDiag
             return Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000;
         }
 
-	public double GetBasepeakIntensity(int scanNumber)
+        public double[] GetRTinSeconds()
+        {
+            var rtime = new double[this.getLastScanNumber()];
+            foreach (int scan in this.scans) rtime[scan] = GetRTinSeconds(scan);
+            return rtime;
+        }
+
+        public double GetBasepeakIntensity(int scanNumber)
 	{
             var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
             return  Math.Round(scanStatistics.BasePeakIntensity);
@@ -162,7 +186,15 @@ namespace rawDiag
             else if (scanFilter.MSOrder.ToString() == "Ms3") return 3; 
             else return -1;
         }
-        
+
+        public int[] GetMsLevel()
+        {
+            var msLevels = new int[this.getLastScanNumber()];
+            foreach (int scan in this.scans) msLevels[scan] = GetMsLevel(scan);
+            return msLevels;
+        }
+
+
         public string GetCharge(int scanNumber)
         {
             var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
@@ -177,6 +209,13 @@ namespace rawDiag
                 .First(x => x.name.Contains("Charge State")).Position;
             
             return scanTrailer.Values.ToArray()[idx_CHARGE]; 
+        }
+
+        public int[] GetCharge()
+        {
+            var charges = new int[this.getLastScanNumber()];
+            foreach (int scan in this.scans) charges[scan] = Int32.Parse(GetCharge(scan));
+            return charges;
         }
 
         public double[] GetSpectrumIntensities(int scanNumber, string scanFilter)

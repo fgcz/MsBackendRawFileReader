@@ -25,8 +25,9 @@ MsBackendRawFileReader <- function() {
     
     S4Vectors::DataFrame(
       scanIndex = first:last,
-      msLevel = sapply(first:last, function(sn){x$GetMsLevel(sn)}),
-      precursorMz = sapply(first:last, function(sn){x$GetPepmass(sn)}),
-      rtime =  sapply(first:last, function(sn){x$GetRTinSeconds(sn)})
+      msLevel = x$GetMsLevel(),
+      precursorMz = x$GetPepmass(),
+      precursorCharge = x$GetCharge(),
+      rtime =  x$GetRTinSeconds(sn)
     )
 }
