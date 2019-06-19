@@ -40,7 +40,7 @@ be <- backendInitialize(MsBackendRawFileReader(), files = fls)
 
 the output of the show method:
 ```{r}
-(sps_thermofinnigan <- Spectra(be))
+(S <- Spectra(be))
 ```
 
 for those who want to have fun please continue reading.
@@ -48,7 +48,7 @@ for those who want to have fun please continue reading.
 ## Some statistics
 
 ```{r}
-table(msLevel(sps_thermofinnigan))
+table(msLevel(S))
 ```
 
 ## Some graphics
@@ -56,8 +56,8 @@ table(msLevel(sps_thermofinnigan))
 
 ### LC-MS map
 ```{r lcmsmap, fig.retina=3}
-plot(rtime(be), precursorMz(be),
-     main = basename(be@files),
+plot(rtime(S), precursorMz(S),
+     main = basename(S@backend@files),
      pch = 16,
      col = rgb(0.5, 0.5, 0.5, alpha = 0.5))
 ```
@@ -76,13 +76,22 @@ Off note, the plots have been designed mainly for Orbitrap devices but are not
 limited to it.
 
 ```{r rawDiag, eval=FALSE}
-RAW <- as.rawDiag(be)
+RAW <- as.rawDiag(S)
 ```
 
 ## Generate a mascot generic file (mgf)
 
 ```{r mgf, eval=FALSE}
-mgf(be, filename = 'sample.mgf')
+mgf(S, filename = 'sample.mgf')
+```
+
+
+## Generate a `peaklistSet`
+
+to apply the `r CRANpkg("protViz")` functions.
+
+```{r protViz, eval=FALSE}
+PLS <- as.peaklistSet(S) 
 ```
 
 # Session Info
