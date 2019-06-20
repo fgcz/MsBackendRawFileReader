@@ -1,4 +1,4 @@
-#' @title rawDiag-based backend
+#' @title RawFileReader-based backend
 #'
 #' @description
 #'
@@ -59,7 +59,7 @@ setMethod("backendInitialize", "MsBackendRawFileReader",
                   spectraData <- do.call(
                       rbind, mapply(rawfileReaderObj, seq_along(files),
                                       FUN = function(flObj, index) {
-                                          cbind(rawDiag:::.rawDiag_header(flObj),
+                                          cbind(MsBackendRawFileReader:::.MsBackendRawFileReader_header(flObj),
                                                 fromFile = index)
                                       }))
               }
@@ -79,4 +79,14 @@ setMethod("show", "MsBackendRawFileReader", function(object) {
         if (length(fls) > 3)
             cat(" ...", length(fls) - 3, "more files\n")
     }
+})
+
+
+setMethod("intensity", "MsBackendRawFileReader", function(object) {
+  # callNextMethod()
+  fls <- basename(object@files)
+  
+  for(f in fls){
+    message(f)
+  }
 })

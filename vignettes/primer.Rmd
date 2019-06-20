@@ -94,6 +94,22 @@ to apply the `r CRANpkg("protViz")` functions.
 PLS <- as.peaklistSet(S) 
 ```
 
+## Debugging
+
+```{r eval=FALSE}
+library(MsBackendRawFileReader)
+
+rawfile <- "/home/cp/__checkouts/R/MsBackendRawFileReader/inst/extdata/sample.raw"
+
+x <- .cnew ("Rawfile", rawfile)
+
+x$GetMsLevel(1)
+
+vapply(1:10, FUN=function(z){x$GetMsLevel(z)}, FUN.VALUE=as.integer(1))
+
+x$GetSpectrumMz(1, "")
+```
+
 # Session Info
 
 ```{r}

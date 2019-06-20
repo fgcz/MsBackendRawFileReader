@@ -110,7 +110,7 @@ namespace MsBackendRawFileReader
             }
         }
 
-        public double[] GetPepmass()
+        public double[] GetPepmasss()
         {
             var pepmass = new double[this.getLastScanNumber()];
             foreach (int scan in this.scans) pepmass[scan] = GetPepmass(scan);
@@ -123,12 +123,13 @@ namespace MsBackendRawFileReader
             var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
            return scanStatistics.ScanType.ToString();
         }
+
         public double GetRTinSeconds(int scanNumber) {
             var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
             return Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000;
         }
 
-        public double[] GetRTinSeconds()
+        public double[] GetRTinSecondss()
         {
             var rtime = new double[this.getLastScanNumber()];
             foreach (int scan in this.scans) rtime[scan] = GetRTinSeconds(scan);
@@ -178,7 +179,6 @@ namespace MsBackendRawFileReader
         
         public int GetMsLevel(int scanNumber)
         {
-            
             var scanFilter = rawFile.GetFilterForScanNumber(scanNumber);
             
             if (scanFilter.MSOrder.ToString() == "Ms") return 1;
@@ -187,11 +187,11 @@ namespace MsBackendRawFileReader
             else return -1;
         }
 
-        public int[] GetMsLevel()
+        public int[] GetMsLevels()
         {
-            var msLevels = new int[this.getLastScanNumber()];
+            int[] msLevels = new int[this.getLastScanNumber()];
             foreach (int scan in this.scans) msLevels[scan] = GetMsLevel(scan);
-            return msLevels;
+            return msLevels.ToArray();
         }
 
 
@@ -211,11 +211,11 @@ namespace MsBackendRawFileReader
             return scanTrailer.Values.ToArray()[idx_CHARGE]; 
         }
 
-        public int[] GetCharge()
+        public int[] GetCharges()
         {
             var charges = new int[this.getLastScanNumber()];
             foreach (int scan in this.scans) charges[scan] = Int32.Parse(GetCharge(scan));
-            return charges;
+            return charges.ToArray();;
         }
 
         public double[] GetSpectrumIntensities(int scanNumber, string scanFilter)
