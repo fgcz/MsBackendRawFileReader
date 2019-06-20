@@ -16,7 +16,7 @@ MsBackendRawFileReader <- function() {
 #' @return `DataFrame` with the header.
 #' @noRd
 .MsBackendRawFileReader_header <- function(x) {
-   
+    stopifnot(class(x) == "rDotNet")
     stopifnot(x$check())
     requireNamespace("MsBackendRawFileReader", quietly = TRUE)
     
@@ -32,7 +32,7 @@ MsBackendRawFileReader <- function() {
     )
 }
 
-#' Read mz vlaues of each peaks from a single raw file.
+#' Read mz values of each peaks from a single raw file.
 #'
 #' @param x 
 #' @param scanIndex (required) indices of spectra from which the data should be
@@ -40,9 +40,16 @@ MsBackendRawFileReader <- function() {
 #' @return a numeric vector
 #'
 #' @examples
-#' 
+#' # Debug
+#' (rawfile <- file.path(path.package(package = 'MsBackendRawFileReader'),
+#'   'extdata', 'sample.raw'))
+#'   
+#' x <- .cnew ("Rawfile", rawfile)
+#' MsBackendRawFileReader:::.MsBackendRawFileReader_mz(x, 1:2)
+#' @author Christian Panse, June 2019
 #' @noRd
 .MsBackendRawFileReader_mz <- function(x, scanIndex = integer()) {
+  stopifnot(class(x) == "rDotNet")
   stopifnot(x$check())
   requireNamespace("MsBackendRawFileReader", quietly = TRUE)
   # TODO(cp) check scanIds
@@ -53,3 +60,30 @@ MsBackendRawFileReader <- function() {
   })
 }
 
+#' Read intensity values of each peaks from a single raw file.
+#'
+#' @param x 
+#' @param scanIndex (required) indices of spectra from which the data should be
+#'     retrieved.
+#' @return a numeric vector
+#'
+#' @examples
+#' # Debug
+#' (rawfile <- file.path(path.package(package = 'MsBackendRawFileReader'),
+#'   'extdata', 'sample.raw'))
+#'   
+#' x <- .cnew ("Rawfile", rawfile)
+#' MsBackendRawFileReader:::.MsBackendRawFileReader_intensity(x, 1:2)
+#' @author Christian Panse, June 2019
+#' @noRd
+.MsBackendRawFileReader_intensity <- function(x, scanIndex = integer()) {
+  stopifnot(class(x) == "rDotNet")
+  stopifnot(x$check())
+  requireNamespace("MsBackendRawFileReader", quietly = TRUE)
+  # TODO(cp) check scanIds
+  
+  lapply(scanIndex, function(z) {
+    intensity <- x$GetSpectrumIntensity(z, "")
+    intensity
+  })
+}
