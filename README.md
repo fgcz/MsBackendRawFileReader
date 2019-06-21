@@ -25,8 +25,9 @@ of Thermo RAW files. In addition, we plan to apply the framework in our package
 rawDiag to make it fully compatible with bioc standards.
 
 
-## samle raw mzXML
+## `sample.(raw|mzXML)`
 
+### Summary
 ```
 The RAW file has data from 1 instruments
 General File Information:
@@ -66,7 +67,8 @@ Filter Information:
    Total number of filters: 21
 ```
 
+### MD5
 ```
-$ md5sum sample.*
-fe67058456c79af7442316c474d20e96 sample.raw
+MD5 (sample.mzXML) = 8965671c678e02bfa6c997055cb58fe2
+MD5 (sample.raw) = fe67058456c79af7442316c474d20e96
 ```
