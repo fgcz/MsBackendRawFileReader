@@ -25,3 +25,48 @@ of Thermo RAW files. In addition, we plan to apply the framework in our package
 rawDiag to make it fully compatible with bioc standards.
 
 
+## samle raw mzXML
+
+```
+The RAW file has data from 1 instruments
+General File Information:
+   RAW file: sample.raw
+   RAW file version: 66
+   Creation date: 2/13/2018 11:09:03 AM
+   Operator: ExactiveUser
+   Number of instruments: 1
+   Description: 
+   Instrument model: Q Exactive HF-X Orbitrap
+   Instrument name: Q Exactive HF-X Orbitrap
+   Serial number: Exactive Series slot #6114
+   Software version: 2.9-290033/2.9.0.2926
+   Firmware version: rev. 1
+   Units: None
+   Mass resolution: 0.500 
+   Number of scans: 574
+   Number of ms2 scans: 546
+   Scan range: 1 - 574
+   Time range: 0.00 - 0.78
+   Mass range: 140.0000 - 1805.0000
+
+Sample Information:
+   Sample name: 
+   Sample id: 
+   Sample type: Unknown
+   Sample comment: 
+   Sample vial: 
+   Sample volume: 0
+   Sample injection volume: 0
+   Sample row number: 1
+   Sample dilution factor: 0
+
+Filter Information:
+   Scan filter (first scan): FTMS + c NSI Full ms [350.0000-1800.0000]
+   Scan filter (last scan): FTMS + c NSI Full ms2 487.2567@hcd28.00 [140.0000-1015.0000]
+   Total number of filters: 21
+```
+
+```
+$ md5sum sample.*
+fe67058456c79af7442316c474d20e96 sample.raw
+```
