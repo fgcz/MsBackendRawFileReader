@@ -1,3 +1,7 @@
+#' @include hidden_aliases.R
+NULL
+
+
 #' @title RawFileReader-based backend
 #'
 #' @description
@@ -19,9 +23,13 @@
 #' adapted from the MsBackendMzR.R file by Johannes Rainer
 #' 
 #' @importClassesFrom Spectra MsBackendDataFrame 
+#' @rdname hidden_aliases
 setClass("MsBackendRawFileReader",
          contains = "MsBackendDataFrame",
-         prototype = prototype(version = "0.1", readonly = TRUE))
+         prototype = prototype(version = "0.1",
+                               readonly = TRUE),
+         slots = c(rawfileReaderObj = "list")
+         )
 
 setValidity("MsBackendRawFileReader", function(object) {
     msg <- Spectra:::.valid_spectra_data_required_columns(object@spectraData,
@@ -31,17 +39,17 @@ setValidity("MsBackendRawFileReader", function(object) {
     else TRUE
 })
 
-#'
+
 #' @importFrom methods callNextMethod
 #' @importFrom rDotNet .cnew .cinit
+#' @importFrom IRanges NumericList
+#' @rdname hidden_aliases
 setMethod("backendInitialize", "MsBackendRawFileReader",
           function(object, files, spectraData, ..., BPPARAM = bpparam()) {
               if (missing(files) || !length(files))
                   stop("Parameter 'files' is mandatory for 'MsBackendRawFileReader'")
             
-              files <- normalizePath(files)
-              
-             
+              files <- normalizePath(files) 
               
               if (!all(file.exists(files)))
                   stop("File(s) ", paste(files[!file.exists(files)]),
@@ -52,12 +60,13 @@ setMethod("backendInitialize", "MsBackendRawFileReader",
               if (!missing(spectraData)) {
                   spectraData$mz <- NULL
                   spectraData$intensity <- NULL
+                  #rawfileReaderObj <- NULL
               } else {
                 
-                  rawfileReaderObj <- lapply(files, function(rawfile){.cnew ("Rawfile", rawfile)})
+                  object@rawfileReaderObj <- lapply(files, function(rawfile){.cnew ("Rawfile", rawfile)})
                   
                   spectraData <- do.call(
-                      rbind, mapply(rawfileReaderObj, seq_along(files),
+                      rbind, mapply(object@rawfileReaderObj, seq_along(files),
                                       FUN = function(flObj, index) {
                                           cbind(MsBackendRawFileReader:::.MsBackendRawFileReader_header(flObj),
                                                 fromFile = index)
@@ -66,9 +75,11 @@ setMethod("backendInitialize", "MsBackendRawFileReader",
               callNextMethod(object = object,
                              files = files,
                              spectraData = spectraData,
+                           #  rawfileReaderObj = rawfileReaderObj,
                              ...)
           })
 
+#' @rdname hidden_aliases
 setMethod("show", "MsBackendRawFileReader", function(object) {
     callNextMethod()
     fls <- basename(object@files)
@@ -82,11 +93,43 @@ setMethod("show", "MsBackendRawFileReader", function(object) {
 })
 
 
+#' @rdname hidden_aliases
 setMethod("intensity", "MsBackendRawFileReader", function(object) {
-  # callNextMethod()
-  fls <- basename(object@files)
-  
-  for(f in fls){
-    message(f)
-  }
+  if (!length(object))
+  	return(NumericList())
+
+   objs <- unique(object@rawfileReaderObj)
+   if (length(objs) > 1) {
+  	return(NumericList())
+   }else{
+	x <- objs[[1]]
+	first <- x$getFirstScanNumber()
+	last <- x$getLastScanNumber()
+  	return (NumericList(.MsBackendRawFileReader_intensity(x, first:last), compress = FALSE))
+   }
 })
+
+#' @rdname hidden_aliases
+setMethod("mz", "MsBackendRawFileReader", function(object) {
+  
+  #return (NumericList(1:10))
+  #NumericList(lapply(object@rawfileReaderObj,
+  #                   function(x){
+  #                    
+  #                     .MsBackendRawFileReader_mz(x, 1:2)
+  #                  }), compress = FALSE)
+
+  if (!length(object))
+  	return(NumericList())
+
+   objs <- unique(object@rawfileReaderObj)
+   if (length(objs) > 1) {
+  	return(NumericList())
+   }else{
+	x <- objs[[1]]
+	first <- x$getFirstScanNumber()
+	last <- x$getLastScanNumber()
+  	return (NumericList(.MsBackendRawFileReader_mz(x, first:last), compress = FALSE))
+   }
+})
+

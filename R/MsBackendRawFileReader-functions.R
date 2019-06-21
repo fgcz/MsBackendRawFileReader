@@ -1,3 +1,7 @@
+#' @include hidden_aliases.R
+NULL
+
+
 #' @export MsBackendRawFileReader
 #' @importFrom methods new
 #' @aliases MsBackendRawFileReader
@@ -66,11 +70,9 @@ MsBackendRawFileReader <- function() {
 #' @param scanIndex (required) indices of spectra from which the data should be
 #'     retrieved.
 #' @return a numeric vector
-#'
 #' @examples
 #' # Debug
-#' (rawfile <- file.path(path.package(package = 'MsBackendRawFileReader'),
-#'   'extdata', 'sample.raw'))
+#' (rawfile <- file.path(path.package(package = 'MsBackendRawFileReader'), 'extdata', 'sample.raw'))
 #'   
 #' x <- .cnew ("Rawfile", rawfile)
 #' MsBackendRawFileReader:::.MsBackendRawFileReader_intensity(x, 1:2)
@@ -83,7 +85,7 @@ MsBackendRawFileReader <- function() {
   # TODO(cp) check scanIds
   
   lapply(scanIndex, function(z) {
-    intensity <- x$GetSpectrumIntensity(z, "")
+    intensity <- x$GetSpectrumIntensities(z, "")
     intensity
   })
 }
