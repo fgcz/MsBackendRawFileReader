@@ -57,9 +57,9 @@ table(msLevel(S))
 ### LC-MS map
 ```{r lcmsmap, fig.retina=3}
 plot(rtime(S), precursorMz(S),
-     main = basename(S@backend@files),
+     main = basename(dataOrigin(S)[1]),
      pch = 16,
-     col = rgb(0.5, 0.5, 0.5, alpha = 0.5))
+     col = rainbow(5, alpha = 0.5)[1+precursorCharge(S)])
 ```
 
 
@@ -99,7 +99,8 @@ PLS <- as.peaklistSet(S)
 ```{r eval=FALSE}
 library(MsBackendRawFileReader)
 
-rawfile <- "/home/cp/__checkouts/R/MsBackendRawFileReader/inst/extdata/sample.raw"
+(rawfile <- file.path(path.package(package = 'MsBackendRawFileReader'),
+                                'extdata', 'sample.raw')))
 
 x <- .cnew ("Rawfile", rawfile)
 

@@ -2,25 +2,31 @@
 NULL
 
 
-#' @title RawFileReader-based backend
+#' @title RawFileReader-based backend for Spectra
 #' @aliases MsBackendRawFileReader
 #' @description
-
 #' The `MsBackendRawFileReader` inherits all slots and methods from the base
 #' `MsBackendDataFrame` (in-memory) backend. It overrides the base `mz` and
 #' `intensity` methods as well as `peaks` to read the respective data from
 #' the original raw data files.
 #'
-#' The validator function has to ensure that the files provided in the
-#' `files` slot exist.
 #'
 #' The `backendInitialize` method reads the header data from the raw files and
 #' hence fills the `spectraData` slot. Note that this method could be called
 #' several times, e.g. also to *re-fill* `spectraData` after dropping some of
 #' its columns.
 #'
-#' @author Christian Panse 2019-06-15 
-#' adapted from the MsBackendMzR.R file by Johannes Rainer
+#' @author Christian Panse <cp@fgcz.ethz.ch>, 2019-06-15 
+#' adapted from the \code{\link[Spectra]{MsBackendMzR}.R} file by Johannes Rainer
+#' 
+#' @seealso \itemize{
+#' \item{\href{http://planetorbitrap.com/rawfilereader}{The New RawFileReader} 
+#' and the License document in the package directory.}
+#' \item{\code{\link[rDotNet]{.cnew}} man page}
+#' \item {\code{\link[Spectra]{MsBackendDataFrame}}
+#' }
+#' 
+#' @references \doi{10.1021/acs.jproteome.8b00173}
 #' 
 #' @importClassesFrom Spectra MsBackendDataFrame 
 setClass("MsBackendRawFileReader",
@@ -32,56 +38,57 @@ setClass("MsBackendRawFileReader",
 
 setValidity("MsBackendRawFileReader", function(object) {
     msg <- Spectra:::.valid_spectra_data_required_columns(object@spectraData,
-                                                c("fromFile", "scanIndex"))
-    msg <- c(msg, Spectra:::.valid_ms_backend_files_exist(object@files))
+                                                c("dataStorage", "scanIndex"))
+    msg <- c(msg, Spectra:::.valid_ms_backend_files_exist(unique(object@spectraData$dataStorage)))
     if (length(msg)) msg
     else TRUE
 })
 
 
-#' @importFrom methods callNextMethod
+#' @importFrom methods callNextMethod validObject
 #' @importFrom rDotNet .cnew .cinit
 #' @importFrom IRanges NumericList
+#' @importFrom BiocParallel bpparam
 #' @rdname hidden_aliases
 setMethod("backendInitialize", "MsBackendRawFileReader",
-          function(object, files, spectraData, ..., BPPARAM = bpparam()) {
-              if (missing(files) || !length(files))
-                  stop("Parameter 'files' is mandatory for 'MsBackendRawFileReader'")
+          function(object, files, ..., BPPARAM = bpparam()) {
+            if (missing(files) || !length(files))
+              stop("Parameter 'files' is mandatory for 'MsBackendRawFileReader'")
             
-              files <- normalizePath(files) 
-              
-              if (!all(file.exists(files)))
-                  stop("File(s) ", paste(files[!file.exists(files)]),
-                       " not found")
-              msg <- Spectra:::.valid_ms_backend_files(files)
-              if (length(msg))
-                  stop(msg)
-              if (!missing(spectraData)) {
-                  spectraData$mz <- NULL
-                  spectraData$intensity <- NULL
-                  #rawfileReaderObj <- NULL
-              } else {
-                
-                  object@rawfileReaderObj <- lapply(files, function(rawfile){.cnew ("Rawfile", rawfile)})
-                  
-                  spectraData <- do.call(
-                      rbind, mapply(object@rawfileReaderObj, seq_along(files),
-                                      FUN = function(flObj, index) {
-                                          cbind(MsBackendRawFileReader:::.MsBackendRawFileReader_header(flObj),
-                                                fromFile = index)
-                                      }))
-              }
-              callNextMethod(object = object,
-                             files = files,
-                             spectraData = spectraData,
-                           #  rawfileReaderObj = rawfileReaderObj,
-                             ...)
+            if (!is.character(files))
+              stop("Parameter 'files' is expected to be a character vector",
+                   " with the files names from where data should be",
+                   " imported")
+
+            files <- normalizePath(files) 
+            msg <- Spectra:::.valid_ms_backend_files_exist(files)
+            if (length(msg))
+              stop(msg)
+
+            # rDotNet RawFileReader specific
+            object@rawfileReaderObj <- lapply(files,
+                function(rawfile){.cnew ("Rawfile", rawfile)})
+            
+            # the rDotNet package can not handle bpmapply calls yet.
+            spectraData <- do.call(
+              rbind, mapply(object@rawfileReaderObj, files,
+                            FUN = function(flObj, fl) {
+                              cbind(.MsBackendRawFileReader_header(flObj),
+                                    dataStorage = fl)
+                            }))
+
+            spectraData$dataOrigin <- spectraData$dataStorage
+            object@spectraData <- Spectra:::.as_rle_spectra_data(spectraData)
+            validObject(object)
+            object
           })
+
 
 #' @rdname hidden_aliases
 setMethod("show", "MsBackendRawFileReader", function(object) {
     callNextMethod()
-    fls <- basename(object@files)
+    fls <- unique(object@spectraData$dataStorage)
+    
     if (length(fls)) {
         to <- min(3, length(fls))
         cat("\nfile(s):\n", paste(basename(fls[1:to]), collapse = "\n"),

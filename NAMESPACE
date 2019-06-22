@@ -2,10 +2,12 @@
 
 export(MsBackendRawFileReader)
 importClassesFrom(Spectra,MsBackendDataFrame)
+importFrom(BiocParallel,bpparam)
 importFrom(IRanges,NumericList)
 importFrom(S4Vectors,DataFrame)
 importFrom(methods,callNextMethod)
 importFrom(methods,new)
+importFrom(methods,validObject)
 importFrom(rDotNet,.cinit)
 importFrom(rDotNet,.cnew)
 importFrom(utils,packageVersion)

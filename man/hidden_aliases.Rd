@@ -10,8 +10,8 @@
 \alias{mz,MsBackendRawFileReader-method}
 \title{Internal page for hidden aliases}
 \usage{
-\S4method{backendInitialize}{MsBackendRawFileReader}(object, files,
-  spectraData, ..., BPPARAM = bpparam())
+\S4method{backendInitialize}{MsBackendRawFileReader}(object, files, ...,
+  BPPARAM = bpparam())
 
 \S4method{show}{MsBackendRawFileReader}(object)
 

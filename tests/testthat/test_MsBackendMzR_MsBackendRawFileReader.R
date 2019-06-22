@@ -18,10 +18,13 @@ test_that("precursorCharge", {
 
 test_that("peaks", {
   
+  # Note, there is no peaks method implemented for MsBackendRawFileReader
+  
   sample_peaks_raw <- peaks(sample_raw)
   sample_peaks_mzr <- peaks(sample_mzr)
   
-  n <- length(sample_peaks_raw )
+  n <- length(sample_peaks_raw)
+  
   expect_true(n == 574)
   
   rv <- lapply(1:n, function(i){
