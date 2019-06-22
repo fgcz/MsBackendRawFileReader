@@ -11,6 +11,7 @@ Authors@R: c(person(given = "Christian",
 Depends: R (>= 3.6),
   IRanges,
 	methods,
+	S4Vectors,
 	Spectra,
 	rDotNet (>= 0.9)
 Suggests:

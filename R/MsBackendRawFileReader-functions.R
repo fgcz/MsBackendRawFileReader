@@ -18,6 +18,7 @@ MsBackendRawFileReader <- function() {
 #' adapted from the MsBackendMzR-function.R file by Johannes Rainer
 #'
 #' @return `DataFrame` with the header.
+#' @importFrom S4Vectors DataFrame
 #' @noRd
 .MsBackendRawFileReader_header <- function(x) {
     stopifnot(class(x) == "rDotNet")
@@ -27,10 +28,10 @@ MsBackendRawFileReader <- function() {
     first <- x$getFirstScanNumber()
     last <- x$getLastScanNumber()
     
-    S4Vectors::DataFrame(
+    DataFrame(
       scanIndex = first:last,
       msLevel = vapply(first:last, FUN=function(z){x$GetMsLevel(z)}, FUN.VALUE = as.integer(1)),
-      precursorMz = vapply(first:last, FUN=function(z){x$GetPepmass(z)}, FUN.VALUE = as.double(1.0)),
+      precursorMz = vapply(first:last, FUN=function(z){x$GetPrecursorMz(z)}, FUN.VALUE = as.double(1.0)),
       precursorCharge = as.integer(vapply(first:last, FUN=function(z){x$GetCharge(z)}, FUN.VALUE = as.character(1.0))),
       rtime =   vapply(first:last, FUN=function(z){x$GetRTinSeconds(z)}, FUN.VALUE = as.double(1.0))
     )

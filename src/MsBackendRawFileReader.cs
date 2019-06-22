@@ -96,9 +96,16 @@ namespace MsBackendRawFileReader
             return s;
         }
 
-        public double GetPepmass(int scanNumber)
+        public double GetPrecursorMz(int scanNumber)
         {
+            
+            
+            var scanFilter = rawFile.GetFilterForScanNumber(scanNumber);
+            
+            if (scanFilter.MSOrder.ToString() == "Ms") return 0.0;
+            
             var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
+            
             try
             {
                 var reaction0 = scanEvent.GetReaction(0);
@@ -108,13 +115,6 @@ namespace MsBackendRawFileReader
             {
                 return -1.0;
             }
-        }
-
-        public double[] GetPepmasss()
-        {
-            var pepmass = new double[this.getLastScanNumber()];
-            foreach (int scan in this.scans) pepmass[scan] = GetPepmass(scan);
-            return pepmass;
         }
 
         

@@ -3,9 +3,9 @@ NULL
 
 
 #' @title RawFileReader-based backend
-#'
+#' @aliases MsBackendRawFileReader
 #' @description
-#'
+
 #' The `MsBackendRawFileReader` inherits all slots and methods from the base
 #' `MsBackendDataFrame` (in-memory) backend. It overrides the base `mz` and
 #' `intensity` methods as well as `peaks` to read the respective data from
@@ -23,7 +23,6 @@ NULL
 #' adapted from the MsBackendMzR.R file by Johannes Rainer
 #' 
 #' @importClassesFrom Spectra MsBackendDataFrame 
-#' @rdname hidden_aliases
 setClass("MsBackendRawFileReader",
          contains = "MsBackendDataFrame",
          prototype = prototype(version = "0.1",
