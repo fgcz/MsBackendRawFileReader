@@ -13,7 +13,7 @@ output:
 abstract: |
   xxx xxx xxx `r Githubpkg("rformassspectrometry/Spectra")`  [@Huber2015, @Trachsel2018]
 vignette: |
-  %\VignetteIndexEntry{Howto read Thermo-Fisher raw files?}
+  %\VignetteIndexEntry{Howto use the package?}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography:
@@ -43,7 +43,22 @@ the output of the show method:
 (S <- Spectra(be))
 ```
 
+
+```{r spectraVariables}
+spectraVariables(S)
+```
+
+
+```{r}
+spectraData(S, columns = c("msLevel", "msLevel", 'precursorMz'))
+```
+
 for those who want to have fun please continue reading.
+
+
+```{r peaks}
+peaks(S)
+```
 
 ## Some statistics
 
@@ -109,6 +124,24 @@ x$GetMsLevel(1)
 vapply(1:10, FUN=function(z){x$GetMsLevel(z)}, FUN.VALUE=as.integer(1))
 
 x$GetSpectrumMz(1, "")
+```
+
+
+## Testing multiple files
+```{r testingMultipleFiles}
+rv <- lapply(1:2, function(x){
+  file.copy(from = fls, to = tempfile(fileext='.raw'))})
+
+
+be <- backendInitialize(MsBackendRawFileReader(),
+  files = file.path(tempdir(), list.files(path = tempdir(), pattern = 'raw$')))
+
+table(basename(dataOrigin(be)))
+
+#  the rDotNet package tested only with one worker.
+register(SnowParam(workers = 1, type = "SOCK") , default = TRUE); registered()
+SS <- Spectra(be)
+
 ```
 
 # Session Info

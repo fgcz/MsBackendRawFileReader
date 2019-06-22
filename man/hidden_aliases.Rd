@@ -3,7 +3,7 @@
 \docType{methods}
 \name{hidden_aliases}
 \alias{hidden_aliases}
-\alias{[,MsBackendDataFrame-method}
+\alias{[,MsBackendRawFileReader-method}
 \alias{backendInitialize,MsBackendRawFileReader-method}
 \alias{show,MsBackendRawFileReader-method}
 \alias{intensity,MsBackendRawFileReader-method}

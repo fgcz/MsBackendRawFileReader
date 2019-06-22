@@ -1,6 +1,6 @@
 #' @title Internal page for hidden aliases
 #'
-#' @aliases [,MsBackendDataFrame-method
+#' @aliases [,MsBackendRawFileReader-method
 #'
 #' @description
 #'

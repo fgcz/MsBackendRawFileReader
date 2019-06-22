@@ -10,7 +10,6 @@ NULL
 #' `intensity` methods as well as `peaks` to read the respective data from
 #' the original raw data files.
 #'
-#'
 #' The `backendInitialize` method reads the header data from the raw files and
 #' hence fills the `spectraData` slot. Note that this method could be called
 #' several times, e.g. also to *re-fill* `spectraData` after dropping some of
@@ -102,40 +101,37 @@ setMethod("show", "MsBackendRawFileReader", function(object) {
 #' @rdname hidden_aliases
 setMethod("intensity", "MsBackendRawFileReader", function(object) {
   if (!length(object))
-  	return(NumericList())
-
-   objs <- unique(object@rawfileReaderObj)
-   if (length(objs) > 1) {
-  	return(NumericList())
-   }else{
-	x <- objs[[1]]
-	first <- x$getFirstScanNumber()
-	last <- x$getLastScanNumber()
-  	return (NumericList(.MsBackendRawFileReader_intensity(x, first:last), compress = FALSE))
-   }
+    return(NumericList())
+  
+  objs <- unique(object@rawfileReaderObj)
+  fls <- unique(object@spectraData$dataStorage)
+  
+  f <- factor(dataStorage(object), levels = fls)
+  
+  return(NumericList(unsplit(mapply(FUN = function(x){
+    first <- x$getFirstScanNumber()
+    last <- x$getLastScanNumber()
+    MsBackendRawFileReader:::.MsBackendRawFileReader_intensity(x,  first:last)},
+    objs,
+    SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
+  
 })
 
 #' @rdname hidden_aliases
 setMethod("mz", "MsBackendRawFileReader", function(object) {
-  
-  #return (NumericList(1:10))
-  #NumericList(lapply(object@rawfileReaderObj,
-  #                   function(x){
-  #                    
-  #                     .MsBackendRawFileReader_mz(x, 1:2)
-  #                  }), compress = FALSE)
-
   if (!length(object))
-  	return(NumericList())
+    return(NumericList())
+  
+  objs <- unique(object@rawfileReaderObj)
+  fls <- unique(object@spectraData$dataStorage)
 
-   objs <- unique(object@rawfileReaderObj)
-   if (length(objs) > 1) {
-  	return(NumericList())
-   }else{
-	x <- objs[[1]]
-	first <- x$getFirstScanNumber()
-	last <- x$getLastScanNumber()
-  	return (NumericList(.MsBackendRawFileReader_mz(x, first:last), compress = FALSE))
-   }
+  f <- factor(dataStorage(object), levels = fls)
+  
+  return(NumericList(unsplit(mapply(FUN = function(x){
+    first <- x$getFirstScanNumber()
+    last <- x$getLastScanNumber()
+    MsBackendRawFileReader:::.MsBackendRawFileReader_mz(x,  first:last)},
+    objs,
+    SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
 })
 

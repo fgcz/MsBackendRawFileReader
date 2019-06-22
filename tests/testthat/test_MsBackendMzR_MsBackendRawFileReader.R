@@ -15,6 +15,9 @@ test_that("precursorCharge", {
   expect_identical(precursorCharge(sample_raw), precursorCharge(sample_mzr))
 })
 
+test_that("intensity", {
+  expect_equal(sum(sum(intensity(sample_raw))), sum(sum(intensity(sample_mzr))))
+})
 
 test_that("peaks", {
   
