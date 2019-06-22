@@ -67,8 +67,13 @@ Filter Information:
    Total number of filters: 21
 ```
 
-### MD5
+## MD5 checksums
 ```
-MD5 (sample.mzXML) = 8965671c678e02bfa6c997055cb58fe2
-MD5 (sample.raw) = fe67058456c79af7442316c474d20e96
+8965671c678e02bfa6c997055cb58fe2  sample.mzXML
+fe67058456c79af7442316c474d20e96  sample.raw
+
+8f03d21ea9f98b6986bab2bc2af00cb2  ThermoFisher.CommonCore.BackgroundSubtraction.dll
+ee4a4904ecd833fdd58bfc0a4a7b5a4d  ThermoFisher.CommonCore.Data.dll
+e31c4d00c19a487f26f96ac63f67862c  ThermoFisher.CommonCore.MassPrecisionEstimator.dll
+89750f35acb1b8ea111bf2633c8abf1a  ThermoFisher.CommonCore.RawFileReader.dll
 ```
