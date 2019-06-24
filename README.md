@@ -48,9 +48,9 @@ install.packages('rDotNet')
 library(devtools)
 devtools::install_github("rformassspectrometry/Spectra")
 
-# R CMD build MsBackendRawFileReader --no-build-vignettes 
-# R CMD INSTALL MsBackendRawFileReader_0.0.1.tar.gz 
-devtools::install_github("cpanse/MsBackendRawFileReader")
+# git clone git@github.com:cpanse/MsBackendRawFileReader.git && R CMD build MsBackendRawFileReader --no-build-vignettes && R CMD INSTALL MsBackendRawFileReader_0.0.1.tar.gz 
+devtools::install_github("cpanse/MsBackendRawFileReader",
+  args="--no-build-vignettes")
 ```
 
 ## `sample.(raw|mzXML)`
