@@ -38,8 +38,8 @@ MsBackendRawFileReader <- function() {
       centroided = vapply(first:last, FUN=function(z){x$IsCentroidScan(z)}, FUN.VALUE = FALSE), 
       polarity = vapply(first:last, FUN=function(z){x$GetPolarity(z)}, FUN.VALUE = as.integer(-1)),
       injectionTime = NA,
-      collisionEnergy = vapply(first:last, FUN=function(z){x$GetCollisionEnergy(z)}, FUN.VALUE = as.double(1.0)),
-      isolationWindowTargetMz = vapply(first:last, FUN=function(z){x$GetIsolationWidth(z)}, FUN.VALUE = as.double(1.0)),
+      #collisionEnergy = vapply(first:last, FUN=function(z){x$GetCollisionEnergy(z)}, FUN.VALUE = as.double(1.0)),
+      #isolationWindowTargetMz = vapply(first:last, FUN=function(z){x$GetIsolationWidth(z)}, FUN.VALUE = as.double(1.0)),
       scanFilter = vapply(first:last, FUN=function(z){x$GetScanFilter(z)}, FUN.VALUE = as.character("")),
       basePeakMZ = vapply(first:last, FUN=function(z){x$GetBasepeakMass(z)}, FUN.VALUE = as.double(1.0)),
       basePeakIntensity = vapply(first:last, FUN=function(z){x$GetBasepeakIntensity(z)}, FUN.VALUE = as.double(1.0))
