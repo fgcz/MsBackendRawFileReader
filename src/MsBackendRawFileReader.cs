@@ -5,7 +5,10 @@
 /// Christian Panse <cp@fgcz.ethz.ch> 
 /// 2019-05-29 initial using rDotNet; added class rawDiag 
 /// 2019-06-15 created MsBackendRawFileReader project
- 
+/// 2019-06-22 adapated to Spectra 0.1.0
+/// 2019-06-23 added missing meta data:w
+
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -39,16 +42,17 @@ namespace MsBackendRawFileReader
                 .Replace("=", ""));
         }
     }
+    
+    
+    
+    
     public class Rawfile {
 	    private string _rawfile = "";
-
-
-
+        
         private IEnumerable<int> scans;
-	    IRawDataPlus rawFile;
+	    
+        IRawDataPlus rawFile;
         
-        
-
 	    public Rawfile(string rawfile) {
 		_rawfile = rawfile;
 		rawFile = RawFileReaderAdapter.FileFactory(_rawfile);
@@ -75,7 +79,12 @@ namespace MsBackendRawFileReader
 	        
             return true;
         }
-
+        
+       /// public string[] GetTrailerExtraHeaderInformation()
+       /// {
+       ///     return rawFile.GetTrailerExtraHeaderInformation().ToArray();
+       /// }
+        
 	    public int getFirstScanNumber(){ 
 	    	return(rawFile.RunHeaderEx.FirstSpectrum);
 	    }
@@ -86,9 +95,16 @@ namespace MsBackendRawFileReader
 
 	    public bool IsCentroidScan(int scanNumber){
             	var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
+            	return (scanStatistics.IsCentroidScan);
 
-            return scanStatistics.IsCentroidScan;
 	    }
+
+        public string GetScanFilter(int scanNumber)
+        {
+            var scanFilter = rawFile.GetFilterForScanNumber(scanNumber);
+            return scanFilter.ToString();
+        }
+       
 
         public string GetTitle(int scanNumber)
         {
@@ -117,6 +133,19 @@ namespace MsBackendRawFileReader
             }
         }
 
+        public double GetCollisionEnergy(int scanNumber)
+        {
+            var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
+            var reaction0 = scanEvent.GetReaction(0);
+            return reaction0.CollisionEnergy;
+        }
+        
+        public double GetIsolationWidth(int scanNumber)
+        {
+            var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
+            var reaction0 = scanEvent.GetReaction(0);
+            return reaction0.IsolationWidth;
+        }
         
         public string GetScanType(int scanNumber)
         {
@@ -128,19 +157,19 @@ namespace MsBackendRawFileReader
             var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
             return Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000;
         }
-
-        public double[] GetRTinSecondss()
+        
+        public double GetBasepeakMass(int scanNumber)
         {
-            var rtime = new double[this.getLastScanNumber()];
-            foreach (int scan in this.scans) rtime[scan] = GetRTinSeconds(scan);
-            return rtime;
+            var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
+            return Math.Round(scanStatistics.BasePeakMass);
         }
 
+
         public double GetBasepeakIntensity(int scanNumber)
-	{
+        {
             var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
-            return  Math.Round(scanStatistics.BasePeakIntensity);
-	}
+            return Math.Round(scanStatistics.BasePeakIntensity);
+        }
 
         public string GetMonoisotopicMz(int scanNumber)
         {
@@ -187,14 +216,7 @@ namespace MsBackendRawFileReader
             else return -1;
         }
 
-        public int[] GetMsLevels()
-        {
-            int[] msLevels = new int[this.getLastScanNumber()];
-            foreach (int scan in this.scans) msLevels[scan] = GetMsLevel(scan);
-            return msLevels.ToArray();
-        }
-
-
+       
         public string GetCharge(int scanNumber)
         {
             var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
@@ -211,13 +233,7 @@ namespace MsBackendRawFileReader
             return scanTrailer.Values.ToArray()[idx_CHARGE]; 
         }
 
-        public int[] GetCharges()
-        {
-            var charges = new int[this.getLastScanNumber()];
-            foreach (int scan in this.scans) charges[scan] = Int32.Parse(GetCharge(scan));
-            return charges.ToArray();;
-        }
-
+      
         public double[] GetSpectrumIntensities(int scanNumber, string scanFilter)
 	{
             var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);

@@ -50,6 +50,7 @@ spectraVariables(S)
 
 
 ```{r}
+df <- spectraData(S)
 spectraData(S, columns = c("msLevel", "msLevel", 'precursorMz'))
 ```
 
