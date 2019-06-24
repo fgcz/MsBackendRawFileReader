@@ -6,7 +6,7 @@
 /// 2019-05-29 initial using rDotNet; added class rawDiag 
 /// 2019-06-15 created MsBackendRawFileReader project
 /// 2019-06-22 adapated to Spectra 0.1.0
-/// 2019-06-23 added missing meta data:w
+/// 2019-06-23 added missing meta data
 
 
 using System;
@@ -43,9 +43,6 @@ namespace MsBackendRawFileReader
         }
     }
     
-    
-    
-    
     public class Rawfile {
 	    private string _rawfile = "";
         
@@ -79,11 +76,56 @@ namespace MsBackendRawFileReader
 	        
             return true;
         }
+
+
+        public bool IsValidFilter(string filter)
+        {
+           if(rawFile.GetFilterFromString(filter) == null)
+            {
+                return false;
+            }
+            return true;
+        }
         
-       /// public string[] GetTrailerExtraHeaderInformation()
-       /// {
-       ///     return rawFile.GetTrailerExtraHeaderInformation().ToArray();
-       /// }
+        public string[] GetAutoFilters()
+        {
+            return rawFile.GetAutoFilters();
+        }
+        
+       public string[] GetTrailerExtraHeaderInformationLabel()
+       {
+           List<string> rv = new List<string>();
+           
+           var scanTrailer = rawFile.GetTrailerExtraInformation(rawFile.RunHeaderEx.FirstSpectrum);
+            
+            foreach (var field in scanTrailer.Labels)
+            {
+               rv.Add(field.ToString().CleanRawfileTrailerHeader());
+                
+            }
+           return rv.ToArray();
+       }
+
+        public double[] GetTrailerExtraHeaderInformationValue(int scanNumber)
+        {
+           List<double> rv = new List<double>();
+           var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
+            
+            foreach (var field in scanTrailer.Values)
+            {
+                try
+                {
+                    rv.Add(double.Parse(field));
+                }
+                catch
+                {
+                    rv.Add(-123456.0);
+                    
+                }
+                
+            }
+           return rv.ToArray();
+        }
         
 	    public int getFirstScanNumber(){ 
 	    	return(rawFile.RunHeaderEx.FirstSpectrum);
@@ -135,16 +177,30 @@ namespace MsBackendRawFileReader
 
         public double GetCollisionEnergy(int scanNumber)
         {
+            try
+            {
+                
             var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
             var reaction0 = scanEvent.GetReaction(0);
             return reaction0.CollisionEnergy;
+            }
+            catch
+            {
+                return -1.0;
+            }
         }
-        
+
         public double GetIsolationWidth(int scanNumber)
         {
+            try{
             var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
             var reaction0 = scanEvent.GetReaction(0);
             return reaction0.IsolationWidth;
+            }
+            catch
+            {
+                return -1.0;
+            }
         }
         
         public string GetScanType(int scanNumber)

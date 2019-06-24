@@ -25,9 +25,37 @@ of Thermo RAW files. In addition, we plan to apply the framework in our package
 rawDiag to make it fully compatible with bioc standards.
 
 
+
+## Install
+
+a Windows/Linux/MacOSX x64 platform 
+
+
+###  .NET Framework and R
+
+- https://www.mono-project.com/ (>4.0.22) for (Linux and MacOSX)
+- .NET Framework 4.5.1 or higher (Windows)
+- R (>= 3.6.0)
+- install https://CRAN.R-project.org/package=devtools
+- if you want support for [Open File Standards](http://www.psidev.info/) install the [mzR](http://bioconductor.org/packages/mzR/) package. 
+- U.S. language setting on windows/linux/apple [see issue #33](https://github.com/fgcz/rawDiag/issues/33)
+
+### R packages
+
+```{r}
+install.packages('rDotNet')
+
+library(devtools)
+devtools::install_github("rformassspectrometry/Spectra")
+
+# R CMD build MsBackendRawFileReader --no-build-vignettes 
+# R CMD INSTALL MsBackendRawFileReader_0.0.1.tar.gz 
+devtools::install_github("cpanse/MsBackendRawFileReader")
+```
+
 ## `sample.(raw|mzXML)`
 
-### Summary
+### raw file summary
 ```
 The RAW file has data from 1 instruments
 General File Information:

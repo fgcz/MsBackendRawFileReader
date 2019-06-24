@@ -27,10 +27,9 @@ bibliography:
 setup
 ```{r librarySnippet, message=FALSE}
 library(MsBackendRawFileReader)
-
+library(knitr)
 (fls <- file.path(path.package(package = 'MsBackendRawFileReader'),
                                 'extdata', 'sample.raw'))
-
 ```
 
 initialize and populate the backend
@@ -51,7 +50,7 @@ spectraVariables(S)
 
 ```{r}
 df <- spectraData(S)
-spectraData(S, columns = c("msLevel", "msLevel", 'precursorMz'))
+kable(cbind(df[2,]@rownames, df[2,]@listData))
 ```
 
 for those who want to have fun please continue reading.
@@ -112,11 +111,23 @@ PLS <- as.peaklistSet(S)
 
 ## Debugging
 
-```{r eval=FALSE}
+
+
+### manually stating the `CLRServer.exe`
+```{bash eval=FALSE}
+/Library/Frameworks/Mono.framework/Commands/mono64 \
+  --llvm /Library/Frameworks/R.framework/Versions/3.6/Resources/library/rDotNet/server/bin/Debug/CLRServer.exe \
+  -url svc://localhost:56789/ \
+  -dll /Library/Frameworks/R.framework/Versions/3.6/Resources/library/MsBackendRawFileReader/exec/MsBackendRawFileReader.dll
+```
+
+
+### reading basic data structs
+```{r debugging, eval=TRUE}
 library(MsBackendRawFileReader)
 
 (rawfile <- file.path(path.package(package = 'MsBackendRawFileReader'),
-                                'extdata', 'sample.raw')))
+                                'extdata', 'sample.raw'))
 
 x <- .cnew ("Rawfile", rawfile)
 
@@ -124,11 +135,33 @@ x$GetMsLevel(1)
 
 vapply(1:10, FUN=function(z){x$GetMsLevel(z)}, FUN.VALUE=as.integer(1))
 
-x$GetSpectrumMz(1, "")
+head(x$GetSpectrumMz(1, ""))
+
+
+dfExtraHeader <- DataFrame(label=x$GetTrailerExtraHeaderInformationLabel(),
+                           scan1=x$GetTrailerExtraHeaderInformationValue(1),
+                           scan2=x$GetTrailerExtraHeaderInformationValue(2),
+                           scan100=x$GetTrailerExtraHeaderInformationValue(100))
+
 ```
 
+```{r kableExtraHeader, echo=FALSE, comment='GetTrailerExtraHeaderInformation'}
+kable(dfExtraHeader)
+```
+
+### On using filters
+
+see also [@RawfileReader2015, page 28]
+
+```{r}
+x$GetAutoFilters()
+
+x$IsValidFilter("most likely not a valid filter string")
+x$IsValidFilter("ms2 776.9297@hcd28.00")
+```
 
 ## Testing multiple files
+
 ```{r testingMultipleFiles}
 rv <- lapply(1:2, function(x){
   file.copy(from = fls, to = tempfile(fileext='.raw'))})
@@ -142,7 +175,6 @@ table(basename(dataOrigin(be)))
 #  the rDotNet package tested only with one worker.
 register(SnowParam(workers = 1, type = "SOCK") , default = TRUE); registered()
 SS <- Spectra(be)
-
 ```
 
 # Session Info
