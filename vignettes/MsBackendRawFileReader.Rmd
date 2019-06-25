@@ -38,7 +38,7 @@ be <- backendInitialize(MsBackendRawFileReader(), files = fls)
 ```
 
 the output of the show method:
-```{r}
+```{r Spectra}
 (S <- Spectra(be))
 ```
 
@@ -48,7 +48,7 @@ spectraVariables(S)
 ```
 
 
-```{r}
+```{r sample}
 df <- spectraData(S)
 kable(cbind(df[2,]@rownames, df[2,]@listData))
 ```
@@ -62,11 +62,20 @@ peaks(S)
 
 ## Some statistics
 
-```{r}
+```{r msLevel}
 table(msLevel(S))
 ```
 
+
 ## Some graphics
+
+### precursorMz count
+
+```{r histogram, fig.retina=3}
+library(lattice)
+histogram(~precursorMz(S) | precursorCharge(S) * basename(dataStorage(S)),
+          type = 'count')
+```
 
 
 ### LC-MS map
@@ -128,16 +137,27 @@ library(MsBackendRawFileReader)
 
 (rawfile <- file.path(path.package(package = 'MsBackendRawFileReader'),
                                 'extdata', 'sample.raw'))
+```
 
+
+call the constructor for a given rawfile
+```{r debuggingCallConstructor}
 x <- .cnew ("Rawfile", rawfile)
+```
 
+call methods of the C# class
+```{r debuggingHaveFun}
 x$GetMsLevel(1)
 
 vapply(1:10, FUN=function(z){x$GetMsLevel(z)}, FUN.VALUE=as.integer(1))
 
 head(x$GetSpectrumMz(1, ""))
 
+```
 
+### Extra Header Information
+
+```{r debuggingExtraHeaderInformation}
 dfExtraHeader <- DataFrame(label=x$GetTrailerExtraHeaderInformationLabel(),
                            scan1=x$GetTrailerExtraHeaderInformationValue(1),
                            scan2=x$GetTrailerExtraHeaderInformationValue(2),
@@ -153,7 +173,7 @@ kable(dfExtraHeader)
 
 see also [@RawfileReader2015, page 28]
 
-```{r}
+```{r filters}
 x$GetAutoFilters()
 
 x$IsValidFilter("most likely not a valid filter string")
@@ -179,7 +199,7 @@ SS <- Spectra(be)
 
 # Session Info
 
-```{r}
+```{r sessionInfo}
 sessionInfo()
 ```
 

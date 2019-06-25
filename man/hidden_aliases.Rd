@@ -6,6 +6,14 @@
 \alias{[,MsBackendRawFileReader-method}
 \alias{backendInitialize,MsBackendRawFileReader-method}
 \alias{show,MsBackendRawFileReader-method}
+\alias{msLevel,MsBackendRawFileReader-method}
+\alias{centroided,MsBackendRawFileReader-method}
+\alias{polarity,MsBackendRawFileReader-method}
+\alias{collisionEnergy,MsBackendRawFileReader-method}
+\alias{isolationWindowTargetMz,MsBackendRawFileReader-method}
+\alias{precursorMz,MsBackendRawFileReader-method}
+\alias{precursorCharge,MsBackendRawFileReader-method}
+\alias{rtime,MsBackendRawFileReader-method}
 \alias{intensity,MsBackendRawFileReader-method}
 \alias{mz,MsBackendRawFileReader-method}
 \title{Internal page for hidden aliases}
@@ -14,6 +22,22 @@
   BPPARAM = bpparam())
 
 \S4method{show}{MsBackendRawFileReader}(object)
+
+\S4method{msLevel}{MsBackendRawFileReader}(object)
+
+\S4method{centroided}{MsBackendRawFileReader}(object)
+
+\S4method{polarity}{MsBackendRawFileReader}(object)
+
+\S4method{collisionEnergy}{MsBackendRawFileReader}(object)
+
+\S4method{isolationWindowTargetMz}{MsBackendRawFileReader}(object)
+
+\S4method{precursorMz}{MsBackendRawFileReader}(object)
+
+\S4method{precursorCharge}{MsBackendRawFileReader}(object)
+
+\S4method{rtime}{MsBackendRawFileReader}(object)
 
 \S4method{intensity}{MsBackendRawFileReader}(object)
 

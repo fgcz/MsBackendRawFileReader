@@ -22,7 +22,7 @@ NULL
 #' \item{\href{http://planetorbitrap.com/rawfilereader}{The New RawFileReader} 
 #' and the License document in the package directory.}
 #' \item{\code{\link[rDotNet]{.cnew}} man page}
-#' \item {\code{\link[Spectra]{MsBackendDataFrame}}
+#' \item {\code{\link[Spectra]{MsBackendDataFrame}}}
 #' }
 #' 
 #' @references \doi{10.1021/acs.jproteome.8b00173}
@@ -43,7 +43,7 @@ setValidity("MsBackendRawFileReader", function(object) {
     else TRUE
 })
 
-
+#----- backendInitialize ----
 #' @importFrom methods callNextMethod validObject
 #' @importFrom rDotNet .cnew .cinit
 #' @importFrom IRanges NumericList
@@ -84,17 +84,199 @@ setMethod("backendInitialize", "MsBackendRawFileReader",
 
 
 #' @rdname hidden_aliases
+#' @exportMethod show
 setMethod("show", "MsBackendRawFileReader", function(object) {
-    callNextMethod()
+    #callNextMethod()
     fls <- unique(object@spectraData$dataStorage)
-    
+    objs <- unique(object@rawfileReaderObj)
+   
     if (length(fls)) {
-        to <- min(3, length(fls))
-        cat("\nfile(s):\n", paste(basename(fls[1:to]), collapse = "\n"),
-            "\n", sep = "")
-        if (length(fls) > 3)
+       
+        info = lapply(objs, function(x){
+            paste(x$GetInfoKeys(), x$GetInfoValues(), sep=":\t", collapse = '\n')
+        })
+       
+        cat("\n")
+        to <- min(3, length(objs))
+        rv <- sapply(info[1:to], cat, collapse='\n\n')
+        
+        #cat("\nfile(s):\n", paste(basename(fls[1:to]), collapse = "\n"),
+        #    "\n", sep = "")
+        if (length(objs) > 3)
             cat(" ...", length(fls) - 3, "more files\n")
     }
+})
+
+
+#----- msLevel ----
+#' @rdname hidden_aliases
+#' @exportMethod msLevel
+setMethod("msLevel", "MsBackendRawFileReader", function(object) {
+    if (!length(object))
+        return(NULL)
+    
+    objs <- unique(object@rawfileReaderObj)
+    fls <- unique(object@spectraData$dataStorage)
+    
+    f <- factor(dataStorage(object), levels = fls)
+    
+    return((unsplit(mapply(FUN = function(x){
+        first <- x$getFirstScanNumber()
+        last <- x$getLastScanNumber()
+        
+        vapply(first:last, FUN=function(z){x$GetMsLevel(z)}, FUN.VALUE = as.integer(1))
+    },
+    objs,
+    SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
+})
+
+#----- centroided ----
+#' @rdname hidden_aliases
+setMethod("centroided", "MsBackendRawFileReader", function(object) {
+    if (!length(object))
+        return(NULL)
+    
+    objs <- unique(object@rawfileReaderObj)
+    fls <- unique(object@spectraData$dataStorage)
+    
+    f <- factor(dataStorage(object), levels = fls)
+    
+    return(unsplit(mapply(FUN = function(x){
+        first <- x$getFirstScanNumber()
+        last <- x$getLastScanNumber()
+        vapply(first:last, FUN=function(z){x$IsCentroidScan(z)}, FUN.VALUE = FALSE)
+    },
+    objs,
+    SIMPLIFY = FALSE, USE.NAMES = FALSE), f))
+})
+
+
+#----- polarity ----
+#' @rdname hidden_aliases
+setMethod("polarity", "MsBackendRawFileReader", function(object) {
+    if (!length(object))
+        return(NULL)
+    
+    objs <- unique(object@rawfileReaderObj)
+    fls <- unique(object@spectraData$dataStorage)
+    
+    f <- factor(dataStorage(object), levels = fls)
+    
+    return(unsplit(mapply(FUN = function(x){
+        first <- x$getFirstScanNumber()
+        last <- x$getLastScanNumber()
+        vapply(first:last, FUN=function(z){x$GetPolarity(z)}, FUN.VALUE = as.integer(-1))
+    },
+    objs,
+    SIMPLIFY = FALSE, USE.NAMES = FALSE), f))
+})
+
+#---- backendInitialize----
+#' @rdname hidden_aliases
+setMethod("collisionEnergy", "MsBackendRawFileReader", function(object) {
+    if (!length(object))
+        return(NULL)
+    
+    objs <- unique(object@rawfileReaderObj)
+    fls <- unique(object@spectraData$dataStorage)
+    
+    f <- factor(dataStorage(object), levels = fls)
+    
+    return(unsplit(mapply(FUN = function(x){
+        first <- x$getFirstScanNumber()
+        last <- x$getLastScanNumber()
+        vapply(first:last, FUN=function(z){x$GetCollisionEnergy(z)}, FUN.VALUE = as.double(1.0))
+    },
+    objs,
+    SIMPLIFY = FALSE, USE.NAMES = FALSE), f))
+})
+
+#---- isolationWindowTargetMz----
+#' @rdname hidden_aliases
+setMethod("isolationWindowTargetMz", "MsBackendRawFileReader", function(object) {
+    if (!length(object))
+        return(NULL)
+    
+    objs <- unique(object@rawfileReaderObj)
+    fls <- unique(object@spectraData$dataStorage)
+    
+    f <- factor(dataStorage(object), levels = fls)
+    
+    return(unsplit(mapply(FUN = function(x){
+        first <- x$getFirstScanNumber()
+        last <- x$getLastScanNumber()
+        vapply(first:last, FUN=function(z){x$GetIsolationWidth(z)}, FUN.VALUE = as.double(1.0))
+    },
+    objs,
+    SIMPLIFY = FALSE, USE.NAMES = FALSE), f))
+})
+
+#---- precursorMz----
+#' @rdname hidden_aliases
+setMethod("precursorMz", "MsBackendRawFileReader", function(object) {
+    if (!length(object))
+        return(NULL)
+    
+    objs <- unique(object@rawfileReaderObj)
+    fls <- unique(object@spectraData$dataStorage)
+    
+    f <- factor(dataStorage(object), levels = fls)
+    
+    return((unsplit(mapply(FUN = function(x){
+        #first <- x$getFirstScanNumber()
+        #last <- x$getLastScanNumber()
+        x$GetPrecursorMzs()
+        #vapply(first:last, FUN=function(z){x$GetPrecursorMz(z)}, FUN.VALUE = as.double(1.0))
+    },
+    objs,
+    SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
+})
+
+#---- precursorCharge----
+#' @rdname hidden_aliases
+setMethod("precursorCharge", "MsBackendRawFileReader", function(object) {
+    if (!length(object))
+        return(NULL)
+    
+   # if ("precursorCharge" %in% colnames(object@backend@spectraData)){
+#       
+#        return (object@backend@spectraData$precursorCharge)
+#    }
+    
+    
+    objs <- unique(object@rawfileReaderObj)
+    fls <- unique(object@spectraData$dataStorage)
+    
+    f <- factor(dataStorage(object), levels = fls)
+    
+    
+    return (unsplit(mapply(FUN = function(x){
+        x$GetCharges()
+    },
+    objs,
+    SIMPLIFY = FALSE, USE.NAMES = FALSE), f))
+    
+})
+
+#---- rtime----
+#' @rdname hidden_aliases
+setMethod("rtime", "MsBackendRawFileReader", function(object) {
+    if (!length(object))
+        return(NULL)
+    
+    objs <- unique(object@rawfileReaderObj)
+    fls <- unique(object@spectraData$dataStorage)
+    
+    f <- factor(dataStorage(object), levels = fls)
+    
+    return((unsplit(mapply(FUN = function(x){
+        first <- x$getFirstScanNumber()
+        last <- x$getLastScanNumber()
+        
+        vapply(first:last, FUN=function(z){x$GetRTinSeconds(z)}, FUN.VALUE = as.double(1.0))
+    },
+    objs,
+    SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
 })
 
 

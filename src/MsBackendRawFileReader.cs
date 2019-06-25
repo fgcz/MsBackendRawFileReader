@@ -47,14 +47,22 @@ namespace MsBackendRawFileReader
 	    private string _rawfile = "";
         
         private IEnumerable<int> scans;
-	    
-        IRawDataPlus rawFile;
+        private IDictionary<string, string> dictInfo = new Dictionary<string, string>(); 
+        
+        private IRawDataPlus rawFile;
         
 	    public Rawfile(string rawfile) {
-		_rawfile = rawfile;
-		rawFile = RawFileReaderAdapter.FileFactory(_rawfile);
-		rawFile.SelectInstrument(Device.MS, 1);
-    	    }
+		    _rawfile = rawfile;
+		    rawFile = RawFileReaderAdapter.FileFactory(_rawfile);
+		    rawFile.SelectInstrument(Device.MS, 1);
+	        
+            dictInfo.Add("filename", rawFile.FileName);
+            dictInfo.Add("creation date", rawFile.FileHeader.CreationDate.ToString());
+            dictInfo.Add("first scan", this.getFirstScanNumber().ToString());
+            dictInfo.Add("last scan", this.getLastScanNumber().ToString());
+            dictInfo.Add("model", rawFile.GetInstrumentData().Model.ToString());
+	       //dictInfo.Add("mass resolution", rawFile.RunHeaderEx.MassResolution.ToString());
+	    }
 
         public bool check(){
             if (!rawFile.IsOpen || rawFile.IsError)
@@ -72,9 +80,21 @@ namespace MsBackendRawFileReader
                 return false;
             }
 	        
-            this.scans = Enumerable.Range(1, this.getLastScanNumber());
+            this.scans = Enumerable.Range(this.getFirstScanNumber(), this.getLastScanNumber());
+
+            
 	        
             return true;
+        }
+
+        public string[] GetInfoKeys()
+        {
+            return dictInfo.Keys.ToArray();
+        }
+        
+        public string[] GetInfoValues()
+        {
+            return dictInfo.Values.ToArray();
         }
 
 
@@ -106,6 +126,11 @@ namespace MsBackendRawFileReader
            return rv.ToArray();
        }
 
+        public string[] GetTrailerExtraHeaderInformationValue_(int scanNumber)
+        {
+           return rawFile.GetTrailerExtraInformation(scanNumber).Values;
+        }
+
         public double[] GetTrailerExtraHeaderInformationValue(int scanNumber)
         {
            List<double> rv = new List<double>();
@@ -122,7 +147,6 @@ namespace MsBackendRawFileReader
                     rv.Add(-123456.0);
                     
                 }
-                
             }
            return rv.ToArray();
         }
@@ -154,13 +178,22 @@ namespace MsBackendRawFileReader
             return s;
         }
 
+
+        public double[] GetPrecursorMzs()
+        {
+            List<double> rv = new List<double>();
+            foreach (var scanNumber in this.scans)
+            {
+                rv.Add(GetPrecursorMz(scanNumber));
+            }
+            return rv.ToArray();
+        }
+        
         public double GetPrecursorMz(int scanNumber)
         {
-            
-            
             var scanFilter = rawFile.GetFilterForScanNumber(scanNumber);
             
-            if (scanFilter.MSOrder.ToString() == "Ms") return 0.0;
+            if (scanFilter.MSOrder.ToString() == "Ms") return -1.0;
             
             var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
             
@@ -272,7 +305,39 @@ namespace MsBackendRawFileReader
             else return -1;
         }
 
-       
+
+        public int[] GetCharges()
+        {
+            
+            var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
+            
+            var idx_CHARGE = trailerFields
+                .Select((item, index) => new
+                {
+                    name = item.Label.ToString(),
+                    Position = index
+                })
+                .First(x => x.name.Contains("Charge State")).Position;
+                
+
+            List<int> rv = new List<int>();
+            foreach (var scanNumber in this.scans)
+            {
+                try
+                {
+                    rv.Add(Convert.ToInt32(
+                        rawFile.GetTrailerExtraInformation(scanNumber).Values.ToArray()[idx_CHARGE]));
+                }
+                catch
+                {
+                    rv.Add(-123456);
+                }
+            }
+
+           return rv.ToArray();
+            
+        }
+        
         public string GetCharge(int scanNumber)
         {
             var trailerFields = rawFile.GetTrailerExtraHeaderInformation();

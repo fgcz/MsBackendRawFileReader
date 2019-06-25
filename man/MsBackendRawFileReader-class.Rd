@@ -11,7 +11,6 @@ The `MsBackendRawFileReader` inherits all slots and methods from the base
 `intensity` methods as well as `peaks` to read the respective data from
 the original raw data files.
 
-
 The `backendInitialize` method reads the header data from the raw files and
 hence fills the `spectraData` slot. Note that this method could be called
 several times, e.g. also to *re-fill* `spectraData` after dropping some of
@@ -19,6 +18,14 @@ its columns.
 }
 \references{
 \doi{10.1021/acs.jproteome.8b00173}
+}
+\seealso{
+\itemize{
+\item{\href{http://planetorbitrap.com/rawfilereader}{The New RawFileReader} 
+and the License document in the package directory.}
+\item{\code{\link[rDotNet]{.cnew}} man page}
+\item {\code{\link[Spectra]{MsBackendDataFrame}}}
+}
 }
 \author{
 Christian Panse <cp@fgcz.ethz.ch>, 2019-06-15 

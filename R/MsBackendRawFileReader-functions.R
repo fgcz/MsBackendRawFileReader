@@ -28,22 +28,23 @@ MsBackendRawFileReader <- function() {
     first <- x$getFirstScanNumber()
     last <- x$getLastScanNumber()
     
-    DataFrame(
-      scanIndex = first:last,
-      acquisitionNum = first:last,
-      msLevel = vapply(first:last, FUN=function(z){x$GetMsLevel(z)}, FUN.VALUE = as.integer(1)),
-      precursorMz = vapply(first:last, FUN=function(z){x$GetPrecursorMz(z)}, FUN.VALUE = as.double(1.0)),
-      precursorCharge = as.integer(vapply(first:last, FUN=function(z){x$GetCharge(z)}, FUN.VALUE = as.character(1.0))),
-      rtime =   vapply(first:last, FUN=function(z){x$GetRTinSeconds(z)}, FUN.VALUE = as.double(1.0)),
-      centroided = vapply(first:last, FUN=function(z){x$IsCentroidScan(z)}, FUN.VALUE = FALSE), 
-      polarity = vapply(first:last, FUN=function(z){x$GetPolarity(z)}, FUN.VALUE = as.integer(-1)),
-      injectionTime = NA,
-      collisionEnergy = vapply(first:last, FUN=function(z){x$GetCollisionEnergy(z)}, FUN.VALUE = as.double(1.0)),
-      isolationWindowTargetMz = vapply(first:last, FUN=function(z){x$GetIsolationWidth(z)}, FUN.VALUE = as.double(1.0)),
-      scanFilter = vapply(first:last, FUN=function(z){x$GetScanFilter(z)}, FUN.VALUE = as.character("")),
-      basePeakMZ = vapply(first:last, FUN=function(z){x$GetBasepeakMass(z)}, FUN.VALUE = as.double(1.0)),
-      basePeakIntensity = vapply(first:last, FUN=function(z){x$GetBasepeakIntensity(z)}, FUN.VALUE = as.double(1.0))
-    )
+    #df <- DataFrame(
+      #scanIndex = first:last
+      #acquisitionNum = first:last
+      #
+  
+      #injectionTime = NA,
+      #
+      #
+      #scanFilter = vapply(first:last, FUN=function(z){x$GetScanFilter(z)}, FUN.VALUE = as.character("")),
+      #basePeakMZ = vapply(first:last, FUN=function(z){x$GetBasepeakMass(z)}, FUN.VALUE = as.double(1.0)),
+      #basePeakIntensity = vapply(first:last, FUN=function(z){x$GetBasepeakIntensity(z)}, FUN.VALUE = as.double(1.0))
+   # )
+   # 
+   ## df$precursorCharge <- NULL
+   # df
+    DataFrame(scanIndex = first:last)
+    #DataFrame()
 }
 
 #' Read mz values of each peaks from a single raw file.
