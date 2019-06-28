@@ -7,7 +7,7 @@ test_that("rtime", {
 })
 
 test_that("precursorMz", {
-  expect_equal(precursorMz(sample_raw), precursorMz(sample_mzr), tolerance = 1E-5)
+  expect_equal(precursorMz(sample_raw), precursorMz(sample_mzr), tolerance = 1E-4)
 })
 
 test_that("precursorCharge", {

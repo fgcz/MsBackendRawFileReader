@@ -25,11 +25,12 @@ bibliography:
 ## Read a raw file
 
 setup
+
 ```{r librarySnippet, message=FALSE}
 library(MsBackendRawFileReader)
 library(knitr)
 (fls <- file.path(path.package(package = 'MsBackendRawFileReader'),
-                                'extdata', 'sample.raw'))
+    'extdata', 'sample.raw'))
 ```
 
 initialize and populate the backend

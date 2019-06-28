@@ -16,6 +16,14 @@ hence fills the `spectraData` slot. Note that this method could be called
 several times, e.g. also to *re-fill* `spectraData` after dropping some of
 its columns.
 }
+\examples{
+library(MsBackendRawFileReader)
+(rawfile <- file.path(path.package(package = 'MsBackendRawFileReader'),
+     'extdata', 'sample.raw'))
+
+ be <- backendInitialize(MsBackendRawFileReader(), files = rawfile)
+ (S <- Spectra(be))
+}
 \references{
 \doi{10.1021/acs.jproteome.8b00173}
 }

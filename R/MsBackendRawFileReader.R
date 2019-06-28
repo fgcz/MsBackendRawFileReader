@@ -1,7 +1,6 @@
 #' @include hidden_aliases.R
 NULL
 
-
 #' @title RawFileReader-based backend for Spectra
 #' @aliases MsBackendRawFileReader
 #' @description
@@ -17,28 +16,38 @@ NULL
 #'
 #' @author Christian Panse <cp@fgcz.ethz.ch>, 2019-06-15 
 #' adapted from the \code{\link[Spectra]{MsBackendMzR}.R} file by Johannes Rainer
-#' 
+#'
 #' @seealso \itemize{
 #' \item{\href{http://planetorbitrap.com/rawfilereader}{The New RawFileReader} 
 #' and the License document in the package directory.}
 #' \item{\code{\link[rDotNet]{.cnew}} man page}
 #' \item {\code{\link[Spectra]{MsBackendDataFrame}}}
 #' }
-#' 
+#'
 #' @references \doi{10.1021/acs.jproteome.8b00173}
-#' 
+#'
 #' @importClassesFrom Spectra MsBackendDataFrame 
+#'
+#' @examples 
+#' library(MsBackendRawFileReader)
+#' (rawfile <- file.path(path.package(package = 'MsBackendRawFileReader'),
+#'      'extdata', 'sample.raw'))
+#'
+#'  be <- backendInitialize(MsBackendRawFileReader(), files = rawfile)
+#'  (S <- Spectra(be))
 setClass("MsBackendRawFileReader",
-         contains = "MsBackendDataFrame",
-         prototype = prototype(version = "0.1",
-                               readonly = TRUE),
-         slots = c(rawfileReaderObj = "list")
-         )
+    contains = "MsBackendDataFrame",
+    prototype = prototype(version = "0.1", readonly = TRUE),
+    slots = c(rawfileReaderObj = "list")
+)
 
 setValidity("MsBackendRawFileReader", function(object) {
     msg <- Spectra:::.valid_spectra_data_required_columns(object@spectraData,
-                                                c("dataStorage", "scanIndex"))
-    msg <- c(msg, Spectra:::.valid_ms_backend_files_exist(unique(object@spectraData$dataStorage)))
+        c("dataStorage", "scanIndex"))
+
+    msg <- c(msg, Spectra:::.valid_ms_backend_files_exist(unique(
+        object@spectraData$dataStorage)))
+
     if (length(msg)) msg
     else TRUE
 })
@@ -50,19 +59,19 @@ setValidity("MsBackendRawFileReader", function(object) {
 #' @importFrom BiocParallel bpparam
 #' @rdname hidden_aliases
 setMethod("backendInitialize", "MsBackendRawFileReader",
-          function(object, files, ..., BPPARAM = bpparam()) {
-            if (missing(files) || !length(files))
-              stop("Parameter 'files' is mandatory for 'MsBackendRawFileReader'")
+    function(object, files, ..., BPPARAM = bpparam()) {
+        if (missing(files) || !length(files))
+            stop("Parameter 'files' is mandatory for 'MsBackendRawFileReader'")
             
-            if (!is.character(files))
-              stop("Parameter 'files' is expected to be a character vector",
-                   " with the files names from where data should be",
-                   " imported")
+        if (!is.character(files))
+            stop("Parameter 'files' is expected to be a character vector",
+                " with the files names from where data should be",
+                " imported")
 
             files <- normalizePath(files) 
             msg <- Spectra:::.valid_ms_backend_files_exist(files)
             if (length(msg))
-              stop(msg)
+                stop(msg)
 
             # rDotNet RawFileReader specific
             object@rawfileReaderObj <- lapply(files,
@@ -70,11 +79,13 @@ setMethod("backendInitialize", "MsBackendRawFileReader",
             
             # the rDotNet package can not handle bpmapply calls yet.
             spectraData <- do.call(
-              rbind, mapply(object@rawfileReaderObj, files,
-                            FUN = function(flObj, fl) {
-                              cbind(.MsBackendRawFileReader_header(flObj),
-                                    dataStorage = fl)
-                            }))
+                rbind, mapply(object@rawfileReaderObj, files,
+                    FUN = function(flObj, fl) {
+                        cbind(.MsBackendRawFileReader_header(flObj),
+                            dataStorage = fl)
+                        }
+                    )
+                )
 
             spectraData$dataOrigin <- spectraData$dataStorage
             object@spectraData <- Spectra:::.as_rle_spectra_data(spectraData)
@@ -93,7 +104,7 @@ setMethod("show", "MsBackendRawFileReader", function(object) {
     if (length(fls)) {
        
         info = lapply(objs, function(x){
-            paste(x$GetInfoKeys(), x$GetInfoValues(), sep=":\t", collapse = '\n')
+            paste(x$GetInfoKeys(), x$GetInfoValues(), sep=":\t", collapse ='\n')
         })
        
         cat("\n")
@@ -176,12 +187,12 @@ setMethod("polarity", "MsBackendRawFileReader", function(object) {
 setMethod("collisionEnergy", "MsBackendRawFileReader", function(object) {
     if (!length(object))
         return(NULL)
-    
+
     objs <- unique(object@rawfileReaderObj)
     fls <- unique(object@spectraData$dataStorage)
-    
+
     f <- factor(dataStorage(object), levels = fls)
-    
+
     return(unsplit(mapply(FUN = function(x){
         first <- x$getFirstScanNumber()
         last <- x$getLastScanNumber()
@@ -199,9 +210,9 @@ setMethod("isolationWindowTargetMz", "MsBackendRawFileReader", function(object) 
     
     objs <- unique(object@rawfileReaderObj)
     fls <- unique(object@spectraData$dataStorage)
-    
+
     f <- factor(dataStorage(object), levels = fls)
-    
+
     return(unsplit(mapply(FUN = function(x){
         first <- x$getFirstScanNumber()
         last <- x$getLastScanNumber()
@@ -216,12 +227,12 @@ setMethod("isolationWindowTargetMz", "MsBackendRawFileReader", function(object) 
 setMethod("precursorMz", "MsBackendRawFileReader", function(object) {
     if (!length(object))
         return(NULL)
-    
+
     objs <- unique(object@rawfileReaderObj)
     fls <- unique(object@spectraData$dataStorage)
-    
+
     f <- factor(dataStorage(object), levels = fls)
-    
+
     return((unsplit(mapply(FUN = function(x){
         #first <- x$getFirstScanNumber()
         #last <- x$getLastScanNumber()
@@ -237,25 +248,22 @@ setMethod("precursorMz", "MsBackendRawFileReader", function(object) {
 setMethod("precursorCharge", "MsBackendRawFileReader", function(object) {
     if (!length(object))
         return(NULL)
-    
+
    # if ("precursorCharge" %in% colnames(object@backend@spectraData)){
 #       
 #        return (object@backend@spectraData$precursorCharge)
 #    }
-    
-    
+
+
     objs <- unique(object@rawfileReaderObj)
     fls <- unique(object@spectraData$dataStorage)
     
     f <- factor(dataStorage(object), levels = fls)
-    
-    
+
+
     return (unsplit(mapply(FUN = function(x){
         x$GetCharges()
-    },
-    objs,
-    SIMPLIFY = FALSE, USE.NAMES = FALSE), f))
-    
+        }, objs, SIMPLIFY = FALSE, USE.NAMES = FALSE), f))
 })
 
 #---- rtime----
@@ -273,7 +281,8 @@ setMethod("rtime", "MsBackendRawFileReader", function(object) {
         first <- x$getFirstScanNumber()
         last <- x$getLastScanNumber()
         
-        vapply(first:last, FUN=function(z){x$GetRTinSeconds(z)}, FUN.VALUE = as.double(1.0))
+        vapply(first:last, FUN=function(z){x$GetRTinSeconds(z)},
+            FUN.VALUE = as.double(1.0))
     },
     objs,
     SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
@@ -293,7 +302,7 @@ setMethod("intensity", "MsBackendRawFileReader", function(object) {
   return(NumericList(unsplit(mapply(FUN = function(x){
     first <- x$getFirstScanNumber()
     last <- x$getLastScanNumber()
-    MsBackendRawFileReader:::.MsBackendRawFileReader_intensity(x,  first:last)},
+    MsBackendRawFileReader:::.MsBackendRawFileReader_intensity(x, first:last)},
     objs,
     SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
   
@@ -303,12 +312,12 @@ setMethod("intensity", "MsBackendRawFileReader", function(object) {
 setMethod("mz", "MsBackendRawFileReader", function(object) {
   if (!length(object))
     return(NumericList())
-  
+
   objs <- unique(object@rawfileReaderObj)
   fls <- unique(object@spectraData$dataStorage)
 
   f <- factor(dataStorage(object), levels = fls)
-  
+
   return(NumericList(unsplit(mapply(FUN = function(x){
     first <- x$getFirstScanNumber()
     last <- x$getLastScanNumber()

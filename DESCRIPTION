@@ -29,6 +29,7 @@ BugReports: https://github.com/cpanse/MsBackendRawFileReader/issues
 Encoding: UTF-8
 LazyData: true
 NeedsCompilation: no
+biocViews: MassSpectrometry, Proteomics 
 RoxygenNote: 6.1.1
 License: GPL-3
 VignetteBuilder: knitr
