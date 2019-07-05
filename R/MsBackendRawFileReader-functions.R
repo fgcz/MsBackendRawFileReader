@@ -20,7 +20,7 @@ MsBackendRawFileReader <- function() {
 #' @return `DataFrame` with the header.
 #' @importFrom S4Vectors DataFrame
 #' @noRd
-.MsBackendRawFileReader_header <- function(x) {
+.MsBackendRawFileReader_header <- function(x, extra=TRUE) {
     stopifnot(class(x) == "rDotNet")
     stopifnot(x$check())
     requireNamespace("MsBackendRawFileReader", quietly = TRUE)
@@ -28,23 +28,10 @@ MsBackendRawFileReader <- function() {
     first <- x$getFirstScanNumber()
     last <- x$getLastScanNumber()
     
-    #df <- DataFrame(
-      #scanIndex = first:last
-      #acquisitionNum = first:last
-      #
-  
-      #injectionTime = NA,
-      #
-      #
-      #scanFilter = vapply(first:last, FUN=function(z){x$GetScanFilter(z)}, FUN.VALUE = as.character("")),
-      #basePeakMZ = vapply(first:last, FUN=function(z){x$GetBasepeakMass(z)}, FUN.VALUE = as.double(1.0)),
-      #basePeakIntensity = vapply(first:last, FUN=function(z){x$GetBasepeakIntensity(z)}, FUN.VALUE = as.double(1.0))
-   # )
-   # 
-   ## df$precursorCharge <- NULL
-   # df
-    DataFrame(scanIndex = first:last)
-    #DataFrame()
+    if (extra)
+        return(.MsBackendRawFileReader_extra(x))
+    else
+        return(DataFrame(scanIndex = first:last))
 }
 
 #' Read mz values of each peaks from a single raw file.
@@ -100,3 +87,31 @@ MsBackendRawFileReader <- function() {
     intensity
   })
 }
+
+# ==== GetExtraHeaderDataFrame ====
+.MsBackendRawFileReader_extra <- function(x){
+    
+    from <- x$getFirstScanNumber() 
+    to <- x$getLastScanNumber() 
+    
+    df_string <- DataFrame(do.call('rbind', lapply(seq(from, to), function(i){
+        x$GetTrailerExtraHeaderInformationValueAsString(i)
+    })))
+    
+    df <- DataFrame(do.call('rbind', lapply(seq(from, to), function(i){
+        x$GetTrailerExtraHeaderInformationValue(i)
+    })))
+    
+    colnames(df) <- x$GetTrailerExtraHeaderInformationLabel()
+    
+    idx <- which(sapply(df@listData, function(z){z[1]==-123456}))
+    
+    for (i in idx){
+        df[, i] <- df_string[, i]
+    }
+    
+    row.names(df) <- seq(from, to) 
+    df$scanIndex = seq(from, to)
+    df
+}
+

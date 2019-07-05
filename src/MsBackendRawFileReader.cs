@@ -48,6 +48,7 @@ namespace MsBackendRawFileReader
         
         private IEnumerable<int> scans;
         private IDictionary<string, string> dictInfo = new Dictionary<string, string>(); 
+	private int masterScanIdx = -1;
         
         private IRawDataPlus rawFile;
         
@@ -62,6 +63,20 @@ namespace MsBackendRawFileReader
             dictInfo.Add("last scan", this.getLastScanNumber().ToString());
             dictInfo.Add("model", rawFile.GetInstrumentData().Model.ToString());
 	       //dictInfo.Add("mass resolution", rawFile.RunHeaderEx.MassResolution.ToString());
+
+
+            var trailerData = rawFile.GetTrailerExtraInformation(rawFile.RunHeaderEx.FirstSpectrum);
+	        foreach (int i in Enumerable.Range(1, trailerData.Labels.ToArray().Length))
+	        {
+	            try
+	            {
+		         if ((trailerData.Labels[i] == "Master Scan Number:") || (trailerData.Labels[i] == "Master Scan Number") || (trailerData.Labels[i] == "Master Index:"))
+			        this.masterScanIdx = i;
+	            }
+	            catch
+	            {
+	            }
+	        }
 	    }
 
         public bool check(){
@@ -131,6 +146,18 @@ namespace MsBackendRawFileReader
            return rawFile.GetTrailerExtraInformation(scanNumber).Values;
         }
 
+        public string[] GetTrailerExtraHeaderInformationValueAsString(int scanNumber)
+        {
+           List<string> rv = new List<string>();
+           var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
+            
+            foreach (var field in scanTrailer.Values)
+            {
+                rv.Add(field);
+            }
+           return rv.ToArray();
+        }
+        
         public double[] GetTrailerExtraHeaderInformationValue(int scanNumber)
         {
            List<double> rv = new List<double>();
@@ -188,7 +215,27 @@ namespace MsBackendRawFileReader
             }
             return rv.ToArray();
         }
-        
+
+        public int[] GetMasterScans()
+        {
+            List<int> rv = new List<int>();
+
+            foreach (var scanNumber in this.scans)
+            {
+                try
+                {
+                    var masterScan =
+                        rawFile.GetTrailerExtraInformation(scanNumber).Values.ToArray()[this.masterScanIdx];
+                    rv.Add(Convert.ToInt32(masterScan));
+                }
+                catch
+                {
+                    rv.Add(-1);
+                }
+            }
+            return rv.ToArray();
+        }
+
         public double GetPrecursorMz(int scanNumber)
         {
             var scanFilter = rawFile.GetFilterForScanNumber(scanNumber);
@@ -200,6 +247,7 @@ namespace MsBackendRawFileReader
             try
             {
                 var reaction0 = scanEvent.GetReaction(0);
+                
                 return reaction0.PrecursorMass;
             }
             catch
@@ -228,6 +276,7 @@ namespace MsBackendRawFileReader
             try{
             var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
             var reaction0 = scanEvent.GetReaction(0);
+            
             return reaction0.IsolationWidth;
             }
             catch

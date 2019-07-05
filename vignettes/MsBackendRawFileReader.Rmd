@@ -35,7 +35,7 @@ library(knitr)
 
 initialize and populate the backend
 ```{r HelloWorldSnippet, message=FALSE}
-be <- backendInitialize(MsBackendRawFileReader(), files = fls)
+be <- backendInitialize(MsBackendRawFileReader(), files = fls, extra=TRUE)
 ```
 
 the output of the show method:
@@ -43,15 +43,17 @@ the output of the show method:
 (S <- Spectra(be))
 ```
 
+## `spectraVariables` 
 
 ```{r spectraVariables}
 spectraVariables(S)
 ```
 
-
+## `spectraData`
 ```{r sample}
+
 df <- spectraData(S)
-kable(cbind(df[2,]@rownames, df[2,]@listData))
+kable((df[2,]),  longtable = TRUE)
 ```
 
 for those who want to have fun please continue reading.
@@ -91,6 +93,29 @@ plot(rtime(S), precursorMz(S),
 
 # Misc
 
+## Availability of `spectraVariables` 
+
+The following table provides an overview of the from `spectraVariables` returned
+columns using differen `MsBackend` classes.
+
+```{r compareSpectraVariables, echo=FALSE, warning=FALSE, message=FALSE}
+library(mzR)
+fls.mzR <- file.path(path.package(package = 'MsBackendRawFileReader'),
+    'extdata', 'sample.mzXML')
+be.mzR <- backendInitialize(MsBackendMzR(), files = fls.mzR, extra=TRUE)
+
+
+sv.rfr <- spectraVariables(S)
+sv.mzR <- data.frame(spectraVariables=spectraVariables(Spectra(be.mzR)))
+sv.mzR$Attr <- TRUE
+
+sv.rfr <- data.frame(spectraVariables=spectraVariables(S))
+sv.rfr$Attr <- TRUE
+M <-merge(sv.rfr, sv.mzR, by='spectraVariables', all.x=T, all.y=T)
+names(M) <- c('spectra Variables', 'RawFileReader', 'mzR')
+kable(M)
+```
+
 
 ## Diagnostic plots
 
@@ -119,67 +144,6 @@ to apply the `r CRANpkg("protViz")` functions.
 PLS <- as.peaklistSet(S) 
 ```
 
-## Debugging
-
-
-
-### manually stating the `CLRServer.exe`
-```{bash eval=FALSE}
-/Library/Frameworks/Mono.framework/Commands/mono64 \
-  --llvm /Library/Frameworks/R.framework/Versions/3.6/Resources/library/rDotNet/server/bin/Debug/CLRServer.exe \
-  -url svc://localhost:56789/ \
-  -dll /Library/Frameworks/R.framework/Versions/3.6/Resources/library/MsBackendRawFileReader/exec/MsBackendRawFileReader.dll
-```
-
-
-### reading basic data structs
-```{r debugging, eval=TRUE}
-library(MsBackendRawFileReader)
-
-(rawfile <- file.path(path.package(package = 'MsBackendRawFileReader'),
-                                'extdata', 'sample.raw'))
-```
-
-
-call the constructor for a given rawfile
-```{r debuggingCallConstructor}
-x <- .cnew ("Rawfile", rawfile)
-```
-
-call methods of the C# class
-```{r debuggingHaveFun}
-x$GetMsLevel(1)
-
-vapply(1:10, FUN=function(z){x$GetMsLevel(z)}, FUN.VALUE=as.integer(1))
-
-head(x$GetSpectrumMz(1, ""))
-
-```
-
-### Extra Header Information
-
-```{r debuggingExtraHeaderInformation}
-dfExtraHeader <- DataFrame(label=x$GetTrailerExtraHeaderInformationLabel(),
-                           scan1=x$GetTrailerExtraHeaderInformationValue(1),
-                           scan2=x$GetTrailerExtraHeaderInformationValue(2),
-                           scan100=x$GetTrailerExtraHeaderInformationValue(100))
-
-```
-
-```{r kableExtraHeader, echo=FALSE, comment='GetTrailerExtraHeaderInformation'}
-kable(dfExtraHeader)
-```
-
-### On using filters
-
-see also [@RawfileReader2015, page 28]
-
-```{r filters}
-x$GetAutoFilters()
-
-x$IsValidFilter("most likely not a valid filter string")
-x$IsValidFilter("ms2 776.9297@hcd28.00")
-```
 
 ## Testing multiple files
 

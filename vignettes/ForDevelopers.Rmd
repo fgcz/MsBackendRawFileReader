@@ -1,0 +1,95 @@
+---
+title: "How can you use the MsBackendRawFileReader package as developer?"
+author:
+- name: Christian Panse
+  affiliation: Functional Genomics Center Zurich
+  email: cp@fgcz.ethz.ch
+- name: Tobias Kockmann
+  affiliation: Functional Genomics Center Zurich
+  email: tobias.Kockmann@fgcz.ethz.ch
+package: MsBackendRawFileReader
+output:
+  BiocStyle::html_document
+abstract: |
+  xxx xxx xxx `r Githubpkg("rformassspectrometry/Spectra")`  [@Huber2015, @Trachsel2018]
+vignette: |
+  %\VignetteIndexEntry{For Developer}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography:
+  - MsBackendRawFileReader.bib
+---
+
+
+# First steps
+
+## Manually stating the `CLRServer.exe`
+
+```{bash eval=FALSE}
+/Library/Frameworks/Mono.framework/Commands/mono64 \
+  --llvm /Library/Frameworks/R.framework/Versions/3.6/Resources/library/rDotNet/server/bin/Debug/CLRServer.exe \
+  -url svc://localhost:56789/ \
+  -dll /Library/Frameworks/R.framework/Versions/3.6/Resources/library/MsBackendRawFileReader/exec/MsBackendRawFileReader.dll
+```
+
+
+## Attach the package
+
+```{r debugging, eval=TRUE, message=FALSE, warning=FALSE}
+library(MsBackendRawFileReader)
+
+(rawfile <- file.path(path.package(package = 'MsBackendRawFileReader'),
+                                'extdata', 'sample.raw'))
+```
+
+
+
+# Constructor
+
+call the constructor for a given rawfile
+```{r debuggingCallConstructor}
+x <- .cnew ("Rawfile", rawfile)
+```
+
+# Call the C# object methods
+
+call methods of the C# class
+```{r debuggingHaveFun}
+x$GetMsLevel(1)
+
+vapply(1:10, FUN=function(z){x$GetMsLevel(z)}, FUN.VALUE=as.integer(1))
+
+head(x$GetSpectrumMz(1, ""))
+
+```
+
+# Extra Header Information
+
+```{r debuggingExtraHeaderInformation}
+x$GetTrailerExtraHeaderInformationLabel()
+```
+
+```{r kableExtraHeader, echo=FALSE, comment='GetTrailerExtraHeaderInformation'}
+#dfExtraHeader[1:3,]
+```
+
+# On using filters
+
+see also [@RawfileReader2015, page 28]
+
+```{r filters}
+x$GetAutoFilters()
+
+x$IsValidFilter("most likely not a valid filter string")
+x$IsValidFilter("ms2 776.9297@hcd28.00")
+```
+
+# Session Info
+
+```{r sessionInfo}
+sessionInfo()
+```
+
+#References
+
+

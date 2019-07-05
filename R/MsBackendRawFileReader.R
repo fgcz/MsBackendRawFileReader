@@ -79,13 +79,14 @@ setMethod("backendInitialize", "MsBackendRawFileReader",
             
             # the rDotNet package can not handle bpmapply calls yet.
             spectraData <- do.call(
-                rbind, mapply(object@rawfileReaderObj, files,
+                'rbind', mapply(object@rawfileReaderObj, files,
                     FUN = function(flObj, fl) {
-                        cbind(.MsBackendRawFileReader_header(flObj),
+                        cbind(.MsBackendRawFileReader_header(flObj, ...),
                             dataStorage = fl)
                         }
                     )
                 )
+            
 
             spectraData$dataOrigin <- spectraData$dataStorage
             object@spectraData <- Spectra:::.as_rle_spectra_data(spectraData)
@@ -325,4 +326,5 @@ setMethod("mz", "MsBackendRawFileReader", function(object) {
     objs,
     SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
 })
+
 
