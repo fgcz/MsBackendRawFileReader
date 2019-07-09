@@ -290,6 +290,13 @@ namespace MsBackendRawFileReader
             var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
            return scanStatistics.ScanType.ToString();
         }
+                          
+	public double[] GetRtime(){
+            List<double> rv = new List<double>();
+            foreach (var scanNumber in this.scans)
+                    rv.Add(GetRTinSeconds(scanNumber));
+            return rv.ToArray();
+	}
 
         public double GetRTinSeconds(int scanNumber) {
             var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
@@ -343,6 +350,46 @@ namespace MsBackendRawFileReader
             return -1;
         }
 
+
+        public double[] GetScanFrequency(string filterString = "", int n = 100)
+        {
+            List<double> rv = new List<double>();
+
+            var filter = rawFile.GetFilterFromString(filterString);
+
+            if (filter == null)
+                return null;
+
+            var filteredScanNumbers = rawFile.GetFilteredScanEnumerator(filter).ToArray();
+
+            if (n > filteredScanNumbers.Length)
+                n = filteredScanNumbers.Length;
+            
+            int stepsize = filteredScanNumbers.Length / n;
+         
+            double ortime = 0.0;
+            
+            for (int scanNumber = filteredScanNumbers[0]; scanNumber < filteredScanNumbers[filteredScanNumbers.Length-1]; scanNumber+=stepsize)
+            {
+                var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
+                var rtime = Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000;
+                    
+                rv.Add(rtime);
+                rv.Add(stepsize / (rtime - ortime));
+
+                ortime = rtime; 
+            }
+            return rv.ToArray();
+        }
+        
+        public int[] GetMsLevels()
+	{
+            List<int> rv = new List<int>();
+
+            foreach (var scanNumber in this.scans)
+		    rv.Add(GetMsLevel(scanNumber));
+	    return rv.ToArray();
+	}
         
         public int GetMsLevel(int scanNumber)
         {

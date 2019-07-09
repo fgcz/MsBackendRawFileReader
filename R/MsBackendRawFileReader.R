@@ -136,7 +136,8 @@ setMethod("msLevel", "MsBackendRawFileReader", function(object) {
         first <- x$getFirstScanNumber()
         last <- x$getLastScanNumber()
         
-        vapply(first:last, FUN=function(z){x$GetMsLevel(z)}, FUN.VALUE = as.integer(1))
+        # vapply(first:last, FUN=function(z){x$GetMsLevel(z)}, FUN.VALUE = as.integer(1))
+        x$GetMsLevels()
     },
     objs,
     SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
@@ -282,8 +283,9 @@ setMethod("rtime", "MsBackendRawFileReader", function(object) {
         first <- x$getFirstScanNumber()
         last <- x$getLastScanNumber()
         
-        vapply(first:last, FUN=function(z){x$GetRTinSeconds(z)},
-            FUN.VALUE = as.double(1.0))
+        #vapply(first:last, FUN=function(z){x$GetRTinSeconds(z)},
+        #    FUN.VALUE = as.double(1.0))
+	x$GetRtime()
     },
     objs,
     SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
