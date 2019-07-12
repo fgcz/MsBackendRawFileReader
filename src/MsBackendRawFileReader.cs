@@ -42,44 +42,48 @@ namespace MsBackendRawFileReader
                 .Replace("=", ""));
         }
     }
-    
-    public class Rawfile {
-	    private string _rawfile = "";
-        
+
+    public class Rawfile
+    {
+        private string _rawfile = "";
+
         private IEnumerable<int> scans;
-        private IDictionary<string, string> dictInfo = new Dictionary<string, string>(); 
-	private int masterScanIdx = -1;
-        
+        private IDictionary<string, string> dictInfo = new Dictionary<string, string>();
+        private int masterScanIdx = -1;
+
         private IRawDataPlus rawFile;
-        
-	    public Rawfile(string rawfile) {
-		    _rawfile = rawfile;
-		    rawFile = RawFileReaderAdapter.FileFactory(_rawfile);
-		    rawFile.SelectInstrument(Device.MS, 1);
-	        
+
+        public Rawfile(string rawfile)
+        {
+            _rawfile = rawfile;
+            rawFile = RawFileReaderAdapter.FileFactory(_rawfile);
+            rawFile.SelectInstrument(Device.MS, 1);
+
             dictInfo.Add("filename", rawFile.FileName);
             dictInfo.Add("creation date", rawFile.FileHeader.CreationDate.ToString());
             dictInfo.Add("first scan", this.getFirstScanNumber().ToString());
             dictInfo.Add("last scan", this.getLastScanNumber().ToString());
             dictInfo.Add("model", rawFile.GetInstrumentData().Model.ToString());
-	       //dictInfo.Add("mass resolution", rawFile.RunHeaderEx.MassResolution.ToString());
+            //dictInfo.Add("mass resolution", rawFile.RunHeaderEx.MassResolution.ToString());
 
 
             var trailerData = rawFile.GetTrailerExtraInformation(rawFile.RunHeaderEx.FirstSpectrum);
-	        foreach (int i in Enumerable.Range(1, trailerData.Labels.ToArray().Length))
-	        {
-	            try
-	            {
-		         if ((trailerData.Labels[i] == "Master Scan Number:") || (trailerData.Labels[i] == "Master Scan Number") || (trailerData.Labels[i] == "Master Index:"))
-			        this.masterScanIdx = i;
-	            }
-	            catch
-	            {
-	            }
-	        }
-	    }
+            foreach (int i in Enumerable.Range(1, trailerData.Labels.ToArray().Length))
+            {
+                try
+                {
+                    if ((trailerData.Labels[i] == "Master Scan Number:") ||
+                        (trailerData.Labels[i] == "Master Scan Number") || (trailerData.Labels[i] == "Master Index:"))
+                        this.masterScanIdx = i;
+                }
+                catch
+                {
+                }
+            }
+        }
 
-        public bool check(){
+        public bool check()
+        {
             if (!rawFile.IsOpen || rawFile.IsError)
             {
                 return false;
@@ -94,11 +98,11 @@ namespace MsBackendRawFileReader
             {
                 return false;
             }
-	        
+
             this.scans = Enumerable.Range(this.getFirstScanNumber(), this.getLastScanNumber());
 
-            
-	        
+
+
             return true;
         }
 
@@ -106,7 +110,7 @@ namespace MsBackendRawFileReader
         {
             return dictInfo.Keys.ToArray();
         }
-        
+
         public string[] GetInfoValues()
         {
             return dictInfo.Values.ToArray();
@@ -115,54 +119,57 @@ namespace MsBackendRawFileReader
 
         public bool IsValidFilter(string filter)
         {
-           if(rawFile.GetFilterFromString(filter) == null)
+            if (rawFile.GetFilterFromString(filter) == null)
             {
                 return false;
             }
+
             return true;
         }
-        
+
         public string[] GetAutoFilters()
         {
             return rawFile.GetAutoFilters();
         }
-        
-       public string[] GetTrailerExtraHeaderInformationLabel()
-       {
-           List<string> rv = new List<string>();
-           
-           var scanTrailer = rawFile.GetTrailerExtraInformation(rawFile.RunHeaderEx.FirstSpectrum);
-            
+
+        public string[] GetTrailerExtraHeaderInformationLabel()
+        {
+            List<string> rv = new List<string>();
+
+            var scanTrailer = rawFile.GetTrailerExtraInformation(rawFile.RunHeaderEx.FirstSpectrum);
+
             foreach (var field in scanTrailer.Labels)
             {
-               rv.Add(field.ToString().CleanRawfileTrailerHeader());
-                
+                rv.Add(field.ToString().CleanRawfileTrailerHeader());
+
             }
-           return rv.ToArray();
-       }
+
+            return rv.ToArray();
+        }
 
         public string[] GetTrailerExtraHeaderInformationValue_(int scanNumber)
         {
-           return rawFile.GetTrailerExtraInformation(scanNumber).Values;
+            return rawFile.GetTrailerExtraInformation(scanNumber).Values;
         }
 
         public string[] GetTrailerExtraHeaderInformationValueAsString(int scanNumber)
         {
-           List<string> rv = new List<string>();
-           var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
-            
+            List<string> rv = new List<string>();
+            var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
+
             foreach (var field in scanTrailer.Values)
             {
                 rv.Add(field);
             }
-           return rv.ToArray();
+
+            return rv.ToArray();
         }
-        
+
         public double[] GetTrailerExtraHeaderInformationValue(int scanNumber)
         {
-           List<double> rv = new List<double>();
-           var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
-            
+            List<double> rv = new List<double>();
+            var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
+
             foreach (var field in scanTrailer.Values)
             {
                 try
@@ -172,32 +179,36 @@ namespace MsBackendRawFileReader
                 catch
                 {
                     rv.Add(-123456.0);
-                    
+
                 }
             }
-           return rv.ToArray();
+
+            return rv.ToArray();
         }
-        
-	    public int getFirstScanNumber(){ 
-	    	return(rawFile.RunHeaderEx.FirstSpectrum);
-	    }
 
-	    public int getLastScanNumber(){ 
-	    	return(rawFile.RunHeaderEx.LastSpectrum);
-	    }
+        public int getFirstScanNumber()
+        {
+            return (rawFile.RunHeaderEx.FirstSpectrum);
+        }
 
-	    public bool IsCentroidScan(int scanNumber){
-            	var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
-            	return (scanStatistics.IsCentroidScan);
+        public int getLastScanNumber()
+        {
+            return (rawFile.RunHeaderEx.LastSpectrum);
+        }
 
-	    }
+        public bool IsCentroidScan(int scanNumber)
+        {
+            var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
+            return (scanStatistics.IsCentroidScan);
+
+        }
 
         public string GetScanFilter(int scanNumber)
         {
             var scanFilter = rawFile.GetFilterForScanNumber(scanNumber);
             return scanFilter.ToString();
         }
-       
+
 
         public string GetTitle(int scanNumber)
         {
@@ -213,6 +224,7 @@ namespace MsBackendRawFileReader
             {
                 rv.Add(GetPrecursorMz(scanNumber));
             }
+
             return rv.ToArray();
         }
 
@@ -233,21 +245,22 @@ namespace MsBackendRawFileReader
                     rv.Add(-1);
                 }
             }
+
             return rv.ToArray();
         }
 
         public double GetPrecursorMz(int scanNumber)
         {
             var scanFilter = rawFile.GetFilterForScanNumber(scanNumber);
-            
+
             if (scanFilter.MSOrder.ToString() == "Ms") return -1.0;
-            
+
             var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
-            
+
             try
             {
                 var reaction0 = scanEvent.GetReaction(0);
-                
+
                 return reaction0.PrecursorMass;
             }
             catch
@@ -260,10 +273,10 @@ namespace MsBackendRawFileReader
         {
             try
             {
-                
-            var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
-            var reaction0 = scanEvent.GetReaction(0);
-            return reaction0.CollisionEnergy;
+
+                var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
+                var reaction0 = scanEvent.GetReaction(0);
+                return reaction0.CollisionEnergy;
             }
             catch
             {
@@ -273,25 +286,46 @@ namespace MsBackendRawFileReader
 
         public double GetIsolationWidth(int scanNumber)
         {
-            try{
-            var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
-            var reaction0 = scanEvent.GetReaction(0);
-            
-            return reaction0.IsolationWidth;
+            try
+            {
+                var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
+                var reaction0 = scanEvent.GetReaction(0);
+
+                return reaction0.IsolationWidth;
             }
             catch
             {
                 return -1.0;
             }
         }
-        
+
         public string GetScanType(int scanNumber)
         {
             var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
-           return scanStatistics.ScanType.ToString();
+            return scanStatistics.ScanType.ToString();
         }
-                          
-	public double[] GetRtime(){
+
+
+        public double[] GetTotalIonCounts()
+        {
+            List<double> rv = new List<double>();
+
+            foreach (var scanNumber in this.scans)
+            {
+                var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
+                try
+		{
+			rv.Add(scanStatistics.TIC);
+		}
+		catch{
+                	rv.Add(double.Parse(scanStatistics.TIC.ToString()));
+		}
+            }
+
+            return rv.ToArray();
+        }
+
+    public double[] GetRtime(){
             List<double> rv = new List<double>();
             foreach (var scanNumber in this.scans)
                     rv.Add(GetRTinSeconds(scanNumber));

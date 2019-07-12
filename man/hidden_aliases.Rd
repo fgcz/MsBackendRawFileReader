@@ -14,6 +14,8 @@
 \alias{precursorMz,MsBackendRawFileReader-method}
 \alias{precursorCharge,MsBackendRawFileReader-method}
 \alias{rtime,MsBackendRawFileReader-method}
+\alias{tic,MsBackendRawFileReader-method}
+\alias{ionCount,MsBackendRawFileReader-method}
 \alias{intensity,MsBackendRawFileReader-method}
 \alias{mz,MsBackendRawFileReader-method}
 \title{Internal page for hidden aliases}
@@ -38,6 +40,10 @@
 \S4method{precursorCharge}{MsBackendRawFileReader}(object)
 
 \S4method{rtime}{MsBackendRawFileReader}(object)
+
+\S4method{tic}{MsBackendRawFileReader}(object)
+
+\S4method{ionCount}{MsBackendRawFileReader}(object)
 
 \S4method{intensity}{MsBackendRawFileReader}(object)
 

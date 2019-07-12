@@ -162,6 +162,10 @@ register(SnowParam(workers = 1, type = "SOCK") , default = TRUE); registered()
 SS <- Spectra(be)
 ```
 
+```{r}
+plot(ionCount(S) ~ rtime(S), type='l')
+```
+
 # Session Info
 
 ```{r sessionInfo}

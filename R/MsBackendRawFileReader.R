@@ -133,8 +133,8 @@ setMethod("msLevel", "MsBackendRawFileReader", function(object) {
     f <- factor(dataStorage(object), levels = fls)
     
     return((unsplit(mapply(FUN = function(x){
-        first <- x$getFirstScanNumber()
-        last <- x$getLastScanNumber()
+        #first <- x$getFirstScanNumber()
+        #last <- x$getLastScanNumber()
         
         # vapply(first:last, FUN=function(z){x$GetMsLevel(z)}, FUN.VALUE = as.integer(1))
         x$GetMsLevels()
@@ -271,24 +271,58 @@ setMethod("precursorCharge", "MsBackendRawFileReader", function(object) {
 #---- rtime----
 #' @rdname hidden_aliases
 setMethod("rtime", "MsBackendRawFileReader", function(object) {
-    if (!length(object))
-        return(NULL)
-    
-    objs <- unique(object@rawfileReaderObj)
-    fls <- unique(object@spectraData$dataStorage)
-    
-    f <- factor(dataStorage(object), levels = fls)
-    
-    return((unsplit(mapply(FUN = function(x){
-        first <- x$getFirstScanNumber()
-        last <- x$getLastScanNumber()
-        
-        #vapply(first:last, FUN=function(z){x$GetRTinSeconds(z)},
-        #    FUN.VALUE = as.double(1.0))
-	x$GetRtime()
-    },
-    objs,
-    SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
+  if (!length(object))
+    return(NULL)
+  
+  objs <- unique(object@rawfileReaderObj)
+  fls <- unique(object@spectraData$dataStorage)
+  
+  f <- factor(dataStorage(object), levels = fls)
+  
+  return((unsplit(mapply(FUN = function(x){
+    x$GetRtime()
+  },
+  objs,
+  SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
+})
+
+
+#---- tic ----
+#' @rdname hidden_aliases
+#' @exportMethod tic
+setMethod("tic", "MsBackendRawFileReader", function(object) {
+  if (!length(object))
+    return(NULL)
+  
+  objs <- unique(object@rawfileReaderObj)
+  fls <- unique(object@spectraData$dataStorage)
+  
+  f <- factor(dataStorage(object), levels = fls)
+  
+  return((unsplit(mapply(FUN = function(x){
+    x$GetTotalIonCounts()
+  },
+  objs,
+  SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
+})
+
+#---- ionCount ----
+#' @rdname hidden_aliases
+#' @exportMethod ionCount
+setMethod("ionCount", "MsBackendRawFileReader", function(object) {
+  if (!length(object))
+    return(NULL)
+  
+  objs <- unique(object@rawfileReaderObj)
+  fls <- unique(object@spectraData$dataStorage)
+  
+  f <- factor(dataStorage(object), levels = fls)
+  
+  return((unsplit(mapply(FUN = function(x){
+    x$GetTotalIonCounts()
+  },
+  objs,
+  SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
 })
 
 
