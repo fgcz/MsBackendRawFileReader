@@ -167,6 +167,11 @@ plot(tic(S) ~ rtime(S), type='l')
 lines(basePeakIntensity(S)~rtime(S), col='red')
 ```
 
+
+```{r cycleNumbers}
+plot(S@backend@rawfileReaderObj[[1]]$GetCycleNumbers() ~  rtime(S), type='l')
+```
+
 # Session Info
 
 ```{r sessionInfo}
