@@ -162,8 +162,9 @@ register(SnowParam(workers = 1, type = "SOCK") , default = TRUE); registered()
 SS <- Spectra(be)
 ```
 
-```{r}
-plot(ionCount(S) ~ rtime(S), type='l')
+```{r TicBasePeakversusRtime, fig.retina=3}
+plot(tic(S) ~ rtime(S), type='l')
+lines(basePeakIntensity(S)~rtime(S), col='red')
 ```
 
 # Session Info

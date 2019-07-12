@@ -305,7 +305,63 @@ namespace MsBackendRawFileReader
             return scanStatistics.ScanType.ToString();
         }
 
+        public double[] GetBasePeakMasses()
+        {
+            List<double> rv = new List<double>();
 
+            foreach (var scanNumber in this.scans)
+            {
+                var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
+                try
+                {
+                    rv.Add(scanStatistics.BasePeakMass);
+                }
+                catch{
+                    rv.Add(double.Parse(scanStatistics.BasePeakMass.ToString()));
+                }
+            }
+
+            return rv.ToArray();
+        }
+
+        public double[] GetBasePeakIntensities()
+        {
+            List<double> rv = new List<double>();
+
+            foreach (var scanNumber in this.scans)
+            {
+                var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
+                try
+                {
+                    rv.Add(scanStatistics.BasePeakIntensity);
+                }
+                catch{
+                    rv.Add(double.Parse(scanStatistics.BasePeakIntensity.ToString()));
+                }
+            }
+
+            return rv.ToArray();
+        }
+        
+        public int[] GetCycleNumbers()
+        {
+            List<int> rv = new List<int>();
+
+            foreach (var scanNumber in this.scans)
+            {
+                var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
+                try
+                {
+                    rv.Add(scanStatistics.CycleNumber);
+                }
+                catch{
+                    rv.Add(Convert.ToInt32(scanStatistics.CycleNumber.ToString()));
+                }
+            }
+
+            return rv.ToArray();
+        }
+        
         public double[] GetTotalIonCounts()
         {
             List<double> rv = new List<double>();

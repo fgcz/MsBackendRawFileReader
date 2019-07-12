@@ -289,7 +289,6 @@ setMethod("rtime", "MsBackendRawFileReader", function(object) {
 
 #---- tic ----
 #' @rdname hidden_aliases
-#' @exportMethod tic
 setMethod("tic", "MsBackendRawFileReader", function(object) {
   if (!length(object))
     return(NULL)
@@ -306,6 +305,14 @@ setMethod("tic", "MsBackendRawFileReader", function(object) {
   SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
 })
 
+
+setMethod("tic", "Spectra", function(object) {
+  if (!length(object))
+    return(NULL)
+  
+  tic(object@backend)
+})
+
 #---- ionCount ----
 #' @rdname hidden_aliases
 #' @exportMethod ionCount
@@ -320,6 +327,56 @@ setMethod("ionCount", "MsBackendRawFileReader", function(object) {
   
   return((unsplit(mapply(FUN = function(x){
     x$GetTotalIonCounts()
+  },
+  objs,
+  SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
+})
+
+#---- basePeak ----
+#' @rdname hidden_aliases
+setMethod("basePeakMass", "MsBackendRawFileReader", function(object) {
+  if (!length(object))
+    return(NULL)
+  
+  objs <- unique(object@rawfileReaderObj)
+  fls <- unique(object@spectraData$dataStorage)
+  
+  f <- factor(dataStorage(object), levels = fls)
+  
+  return((unsplit(mapply(FUN = function(x){
+    x$GetBasePeakMasses()
+  },
+  objs,
+  SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
+})
+
+setMethod("basePeakMass", "Spectra", function(object){
+  if (!length(object))
+    return(NULL)
+  
+  basePeakMass(object@backend)
+})
+
+
+setMethod("basePeakIntensity", "Spectra", function(object){
+  if (!length(object))
+    return(NULL)
+  
+  basePeakIntensity(object@backend)
+})
+
+#' @rdname hidden_aliases
+setMethod("basePeakIntensity", "MsBackendRawFileReader", function(object) {
+  if (!length(object))
+    return(NULL)
+  
+  objs <- unique(object@rawfileReaderObj)
+  fls <- unique(object@spectraData$dataStorage)
+  
+  f <- factor(dataStorage(object), levels = fls)
+  
+  return((unsplit(mapply(FUN = function(x){
+    x$GetBasePeakIntensities()
   },
   objs,
   SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
