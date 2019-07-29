@@ -1,7 +1,5 @@
 # Spectra MsBackend for the New RawFileReader from Thermo Fisher Scientific 
 
-## [FGCZ project p3181](https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-project.html?id=3181) application
-
 The [Bioconductor project (bioc)](https://doi.org/10.1038/nmeth.3252)
 has been extremely successful in creating data
 analysis frameworks for high-throughput genomic analysis.
