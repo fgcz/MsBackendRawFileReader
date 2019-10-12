@@ -84,7 +84,7 @@ x$IsValidFilter("most likely not a valid filter string")
 x$IsValidFilter("ms2 776.9297@hcd28.00")
 ```
 
-```{r}
+```{r eval=FALSE}
 x$GetMsLevels()
 
 x$GetTotalIonCounts()
@@ -98,5 +98,7 @@ sessionInfo()
 ```
 
 #References
+
+
 
 

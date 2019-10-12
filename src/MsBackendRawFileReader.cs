@@ -478,6 +478,7 @@ namespace MsBackendRawFileReader
 
             foreach (var scanNumber in this.scans)
 		    rv.Add(GetMsLevel(scanNumber));
+		    
 	    return rv.ToArray();
 	}
         

@@ -28,17 +28,21 @@ setup
 
 ```{r librarySnippet, message=FALSE}
 library(MsBackendRawFileReader)
+
 library(knitr)
+
 (fls <- file.path(path.package(package = 'MsBackendRawFileReader'),
     'extdata', 'sample.raw'))
 ```
 
 initialize and populate the backend
+
 ```{r HelloWorldSnippet, message=FALSE}
 be <- backendInitialize(MsBackendRawFileReader(), files = fls, extra=TRUE)
 ```
 
 the output of the show method:
+
 ```{r Spectra}
 (S <- Spectra(be))
 ```
