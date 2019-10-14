@@ -91,6 +91,15 @@ x$GetTotalIonCounts()
 x$GetRtime()
 
 ```
+
+
+# Spectra
+
+```{r}
+x$GetSpectrumMz(2, "")
+x$GetSpectrumNoises(2,"")
+x$GetSpectrumIntensities(2, "")
+```
 # Session Info
 
 ```{r sessionInfo}

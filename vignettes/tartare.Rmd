@@ -39,14 +39,14 @@ library(tartare)
 fl <- system.file("extdata", "metadata.csv", package="tartare")   
 metadata <- read.csv(fl, stringsAsFactors=FALSE)
 
-files <- file.path(path.expand("~"),metadata$RDataPath)
+files <- file.path(path.expand("~"), metadata$RDataPath)
 ```
 
 
 ## Load data using the `MsBackend`s
 
 ```{r MsBackend}
-library(MsBackendRawFileReader)
+
 be <- lapply(files, function(f){
      if (grepl("mzXML$", f))
          backendInitialize(MsBackendMzR(), files = f)
