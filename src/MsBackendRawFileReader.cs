@@ -55,15 +55,19 @@ namespace MsBackendRawFileReader
 
         public Rawfile(string rawfile)
         {
+            int deviceNumber = 1;
             _rawfile = rawfile;
             rawFile = RawFileReaderAdapter.FileFactory(_rawfile);
-            rawFile.SelectInstrument(Device.MS, 1);
+            
+            rawFile.SelectInstrument(Device.MS, deviceNumber);
 
             dictInfo.Add("filename", rawFile.FileName);
             dictInfo.Add("creation date", rawFile.FileHeader.CreationDate.ToString());
             dictInfo.Add("first scan", this.getFirstScanNumber().ToString());
             dictInfo.Add("last scan", this.getLastScanNumber().ToString());
             dictInfo.Add("model", rawFile.GetInstrumentData().Model.ToString());
+            dictInfo.Add("name", rawFile.GetInstrumentData().Name.ToString());
+            dictInfo.Add("SerialNumber", rawFile.GetInstrumentData().SerialNumber.ToString());
             //dictInfo.Add("mass resolution", rawFile.RunHeaderEx.MassResolution.ToString());
 
 
@@ -81,6 +85,9 @@ namespace MsBackendRawFileReader
                 }
             }
         }
+        
+      
+	
 
         public bool check()
         {
@@ -541,7 +548,7 @@ namespace MsBackendRawFileReader
             return scanTrailer.Values.ToArray()[idx_CHARGE]; 
         }
 
-              public double[] GetSpectrumNoises(int scanNumber, string scanFilter)
+	public double[] GetSpectrumNoises(int scanNumber, string scanFilter)
         {
             var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
             if (scanStatistics.IsCentroidScan)
@@ -553,25 +560,71 @@ namespace MsBackendRawFileReader
             }
         }
 
-        public double[] GetSpectrumIntensities(int scanNumber, string scanFilter)
-	{
+	public double[] GetSpectrumCharges(int scanNumber, string scanFilter)
+        {
             var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
             if (scanStatistics.IsCentroidScan)
             {
-            	var centroidStream = rawFile.GetCentroidStream(scanNumber, false);
+                var centroidStream = rawFile.GetCentroidStream(scanNumber, false);
+                return centroidStream.Charges.ToArray();
+            }else{
+                return null;
+            }
+        }
+
+
+	public double[] GetSpectrumBaselines(int scanNumber, string scanFilter)
+        {
+            var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
+            if (scanStatistics.IsCentroidScan)
+            {
+                var centroidStream = rawFile.GetCentroidStream(scanNumber, false);
+                return centroidStream.Baselines.ToArray();
+            }else{
+                return null;
+            }
+        }
+        
+        
+        public double[] GetSpectrumResolutions(int scanNumber, string scanFilter)
+        {
+            var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
+            if (scanStatistics.IsCentroidScan)
+            {
+                var centroidStream = rawFile.GetCentroidStream(scanNumber, false);
+                return centroidStream.Resolutions.ToArray();
+            }else{
+                return null;
+            }
+        }
+        
+        
+
+        public double[] GetSpectrumIntensities(int scanNumber, string scanFilter)
+	{
+            var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
+            var centroidStream = rawFile.GetCentroidStream(scanNumber, false);
+
+            if (scanStatistics.IsCentroidScan && centroidStream.Length > 0)
+            {
 		return centroidStream.Intensities.ToArray();
 	    }else{
                 var segmentedScan = rawFile.GetSegmentedScanFromScanNumber(scanNumber, scanStatistics);
 		return segmentedScan.Intensities.ToArray();
 	    }
 	}
+	
+
+	
+	    // TODO(cp): renmae to GetSpectrumMasses
         public double[] GetSpectrumMz(int scanNumber, string scanFilter)
         {
 
             var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
-            if (scanStatistics.IsCentroidScan)
+            var centroidStream = rawFile.GetCentroidStream(scanNumber, false);
+
+            if (scanStatistics.IsCentroidScan && centroidStream.Length > 0)
             {
-                var centroidStream = rawFile.GetCentroidStream(scanNumber, false);
 		return centroidStream.Masses.ToArray();
             }
             else
