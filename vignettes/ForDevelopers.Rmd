@@ -59,7 +59,7 @@ x$GetMsLevel(1)
 
 vapply(1:10, FUN=function(z){x$GetMsLevel(z)}, FUN.VALUE=as.integer(1))
 
-head(x$GetSpectrumMz(1, ""))
+head(x$GetSpectrumMasses(1))
 
 ```
 
@@ -95,11 +95,42 @@ x$GetRtime()
 
 # Spectra
 
-```{r}
-x$GetSpectrumMz(2, "")
-x$GetSpectrumNoises(2,"")
-x$GetSpectrumIntensities(2, "")
+```{r noise, fig.retina=3}
+mZ <- x$GetSpectrumMasses(2)
+
+noise <- x$GetSpectrumNoises(2)
+
+intensity <- x$GetSpectrumIntensities(2)
+
+plot(intensity ~ mZ, type='h', ylim=c(0, max(intensity)))
+
+lines(mZ, noise, col='red')
 ```
+
+# XIC 
+
+```{r}
+rawfile <- "/Users/cp/Downloads/20191021_033_autoQC4L.raw"
+x <- .cnew ("Rawfile", rawfile)
+
+isoMz <- c(428.2738, 424.2667, 420.7581, 417.7512, 414.7443)
+
+S <- x$GetXIC(isoMz, 10)
+
+vec2XIC <- function(x){
+    df <- data.frame(times=x[seq(1, length(x), by=2)], intensities=x[seq(2, length(x), by=2)])
+    df[df$intensities > 0,]
+}
+
+SS <- split(S, gl(length(isoMz),length(S)/length(isoMz)))
+
+SSS <- lapply(SS, vec2XIC)
+
+op <- par(mfrow=c(5,1))
+rv <- lapply(SSS, plot, type='l')
+```
+
+
 # Session Info
 
 ```{r sessionInfo}

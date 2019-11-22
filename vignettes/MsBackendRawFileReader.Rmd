@@ -93,8 +93,6 @@ plot(rtime(S), precursorMz(S),
      col = rainbow(5, alpha = 0.5)[1+precursorCharge(S)])
 ```
 
-
-
 # Misc
 
 ## Availability of `spectraVariables` 

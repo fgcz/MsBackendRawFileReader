@@ -13,3 +13,6 @@ run: kill dll
 kill:
 	@echo $(JOBID)
 	kill $(JOBID); echo
+
+view:
+	egrep ".*public.*scanNumber.*)" MsBackendRawFileReader.cs

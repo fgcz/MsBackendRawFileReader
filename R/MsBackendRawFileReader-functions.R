@@ -25,8 +25,8 @@ MsBackendRawFileReader <- function() {
     stopifnot(x$check())
     requireNamespace("MsBackendRawFileReader", quietly = TRUE)
     
-    first <- x$getFirstScanNumber()
-    last <- x$getLastScanNumber()
+    first <- x$GetFirstScanNumber()
+    last <- x$GetLastScanNumber()
     
     if (extra)
         return(.MsBackendRawFileReader_extra(x))
@@ -57,8 +57,7 @@ MsBackendRawFileReader <- function() {
   # TODO(cp) check scanIds
   
   lapply(scanIndex, function(z) {
-    mz <- x$GetSpectrumMz(z, "")
-    mz
+    x$GetSpectrumMasses(z)
   })
 }
 
@@ -83,16 +82,15 @@ MsBackendRawFileReader <- function() {
   # TODO(cp) check scanIds
   
   lapply(scanIndex, function(z) {
-    intensity <- x$GetSpectrumIntensities(z, "")
-    intensity
+    x$GetSpectrumIntensities(z)
   })
 }
 
 # ==== GetExtraHeaderDataFrame ====
 .MsBackendRawFileReader_extra <- function(x){
     
-    from <- x$getFirstScanNumber() 
-    to <- x$getLastScanNumber() 
+    from <- x$GetFirstScanNumber() 
+    to <- x$GetLastScanNumber() 
     
     df_string <- DataFrame(do.call('rbind', lapply(seq(from, to), function(i){
         x$GetTrailerExtraHeaderInformationValueAsString(i)

@@ -40,4 +40,5 @@ Collate:
     'AllGenerics.R'
     'MsBackendRawFileReader-functions.R'
     'MsBackendRawFileReader.R'
+    'XIC.R'
     'zzz.R'

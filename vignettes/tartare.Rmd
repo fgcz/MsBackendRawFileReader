@@ -61,7 +61,7 @@ be <- lapply(files, function(f){
 
 ```{r shape, echo=FALSE}
 SV <- lapply(S, spectraVariables)
-desc <- paste(metadata$Title, metadata$SourceType)
+desc <- paste(metadata$Title)
 
 SS <- do.call('rbind', 
            lapply(1:4, function(i){
