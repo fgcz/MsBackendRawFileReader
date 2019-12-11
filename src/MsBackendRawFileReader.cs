@@ -653,7 +653,7 @@
                     ChromatogramTraceSettings settings = new ChromatogramTraceSettings(TraceType.MassRange)
                     {
                         Filter = filter,
-                        MassRanges = new[] {Range.Create(mass - massError, mass + massError)}
+                        MassRanges = new[] {ThermoFisher.CommonCore.Data.Business.Range.Create(mass - massError, mass + massError)}
                     };
                     settingList.Add(settings);
                 }
