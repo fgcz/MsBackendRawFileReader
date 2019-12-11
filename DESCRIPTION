@@ -1,4 +1,4 @@
-Package: rawR
+Package: MsBackendRawFileReader
 Type: Package
 Title: Bridging Spectra and ThermoFinnigan raw files
 Version: 0.0.1
