@@ -89,7 +89,8 @@ setMethod("backendInitialize", "MsBackendRawFileReader",
             
 
             spectraData$dataOrigin <- spectraData$dataStorage
-            object@spectraData <- Spectra:::.as_rle_spectra_data(spectraData)
+            # object@spectraData <- Spectra:::.as_rle_spectra_data(spectraData)
+            object@spectraData <- spectraData
             validObject(object)
             object
           })
