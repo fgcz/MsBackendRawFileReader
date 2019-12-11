@@ -40,6 +40,12 @@ a Windows/Linux/MacOSX x64 platform
 
 ### R packages
 
+
+```{r}
+BiocManager::install('cpanse/MsBackendRawFileReader')
+```
+or 
+
 ```{r}
 install.packages('rDotNet')
 
