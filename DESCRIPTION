@@ -1,6 +1,6 @@
 Package: MsBackendRawFileReader
 Type: Package
-Title: Bridging Spectra and ThermoFinnigan raw files
+Title: Bridging Spectra and Thermo Fisher Scientific raw files
 Version: 0.0.2
 Authors@R: c(person(given = "Christian",
     family = "Panse", email = "cp@fgcz.ethz.ch", role = c("aut", "cre"),
@@ -19,7 +19,7 @@ Suggests:
 	kableExtra,
 	knitr,
 	testthat,
-	tartare (>= 0.99)
+	tartare (>= 1.0)
 Description: implements an MsBackend for the Spectra package using
   Thermo Fisher Scientific's NewRawFileReader .Net libraries.
   The package is generalizing the functionallity introduced by the
