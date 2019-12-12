@@ -134,9 +134,6 @@ setMethod("msLevel", "MsBackendRawFileReader", function(object) {
     f <- factor(dataStorage(object), levels = fls)
     
     return((unsplit(mapply(FUN = function(x){
-        #first <- x$getFirstScanNumber()
-        #last <- x$getLastScanNumber()
-        
         # vapply(first:last, FUN=function(z){x$GetMsLevel(z)}, FUN.VALUE = as.integer(1))
         x$GetMsLevels()
     },
@@ -156,8 +153,8 @@ setMethod("centroided", "MsBackendRawFileReader", function(object) {
     f <- factor(dataStorage(object), levels = fls)
     
     return(unsplit(mapply(FUN = function(x){
-        first <- x$getFirstScanNumber()
-        last <- x$getLastScanNumber()
+        first <- x$GetFirstScanNumber()
+        last <- x$GetLastScanNumber()
         vapply(first:last, FUN=function(z){x$IsCentroidScan(z)}, FUN.VALUE = FALSE)
     },
     objs,
@@ -177,8 +174,8 @@ setMethod("polarity", "MsBackendRawFileReader", function(object) {
     f <- factor(dataStorage(object), levels = fls)
     
     return(unsplit(mapply(FUN = function(x){
-        first <- x$getFirstScanNumber()
-        last <- x$getLastScanNumber()
+        first <- x$GetFirstScanNumber()
+        last <- x$GetLastScanNumber()
         vapply(first:last, FUN=function(z){x$GetPolarity(z)}, FUN.VALUE = as.integer(-1))
     },
     objs,
@@ -197,8 +194,8 @@ setMethod("collisionEnergy", "MsBackendRawFileReader", function(object) {
     f <- factor(dataStorage(object), levels = fls)
 
     return(unsplit(mapply(FUN = function(x){
-        first <- x$getFirstScanNumber()
-        last <- x$getLastScanNumber()
+        first <- x$GetFirstScanNumber()
+        last <- x$GetLastScanNumber()
         vapply(first:last, FUN=function(z){x$GetCollisionEnergy(z)}, FUN.VALUE = as.double(1.0))
     },
     objs,
@@ -217,8 +214,8 @@ setMethod("isolationWindowTargetMz", "MsBackendRawFileReader", function(object) 
     f <- factor(dataStorage(object), levels = fls)
 
     return(unsplit(mapply(FUN = function(x){
-        first <- x$getFirstScanNumber()
-        last <- x$getLastScanNumber()
+        first <- x$GetFirstScanNumber()
+        last <- x$GetLastScanNumber()
         vapply(first:last, FUN=function(z){x$GetIsolationWidth(z)}, FUN.VALUE = as.double(1.0))
     },
     objs,
@@ -395,8 +392,8 @@ setMethod("intensity", "MsBackendRawFileReader", function(object) {
   f <- factor(dataStorage(object), levels = fls)
   
   return(NumericList(unsplit(mapply(FUN = function(x){
-    first <- x$getFirstScanNumber()
-    last <- x$getLastScanNumber()
+    first <- x$GetFirstScanNumber()
+    last <- x$GetLastScanNumber()
     MsBackendRawFileReader:::.MsBackendRawFileReader_intensity(x, first:last)},
     objs,
     SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
@@ -414,8 +411,8 @@ setMethod("mz", "MsBackendRawFileReader", function(object) {
   f <- factor(dataStorage(object), levels = fls)
 
   return(NumericList(unsplit(mapply(FUN = function(x){
-    first <- x$getFirstScanNumber()
-    last <- x$getLastScanNumber()
+    first <- x$GetFirstScanNumber()
+    last <- x$GetLastScanNumber()
     MsBackendRawFileReader:::.MsBackendRawFileReader_mz(x,  first:last)},
     objs,
     SIMPLIFY = FALSE, USE.NAMES = FALSE), f)))
