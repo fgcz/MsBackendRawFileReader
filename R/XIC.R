@@ -41,13 +41,14 @@ readXICs <- function(rawfile,
                      masses = c(428.2738, 424.2667, 420.7581, 417.7512, 414.7443),
                      tol = 10, filter="ms"){
     
-
+    x <- .cnew ("Rawfile", rawfile)
+	
     if (! x$IsValidFilter(filter)){
 	    message(paste(filter, "is not a valid filter"))
 	    return (NULL)
     }
 
-    x <- .cnew ("Rawfile", rawfile)
+    
     S <- x$GetXIC(masses, tol, filter)
     n <- length(masses)
 
