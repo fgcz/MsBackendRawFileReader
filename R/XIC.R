@@ -47,8 +47,8 @@ readXICs <- function(rawfile,
 	    return (NULL)
     }
 
-    x <- .cnew ("Rawfile", rawfile, filter)
-    S <- x$GetXIC(masses, tol)
+    x <- .cnew ("Rawfile", rawfile)
+    S <- x$GetXIC(masses, tol, filter)
     n <- length(masses)
 
     S <- split(S, gl(n, length(S) / n))
