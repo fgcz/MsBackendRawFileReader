@@ -56,6 +56,8 @@
                 int deviceNumber = 1;
                 _rawfile = rawfile;
                 rawFile = RawFileReaderAdapter.FileFactory(_rawfile);
+		// https://github.com/cpanse/MsBackendRawFileReader/issues/12
+	    	rawFile.IncludeReferenceAndExceptionData = false;
 
                 rawFile.SelectInstrument(Device.MS, deviceNumber);
 
