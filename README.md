@@ -4,7 +4,7 @@ Provides an alternative `MsBackend` to [Spectra](https://bioconductor.org/packag
 
 Details of the backend concept are outlined in https://github.com/rformassspectrometry/Spectra/blob/master/man/MsBackend.Rd
 
-Formally, our MsBackendRawFileReader will extend extend the base \code{MsBackend} class and
+Formally, our MsBackendRawFileReader will extend extend the base `MsBackend` class and
 implement the following methods:
 
 ...
