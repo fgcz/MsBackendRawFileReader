@@ -2,7 +2,7 @@
 NULL
 
 #' @title RawFileReader-based backend
-#'
+#' @alias MsBackendRawFileReader
 #' @description
 #'
 #' The `MsBackendRawFileReader` inherits all slots and methods from the base
@@ -17,8 +17,7 @@ NULL
 #' hence fills the `spectraData` slot.
 #'
 #' @author Johannes Rainer, Christian Panse (2019-2021)
-#'
-#' @noRd
+#' @import Spectra
 setClass("MsBackendRawFileReader",
          contains = "MsBackendDataFrame",
          prototype = prototype(version = "0.1", readonly = TRUE))
@@ -40,9 +39,9 @@ setValidity("MsBackendRawFileReader", function(object) {
 #'
 #' @importFrom MsCoreUtils rbindFill
 #'
-#' @importMethodsFrom BiocParallel bpmapply
+#' @importMethodsFrom BiocParallel bpmapply bplapply
 #'
-#' @importFrom BiocParallel bpparam
+#' @importFrom BiocParallel bpparam 
 #' @importFrom rawrr readIndex
 setMethod("backendInitialize", "MsBackendRawFileReader",
           function(object, files, ..., BPPARAM = bpparam()) {
@@ -58,7 +57,7 @@ setMethod("backendInitialize", "MsBackendRawFileReader",
             if (length(msg))
               stop(msg)
             spectraData <- do.call(
-              MsCoreUtils::rbindFill, bplapply(files,
+              MsCoreUtils::rbindFill, BiocParallel::bplapply(files,
                                   FUN = function(fl) {
                                     cbind(.MsBackendRawFileReader_header(fl),
                                           dataStorage = fl)
@@ -87,26 +86,26 @@ setMethod("peaksData", "MsBackendRawFileReader", function(object) {
   if (!length(object))
     return(list())
   fls <- unique(object@spectraData$dataStorage)
-  print(fls)
   if (length(fls) > 1) {
     f <- factor(dataStorage(object), levels = fls)
-    unsplit(bpmapply(
-      FUN = .RawFileReader_read_peaks,
-      fls,
-      split(scanIndex(object), f),
-      object@modCount,
-      SIMPLIFY = FALSE, USE.NAMES = FALSE, BPPARAM = bpparam()),
-      f)
+    unsplit(mapply(FUN = .RawFileReader_read_peaks, fls, split(scanIndex(object), f),
+                   SIMPLIFY = FALSE, USE.NAMES = FALSE), f)
   } else
-    .RawFileReader_read_peaks(fls, scanIndex(object), object@modCount)
+    .RawFileReader_read_peaks(fls, scanIndex(object))
 })
 
+#' subset
+#' 
+#' @importFrom IRanges NumericList
 #' @exportMethod [
-#'
-#' @rdname MsBackend
+#' @rdname hidden_aliases
 setMethod("[", "MsBackendRawFileReader", function(x, i, j, ..., drop = FALSE) {
   .subset_backend_MsBackendRawFileReader(x, i)
 })
 
-
+#' @importClassesFrom IRanges NumericList
+#' @rdname hidden_aliases
+setMethod("intensity", "MsBackendRawFileReader", function(object) {
+  IRanges::NumericList(lapply(peaksData(object), "[", , 2), compress = FALSE)
+})
 

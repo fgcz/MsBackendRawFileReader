@@ -8,13 +8,13 @@ Authors@R: c(person(given = "Christian",
 	person(given = "Tobias", family = "Kockmann",
 	  email = "Tobias.Kockmann@fgcz.ethz.ch", role = "aut", 
     comment = c(ORCID = "0000-0002-1847-885X")))
-Depends: R (>= 4.1),
-    Spectra (>= 1.2),
-    rawrr (>= 1.0),
-    methods,
-    BiocParallel
+Depends: R (>= 4.1), methods, Spectra (>= 1.2)
 Imports:
-    MsCoreUtils
+    MsCoreUtils,
+    S4Vectors,
+    IRanges,
+    rawrr (>= 1.0),
+    BiocParallel
 Suggests:
     BiocStyle (>= 2.5),
     ExperimentHub,

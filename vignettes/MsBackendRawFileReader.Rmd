@@ -68,6 +68,13 @@ beRaw <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileRead
 ```
 
 
-```{r}
-pl <- beRaw[1000:1001] |> peaksData()
+```{r fig.retina=2} 
+beRaw[1000:1001] |> plotSpectra()
 ```
+# Session information
+
+```{r si}
+sessionInfo()
+```
+
+# References

@@ -15,6 +15,32 @@ NULL
   NULL
 }
 
+#' data types of spectraData columns
+#'
+#' @noRd
+.SPECTRA_DATA_COLUMNS <- c(
+  msLevel = "integer",
+  rtime = "numeric",
+  acquisitionNum = "integer",
+  scanIndex = "integer",
+  mz = "NumericList",
+  intensity = "NumericList",
+  dataStorage = "character",
+  dataOrigin = "character",
+  centroided = "logical",
+  smoothed = "logical",
+  polarity = "integer",
+  precScanNum = "integer",
+  precursorMz = "numeric",
+  precursorIntensity = "numeric",
+  precursorCharge = "integer",
+  collisionEnergy = "numeric",
+  isolationWindowLowerMz = "numeric",
+  isolationWindowTargetMz = "numeric",
+  isolationWindowUpperMz = "numeric"
+)
+
+
 .MsBackendRawFileReader_header <- function(x = character()) {
   if (length(x) != 1)
     stop("'x' should have length 1")
@@ -37,19 +63,21 @@ NULL
   ## Remove core spectra variables that contain only `NA`
   S4Vectors::DataFrame(hdr[, !(MsCoreUtils::vapply1l(hdr, function(z) all(is.na(z))) &
                                  colnames(hdr) %in%
-                                 names(Spectra:::.SPECTRA_DATA_COLUMNS))
+                                 names(.SPECTRA_DATA_COLUMNS))
   ])
 }
 
 
+#' @importFrom S4Vectors extractROWS
 #' @importFrom MsCoreUtils i2index
+#' @importFrom methods slot<-
 .subset_backend_MsBackendRawFileReader <- function(x, i) {
   if (missing(i))
     return(x)
   idx <- i
   i <- MsCoreUtils::i2index(i, length(x), rownames(x@spectraData))
   
-  slot(x, "spectraData", check = FALSE) <- extractROWS(x@spectraData, i)
+  slot(x, "spectraData", check = FALSE) <- S4Vectors::extractROWS(x@spectraData, i)
   
   # check if item is complete otherwise retrieval of data through using 
   # rawrr::readSpectrum(i)
@@ -57,13 +85,20 @@ NULL
   x
 }
 
-#' @rdname MsBackend
+#' MsBackendRawFileReader
+#' 
+#' @importFrom methods new
 #' @exportClass MsBackendRawFileReader
 #' @export MsBackendRawFileReader
 MsBackendRawFileReader <- function() {
-  if (!requireNamespace("rawrr", quietly = TRUE))
+  if (isFALSE(requireNamespace("rawrr", quietly = TRUE)))
     stop("The use of 'MsBackendRawFileReader' requires package 'rawrr'. Please ",
          "install with 'BiocInstaller::install(\"rawrr\")'")
+  
+  if (isFALSE(requireNamespace("Spectra", quietly = TRUE)))
+    stop("The use of 'MsBackendRawFileReader' requires package 'Spectra'. Please ",
+         "install with 'BiocInstaller::install(\"Spectra\")'")
+  
   new("MsBackendRawFileReader")
 }
 

@@ -6,11 +6,17 @@
 \alias{[,MsBackendRawFileReader-method}
 \alias{show,MsBackendRawFileReader-method}
 \alias{peaksData,MsBackendRawFileReader-method}
+\alias{[,MsBackendRawFileReader,ANY,ANY-method}
+\alias{intensity,MsBackendRawFileReader-method}
 \title{Internal page for hidden aliases}
 \usage{
 \S4method{show}{MsBackendRawFileReader}(object)
 
 \S4method{peaksData}{MsBackendRawFileReader}(object)
+
+\S4method{[}{MsBackendRawFileReader,ANY,ANY}(x, i, j, ..., drop = FALSE)
+
+\S4method{intensity}{MsBackendRawFileReader}(object)
 }
 \description{
 For S4 methods that require a documentation entry but only clutter the index.

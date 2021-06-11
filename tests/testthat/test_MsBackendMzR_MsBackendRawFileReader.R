@@ -1,3 +1,5 @@
+bakTestsMsBackendRawfileReader <- function(){
+
 test_that("msLevel", {
 	expect_identical(msLevel(sample_raw), msLevel(sample_mzr))
 })
@@ -53,3 +55,4 @@ test_that("peaks", {
   })
   
 })
+}
