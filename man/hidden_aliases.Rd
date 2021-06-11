@@ -4,56 +4,13 @@
 \name{hidden_aliases}
 \alias{hidden_aliases}
 \alias{[,MsBackendRawFileReader-method}
-\alias{backendInitialize,MsBackendRawFileReader-method}
 \alias{show,MsBackendRawFileReader-method}
-\alias{msLevel,MsBackendRawFileReader-method}
-\alias{centroided,MsBackendRawFileReader-method}
-\alias{polarity,MsBackendRawFileReader-method}
-\alias{collisionEnergy,MsBackendRawFileReader-method}
-\alias{isolationWindowTargetMz,MsBackendRawFileReader-method}
-\alias{precursorMz,MsBackendRawFileReader-method}
-\alias{precursorCharge,MsBackendRawFileReader-method}
-\alias{rtime,MsBackendRawFileReader-method}
-\alias{tic,MsBackendRawFileReader-method}
-\alias{ionCount,MsBackendRawFileReader-method}
-\alias{basePeakMass,MsBackendRawFileReader-method}
-\alias{basePeakIntensity,MsBackendRawFileReader-method}
-\alias{intensity,MsBackendRawFileReader-method}
-\alias{mz,MsBackendRawFileReader-method}
+\alias{peaksData,MsBackendRawFileReader-method}
 \title{Internal page for hidden aliases}
 \usage{
-\S4method{backendInitialize}{MsBackendRawFileReader}(object, files, ...,
-  BPPARAM = bpparam())
-
 \S4method{show}{MsBackendRawFileReader}(object)
 
-\S4method{msLevel}{MsBackendRawFileReader}(object)
-
-\S4method{centroided}{MsBackendRawFileReader}(object)
-
-\S4method{polarity}{MsBackendRawFileReader}(object)
-
-\S4method{collisionEnergy}{MsBackendRawFileReader}(object)
-
-\S4method{isolationWindowTargetMz}{MsBackendRawFileReader}(object)
-
-\S4method{precursorMz}{MsBackendRawFileReader}(object)
-
-\S4method{precursorCharge}{MsBackendRawFileReader}(object)
-
-\S4method{rtime}{MsBackendRawFileReader}(object)
-
-\S4method{tic}{MsBackendRawFileReader}(object)
-
-\S4method{ionCount}{MsBackendRawFileReader}(object)
-
-\S4method{basePeakMass}{MsBackendRawFileReader}(object)
-
-\S4method{basePeakIntensity}{MsBackendRawFileReader}(object)
-
-\S4method{intensity}{MsBackendRawFileReader}(object)
-
-\S4method{mz}{MsBackendRawFileReader}(object)
+\S4method{peaksData}{MsBackendRawFileReader}(object)
 }
 \description{
 For S4 methods that require a documentation entry but only clutter the index.

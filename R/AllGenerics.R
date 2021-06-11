@@ -1,6 +1,6 @@
 #' @include hidden_aliases.R
 NULL
 
-setGeneric("basePeakIntensity", function(object)standardGeneric("basePeakIntensity"))
+#setGeneric("basePeakIntensity", function(object)standardGeneric("basePeakIntensity"))
 
-setGeneric("basePeakMass", function(object)standardGeneric("basePeakMass"))
+#setGeneric("basePeakMass", function(object)standardGeneric("basePeakMass"))

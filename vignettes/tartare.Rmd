@@ -48,8 +48,9 @@ files <- file.path(path.expand("~"), metadata$RDataPath)
 ```{r MsBackend}
 
 be <- lapply(files, function(f){
-     if (grepl("mzXML$", f))
+     if (grepl("mzXML$", f)){
          backendInitialize(MsBackendMzR(), files = f)
+     }
      else
          backendInitialize(MsBackendRawFileReader(), files = f, extra=TRUE)
 })

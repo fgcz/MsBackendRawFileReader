@@ -1,5 +1,5 @@
 ---
-title: "Howto use the MsBackendRawFileReader package?"
+title: "Howto use the `MsBackendRawFileReader`?"
 author:
 - name: Christian Panse
   affiliation: Functional Genomics Center Zurich
@@ -11,7 +11,11 @@ package: MsBackendRawFileReader
 output:
   BiocStyle::html_document
 abstract: |
-  xxx xxx xxx `r Githubpkg("rformassspectrometry/Spectra")`  [@Huber2015, @Trachsel2018]
+  `r BiocStyle::Githubpkg("fgcz/MsBackendRawFileReader")` implements an
+  MsBackend for the `r BiocStyle::Biocpkg("Spectra")` package using
+  Thermo Fisher Scientific's NewRawFileReader .Net libraries.
+  The package is generalizing the functionallity provided by the
+  `r BiocStyle::Biocpkg("rawrr")`.
 vignette: |
   %\VignetteIndexEntry{Howto use the package?}
   %\VignetteEngine{knitr::rmarkdown}
@@ -22,164 +26,48 @@ bibliography:
 
 # Usage
 
-## Read a raw file
+```{r require}
+stopifnot(require(Spectra), require(MsBackendRawFileReader), require(BiocParallel))
+```
 
-setup
+
+```{r tartareEH4547, warning=FALSE, message=FALSE, eval=TRUE}
+# fetch via ExperimentHub
+library(ExperimentHub)
+eh <- ExperimentHub::ExperimentHub()
+```
+
+```{r tartare}
+query(eh, c('tartare'))
+```
+
+```{r EH3220}
+EH3220 <- normalizePath(eh[["EH3220"]])
+(rawfileEH3220 <- paste0(EH3220, ".raw"))
+if (!file.exists(rawfileEH3220)){
+  file.link(EH3220, rawfileEH3220)
+}
+
+EH3222 <- normalizePath(eh[["EH3222"]])
+(rawfileEH3222 <- paste0(EH3222, ".raw"))
+if (!file.exists(rawfileEH3222)){
+  file.link(EH3222, rawfileEH3222)
+}
+```
+
+```{r EH3219}
+EH3219 <- normalizePath(eh[["EH3219"]])
+EH3221 <- normalizePath(eh[["EH3221"]])
+```
 
 ```{r librarySnippet, message=FALSE}
-library(MsBackendRawFileReader)
-
-library(knitr)
-
-(fls <- file.path(path.package(package = 'MsBackendRawFileReader'),
-    'extdata', 'sample.raw'))
-```
-
-initialize and populate the backend
-
-```{r HelloWorldSnippet, message=FALSE}
-be <- backendInitialize(MsBackendRawFileReader(), files = fls, extra=TRUE)
-```
-
-the output of the show method:
-
-```{r Spectra}
-(S <- Spectra(be))
-```
-
-## `spectraVariables` 
-
-```{r spectraVariables}
-spectraVariables(S)
-```
-
-## `spectraData`
-```{r sample}
-
-df <- spectraData(S)
-kable((df[2,]),  longtable = TRUE)
-```
-
-for those who want to have fun please continue reading.
-
-
-```{r peaks}
-peaks(S)
-```
-
-## Some statistics
-
-```{r msLevel}
-table(msLevel(S))
+flsRaw <- c(rawfileEH3220, rawfileEH3222)
+# flsmzXML <- c(EH3219, EH3221)
+beRaw <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(), files = flsRaw, extra=TRUE)
+# beMzR <- Spectra::backendInitialize(Spectra::MsBackendMzR(), files = flsmzXML, extra=TRUE)
 ```
 
 
-## Some graphics
-
-### precursorMz count
-
-```{r histogram, fig.retina=3}
-library(lattice)
-histogram(~precursorMz(S) | precursorCharge(S) * basename(dataStorage(S)),
-          type = 'count')
+```{r}
+pl <- beRaw[1000:1001] |> peaksData()
 ```
-
-
-### LC-MS map
-```{r lcmsmap, fig.retina=3}
-plot(rtime(S), precursorMz(S),
-     main = basename(dataOrigin(S)[1]),
-     pch = 16,
-     col = rainbow(5, alpha = 0.5)[1+precursorCharge(S)])
-```
-
-# Misc
-
-## Availability of `spectraVariables` 
-
-The following table provides an overview of the from `spectraVariables` returned
-columns using differen `MsBackend` classes.
-
-```{r compareSpectraVariables, echo=FALSE, warning=FALSE, message=FALSE}
-library(mzR)
-fls.mzR <- file.path(path.package(package = 'MsBackendRawFileReader'),
-    'extdata', 'sample.mzXML')
-be.mzR <- backendInitialize(MsBackendMzR(), files = fls.mzR, extra=TRUE)
-
-
-sv.rfr <- spectraVariables(S)
-sv.mzR <- data.frame(spectraVariables=spectraVariables(Spectra(be.mzR)))
-sv.mzR$Attr <- TRUE
-
-sv.rfr <- data.frame(spectraVariables=spectraVariables(S))
-sv.rfr$Attr <- TRUE
-M <-merge(sv.rfr, sv.mzR, by='spectraVariables', all.x=T, all.y=T)
-names(M) <- c('spectra Variables', 'RawFileReader', 'mzR')
-kable(M)
-```
-
-
-## Diagnostic plots
-
-to the benefit of diagnostic plot functions [@Trachsel2018] use the following
-method to coerce the Spectra object into an `r Githubpkg("fgcz/rawDiag")`
-object.
-Off note, the plots have been designed mainly for Orbitrap devices but are not
-limited to it.
-
-```{r rawDiag, eval=FALSE}
-RAW <- as.rawDiag(S)
-```
-
-## Generate a mascot generic file (mgf)
-
-```{r mgf, eval=FALSE}
-mgf(S, filename = 'sample.mgf')
-```
-
-
-## Generate a `peaklistSet`
-
-to apply the `r CRANpkg("protViz")` functions.
-
-```{r protViz, eval=FALSE}
-PLS <- as.peaklistSet(S) 
-```
-
-
-## Testing multiple files
-
-```{r testingMultipleFiles}
-rv <- lapply(1:2, function(x){
-  file.copy(from = fls, to = tempfile(fileext='.raw'))})
-
-
-be <- backendInitialize(MsBackendRawFileReader(),
-  files = file.path(tempdir(), list.files(path = tempdir(), pattern = 'raw$')))
-
-table(basename(dataOrigin(be)))
-
-#  the rDotNet package tested only with one worker.
-register(SnowParam(workers = 1, type = "SOCK") , default = TRUE); registered()
-SS <- Spectra(be)
-```
-
-```{r TicBasePeakversusRtime, fig.retina=3}
-plot(tic(S) ~ rtime(S), type='l')
-lines(basePeakIntensity(S)~rtime(S), col='red')
-```
-
-
-```{r cycleNumbers}
-plot(S@backend@rawfileReaderObj[[1]]$GetCycleNumbers() ~  rtime(S), type='l')
-```
-
-# Session Info
-
-```{r sessionInfo}
-sessionInfo()
-```
-
-#References
-
-
