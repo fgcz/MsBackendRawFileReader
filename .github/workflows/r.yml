@@ -27,6 +27,8 @@ jobs:
         uses: r-lib/actions/setup-r@v1
         with:
           r-version: ${{ matrix.r-version }}
+      - name: install Linux packages
+        run: sudo apt-get install -y libicu-dev pandoc pandoc-citeproc curl libcurl4
       - name: Install dependencies
         run: |
           install.packages(c("remotes", "rcmdcheck", "rmarkdown", "BiocManager", "protViz", "testthat", "knitr"))
@@ -36,8 +38,6 @@ jobs:
         run: |
           BiocManager::install(c("ExperimentHub", "tartare", "rawrr", "Spectra", "BiocStyle", "BiocParallel", "IRanges", "S4Vectors", "MsCoreUtils"))
         shell: Rscript {0}
-      - name: install Linux packages
-        run: sudo apt-get install -y libicu-dev pandoc pandoc-citeproc
       - name: Check
         run: rcmdcheck::rcmdcheck(build_args = "", args = "", error_on = "error", check_dir = "/tmp/MsBackendRawFileReader.Rcheck")
         shell: Rscript {0}

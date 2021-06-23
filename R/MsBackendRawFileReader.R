@@ -82,7 +82,7 @@ setMethod("show", "MsBackendRawFileReader", function(object) {
 })
 
 #' @rdname hidden_aliases
-setMethod("peaksData", "MsBackendRawFileReader", function(object) {
+setMethod("peaksData", "MsBackendRawFileReader", function(object, ...,BPPARAM = bpparam()) {
   if (!length(object))
     return(list())
   fls <- unique(object@spectraData$dataStorage)
@@ -91,7 +91,7 @@ setMethod("peaksData", "MsBackendRawFileReader", function(object) {
     unsplit(mapply(FUN = .RawFileReader_read_peaks, fls, split(scanIndex(object), f),
                    SIMPLIFY = FALSE, USE.NAMES = FALSE), f)
   } else
-    .RawFileReader_read_peaks(fls, scanIndex(object))
+    .RawFileReader_read_peaks(fls, scanIndex(object), BPPARAM=BPPARAM)
 })
 
 #' subset

@@ -14,6 +14,7 @@ Imports:
     S4Vectors,
     IRanges,
     rawrr (>= 1.0),
+    utils,
     BiocParallel
 Suggests:
     BiocStyle (>= 2.5),
@@ -30,9 +31,8 @@ Description: implements an MsBackend for the Spectra package using
 URL: https://github.com/cpanse/MsBackendRawFileReader
 BugReports: https://github.com/cpanse/MsBackendRawFileReader/issues
 Encoding: UTF-8
-LazyData: true
 NeedsCompilation: yes
-biocViews: MassSpectrometry, Proteomics 
+biocViews: MassSpectrometry, Proteomics, Metabolomics
 RoxygenNote: 7.1.1
 License: GPL-3
 VignetteBuilder: knitr
