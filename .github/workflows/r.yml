@@ -11,9 +11,9 @@ env:
     ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 on:
   push:
-    branches: [ master ]
+    branches: [ bioc3.14 ]
   pull_request:
-    branches: [ master ]
+    branches: [ bioc3.14 ]
 
 jobs:
   build:
