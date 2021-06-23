@@ -34,8 +34,7 @@ jobs:
         shell: Rscript {0}
       - name: Install Bioconductor packages
         run: |
-          BiocManager::install(c("tartare", "rawrr", "Spectra", "BiocStyle", "BiocParallel", "IRanges", "S4Vectors", "MsCoreUtils"))
-          remotes::install_deps(dependencies = TRUE)
+          BiocManager::install(c("ExperimentHub", "tartare", "rawrr", "Spectra", "BiocStyle", "BiocParallel", "IRanges", "S4Vectors", "MsCoreUtils"))
         shell: Rscript {0}
       - name: install Linux packages
         run: sudo apt-get install -y libicu-dev pandoc pandoc-citeproc
