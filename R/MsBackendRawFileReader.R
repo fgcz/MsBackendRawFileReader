@@ -109,3 +109,21 @@ setMethod("intensity", "MsBackendRawFileReader", function(object) {
   IRanges::NumericList(lapply(peaksData(object), "[", , 2), compress = FALSE)
 })
 
+
+#' @exportMethod filterScan
+setMethod("filterScan", "MsBackendRawFileReader",
+  function(object, filter=character(), ...,BPPARAM = bpparam()) {
+    fls <- unique(object@spectraData$dataStorage)
+    idx <- BiocParallel::bplapply(fls, FUN=.RawFileReader_filter, filter=filter, BPPARAM=BPPARAM)
+    keep <- mapply(FUN=function(f, i){which(scanIndex(object) %in% i & dataStorage(object) %in% f)}, f=fls, idx)
+    object[unlist(keep)]
+  })
+
+#' @exportMethod scanType
+setMethod("scanType", "MsBackendRawFileReader",
+          function(object, ...) {
+            if (!length(object))
+              return(list())
+            
+            object@spectraData$scanType
+          })

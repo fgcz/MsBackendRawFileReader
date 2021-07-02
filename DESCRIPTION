@@ -13,7 +13,7 @@ Imports:
     MsCoreUtils,
     S4Vectors,
     IRanges,
-    rawrr (>= 1.0),
+    rawrr (>= 1.1.9),
     utils,
     BiocParallel
 Suggests:

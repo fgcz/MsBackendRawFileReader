@@ -12,7 +12,7 @@
 \usage{
 \S4method{show}{MsBackendRawFileReader}(object)
 
-\S4method{peaksData}{MsBackendRawFileReader}(object)
+\S4method{peaksData}{MsBackendRawFileReader}(object, ..., BPPARAM = bpparam())
 
 \S4method{[}{MsBackendRawFileReader,ANY,ANY}(x, i, j, ..., drop = FALSE)
 

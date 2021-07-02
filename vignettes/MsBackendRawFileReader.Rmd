@@ -41,7 +41,7 @@ eh <- ExperimentHub::ExperimentHub()
 query(eh, c('tartare'))
 ```
 
-```{r EH3220}
+```{r EH3220, message=FALSE, warning=FALSE, echo=FALSE}
 EH3220 <- normalizePath(eh[["EH3220"]])
 (rawfileEH3220 <- paste0(EH3220, ".raw"))
 if (!file.exists(rawfileEH3220)){
@@ -53,24 +53,79 @@ EH3222 <- normalizePath(eh[["EH3222"]])
 if (!file.exists(rawfileEH3222)){
   file.link(EH3222, rawfileEH3222)
 }
+
+EH4547  <- normalizePath(eh[["EH4547"]])
+(rawfileEH4547  <- paste0(EH4547 , ".raw"))
+if (!file.exists(rawfileEH4547 )){
+  file.link(EH4547 , rawfileEH4547 )
+}
 ```
 
 ```{r EH3219}
 EH3219 <- normalizePath(eh[["EH3219"]])
 EH3221 <- normalizePath(eh[["EH3221"]])
+EH4547 <- normalizePath(eh[["EH4547"]])
 ```
+
+call the constructor
 
 ```{r librarySnippet, message=FALSE}
-flsRaw <- c(rawfileEH3220, rawfileEH3222)
-# flsmzXML <- c(EH3219, EH3221)
-beRaw <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(), files = flsRaw, extra=TRUE)
-# beMzR <- Spectra::backendInitialize(Spectra::MsBackendMzR(), files = flsmzXML, extra=TRUE)
+beRaw <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(),
+                                    files = c(rawfileEH3220, rawfileEH3222, rawfileEH4547))
+```
+
+```{r show}
+beRaw
 ```
 
 
-```{r fig.retina=2} 
-beRaw[1000:1001] |> plotSpectra()
+# Have Fun
+
+
+```{r}
+(beRaw |> 
+   filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") )[437] |> 
+  plotSpectra()
+
+(yIonSeries <- protViz::fragmentIon("LGGNEQVTR")[[1]]$y[1:8])
+names(yIonSeries) <- paste0("y", seq(1, length(yIonSeries)))
+abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
+axis(3, yIonSeries, names(yIonSeries))
 ```
+
+## Extent Class
+
+write a method for filtering spectra if fragment ions exists.
+
+```{r}
+setGeneric("filterIons", function(object, ...) standardGeneric("filterIons"))
+
+setMethod("filterIons", "MsBackend",
+  function(object, mZ=numeric(), tol=numeric(), ...) {
+    
+    keep <- lapply(peaksData(object),
+                           FUN=function(x){
+                             NN <- protViz::findNN(mZ, x[,1])
+                             hit <- (error <- yIonSeries - x[NN,1]) < tol
+                             if (sum(hit) == length(mZ))
+                               TRUE
+                             else
+                               FALSE
+                           })
+    
+    object[unlist(keep)]
+  })
+```
+
+apply it the the example
+
+```{r}
+beRaw |> 
+  filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") |>
+  filterIons(yIonSeries, tol=0.0005) |> 
+  plotSpectra()
+```
+
 # Session information
 
 ```{r si}

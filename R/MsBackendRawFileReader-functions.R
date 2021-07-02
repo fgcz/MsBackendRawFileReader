@@ -81,7 +81,7 @@ NULL
   
   # check if item is complete otherwise retrieval of data through using 
   # rawrr::readSpectrum(i)
-  message(sprintf("supposed to fetch index %d from %d", i, idx))
+  # message(sprintf("supposed to fetch index %d from %d", i, idx))
   x
 }
 
@@ -110,10 +110,20 @@ MsBackendRawFileReader <- function() {
     return(list(matrix(ncol = 2, nrow = 0,
                        dimnames = list(character(), c("mz", "intensity")))))
   requireNamespace("rawrr", quietly = TRUE)
-  message('.RawFileReader_read_peaks ...')
-  message(sprintf("scanIndex: %s", paste(scanIndex, collapse = ", ")))
+  #message('.RawFileReader_read_peaks ...')
+  #message(sprintf("scanIndex: %s", paste(scanIndex, collapse = ", ")))
   BiocParallel::bplapply(rawrr::readSpectrum(x, scanIndex), function(p){
     m <- as.matrix(cbind(p$mZ, p$intensity))
     colnames(m) <- c("mz", "intensity")
     m}, BPPARAM = BPPARAM)
+}
+
+.RawFileReader_filter <- function(x = character(), filter = character()){
+  if (length(x) != 1)
+    stop("'x' should have length 1")
+  
+  # TODO(cp): check if filterString is a valid filter
+  
+  requireNamespace("rawrr", quietly = TRUE)
+  rawrr:::filter(x, filter)
 }

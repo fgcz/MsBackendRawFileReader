@@ -28,7 +28,7 @@ jobs:
         with:
           r-version: ${{ matrix.r-version }}
       - name: install Linux packages
-        run: sudo apt-get install -y libicu-dev pandoc pandoc-citeproc curl libcurl4 mono-runtime libmono-system-data4.0-cil
+        run: sudo apt-get install -y libicu-dev pandoc pandoc-citeproc curl libcurl4 mono-runtime libmono-system-data4.0-cil libcurl4-openssl-dev libicu-dev pandoc wget unzip texlive texlive-latex-extra texlive-fonts-extra texlive-xetex pandoc-citeproc lmodern
       - name: Install dependencies
         run: |
           install.packages(c("remotes", "rcmdcheck", "rmarkdown", "BiocManager", "protViz", "testthat", "knitr"))
