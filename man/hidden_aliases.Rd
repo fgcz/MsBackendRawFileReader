@@ -16,7 +16,7 @@
 
 \S4method{[}{MsBackendRawFileReader,ANY,ANY}(x, i, j, ..., drop = FALSE)
 
-\S4method{intensity}{MsBackendRawFileReader}(object)
+\S4method{intensity}{MsBackendRawFileReader}(object, ..., BPPARAM = bpparam())
 }
 \description{
 For S4 methods that require a documentation entry but only clutter the index.

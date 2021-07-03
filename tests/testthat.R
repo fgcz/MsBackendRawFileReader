@@ -25,3 +25,4 @@ sample_raw_2 <- backendInitialize(MsBackendRawFileReader(),
 
 
 test_check("MsBackendRawFileReader")
+

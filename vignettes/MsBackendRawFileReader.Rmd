@@ -1,13 +1,16 @@
 ---
-title: "Howto use the `MsBackendRawFileReader`?"
+title: "Howto Use and Extend the `MsBackendRawFileReader`?"
 author:
-- name: Christian Panse
-  affiliation: Functional Genomics Center Zurich
-  email: cp@fgcz.ethz.ch
 - name: Tobias Kockmann
-  affiliation: Functional Genomics Center Zurich
-  email: tobias.Kockmann@fgcz.ethz.ch
-package: MsBackendRawFileReader
+  affiliation:
+    - &id Functional Genomics Center Zurich - Swiss Federal Institute of Technology in Zurich
+  email: Tobias.Kockmann@fgcz.ethz.ch
+- name: Christian Panse
+  affiliation:
+    - *id
+    - Swiss Institute of Bioinformatics
+  email: cp@fgcz.ethz.ch
+ppackage: MsBackendRawFileReader
 output:
   BiocStyle::html_document
 abstract: |
@@ -15,21 +18,26 @@ abstract: |
   MsBackend for the `r BiocStyle::Biocpkg("Spectra")` package using
   Thermo Fisher Scientific's NewRawFileReader .Net libraries.
   The package is generalizing the functionallity provided by the
-  `r BiocStyle::Biocpkg("rawrr")`.
+  `r BiocStyle::Biocpkg("rawrr")`. The vignette utilizes data provided through
+  the `r BiocStyle::Biocpkg("tartare")` package.
 vignette: |
-  %\VignetteIndexEntry{Howto use the package?}
+  %\VignetteIndexEntry{Howto use and extend the package?}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography:
   - MsBackendRawFileReader.bib
 ---
 
-# Usage
+# Requirements
 
 ```{r require}
-stopifnot(require(Spectra), require(MsBackendRawFileReader), require(BiocParallel))
+stopifnot(require(Spectra),
+          require(MsBackendRawFileReader),
+          require(tartare),
+          require(BiocParallel))
 ```
 
+# Load data
 
 ```{r tartareEH4547, warning=FALSE, message=FALSE, eval=TRUE}
 # fetch via ExperimentHub
@@ -67,11 +75,14 @@ EH3221 <- normalizePath(eh[["EH3221"]])
 EH4547 <- normalizePath(eh[["EH4547"]])
 ```
 
+# On using the `MsBackendRawFileReader`
+
 call the constructor
 
-```{r librarySnippet, message=FALSE}
-beRaw <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(),
-                                    files = c(rawfileEH3220, rawfileEH3222, rawfileEH4547))
+```{r backendInitialize, message=FALSE}
+beRaw <- Spectra::backendInitialize(
+  MsBackendRawFileReader::MsBackendRawFileReader(),
+  files = c(rawfileEH3220, rawfileEH3222, rawfileEH4547))
 ```
 
 ```{r show}
@@ -79,50 +90,60 @@ beRaw
 ```
 
 
-# Have Fun
+# Application example
 
+Here we reproduce the Figure 2 of @rawrr `r BiocStyle::Biocpkg("rawrr")`.
+The `r BiocStyle::Githubpkg("fgcz/MsBackendRawFileReader")` ships with a 
+`filterScan` method  using functionality provided by the C# libraries by 
+Thermo Fisher Scientific @rawfilereader.
 
-```{r}
-(beRaw |> 
-   filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") )[437] |> 
+```{r rawrrFigure2, fig.retina=3}
+(S <- (beRaw |> 
+   filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") )[437]) |> 
   plotSpectra()
 
+# supposed to be scanIndex 9594
+S
+
+# add yIonSeries to the plot
 (yIonSeries <- protViz::fragmentIon("LGGNEQVTR")[[1]]$y[1:8])
 names(yIonSeries) <- paste0("y", seq(1, length(yIonSeries)))
 abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
 axis(3, yIonSeries, names(yIonSeries))
 ```
 
-## Extent Class
+# Extend Class
 
-write a method for filtering spectra if fragment ions exists.
-
-```{r}
+For demonstration reasons, we extent the `MsBackend` class by a simple filter method.
+`filterIons` returns spectra iff all fragment ions, given as argument, match. We use `r BiocStyle::CRANpkg("protViz")``::findNN` binary search
+method for determining the nearest mZ peak for each ion. If the mass error between an ion and an mz value is less than the given mass tolerance, an ion is considered a hit.
+ 
+```{r defineFilterIon, echo=FALSE}
 setGeneric("filterIons", function(object, ...) standardGeneric("filterIons"))
 
 setMethod("filterIons", "MsBackend",
-  function(object, mZ=numeric(), tol=numeric(), ...) {
-    
-    keep <- lapply(peaksData(object),
+          function(object, mZ=numeric(), tol=numeric(), ...) {
+            
+            keep <- lapply(peaksData(object),
                            FUN=function(x){
-                             NN <- protViz::findNN(mZ, x[,1])
-                             hit <- (error <- yIonSeries - x[NN,1]) < tol
+                             NN <- protViz::findNN(mZ, x[, 1])
+                             hit <- (error <- mZ - x[NN, 1]) < tol
                              if (sum(hit) == length(mZ))
                                TRUE
                              else
                                FALSE
                            })
-    
-    object[unlist(keep)]
-  })
+            
+            object[unlist(keep)]
+          })
 ```
 
-apply it the the example
+apply the defined `filterIons` method
 
-```{r}
+```{r filterIons, fig.retina=3, fig.height=12}
 beRaw |> 
   filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") |>
-  filterIons(yIonSeries, tol=0.0005) |> 
+  filterIons(yIonSeries, tol = 0.0005) |> 
   plotSpectra()
 ```
 

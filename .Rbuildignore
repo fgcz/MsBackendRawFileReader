@@ -4,5 +4,5 @@
 .*swo$
 ^vignettes.ForDevelopers.Rmd$
 ^vignettes.tartare.Rmd$
-^vignettes.*
 ^requirements.txt$
+^.github.*

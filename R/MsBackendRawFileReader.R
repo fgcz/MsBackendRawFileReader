@@ -82,16 +82,19 @@ setMethod("show", "MsBackendRawFileReader", function(object) {
 })
 
 #' @rdname hidden_aliases
-setMethod("peaksData", "MsBackendRawFileReader", function(object, ...,BPPARAM = bpparam()) {
+setMethod("peaksData", "MsBackendRawFileReader",
+          function(object, ..., BPPARAM = bpparam()) {
   if (!length(object))
     return(list())
   fls <- unique(object@spectraData$dataStorage)
   if (length(fls) > 1) {
     f <- factor(dataStorage(object), levels = fls)
-    unsplit(mapply(FUN = .RawFileReader_read_peaks, fls, split(scanIndex(object), f),
+    unsplit(mapply(FUN = function(x, scanIndex){.RawFileReader_read_peaks(x, scanIndex, BPPARAM)},
+                   x = fls,
+                   scanIndex = split(scanIndex(object), f),
                    SIMPLIFY = FALSE, USE.NAMES = FALSE), f)
   } else
-    .RawFileReader_read_peaks(fls, scanIndex(object), BPPARAM=BPPARAM)
+    .RawFileReader_read_peaks(fls, scanIndex(object), BPPARAM = BPPARAM)
 })
 
 #' subset
@@ -105,25 +108,29 @@ setMethod("[", "MsBackendRawFileReader", function(x, i, j, ..., drop = FALSE) {
 
 #' @importClassesFrom IRanges NumericList
 #' @rdname hidden_aliases
-setMethod("intensity", "MsBackendRawFileReader", function(object) {
-  IRanges::NumericList(lapply(peaksData(object), "[", , 2), compress = FALSE)
+#' @exportMethod intensity
+setMethod("intensity", "MsBackendRawFileReader", function(object, ..., BPPARAM = bpparam()) {
+  IRanges::NumericList(lapply(peaksData(object,BPPARAM = BPPARAM), "[", , 2), compress = FALSE)
 })
 
 
+#' @rdname MsBackendRawFileReader 
 #' @exportMethod filterScan
 setMethod("filterScan", "MsBackendRawFileReader",
-  function(object, filter=character(), ...,BPPARAM = bpparam()) {
-    fls <- unique(object@spectraData$dataStorage)
-    idx <- BiocParallel::bplapply(fls, FUN=.RawFileReader_filter, filter=filter, BPPARAM=BPPARAM)
-    keep <- mapply(FUN=function(f, i){which(scanIndex(object) %in% i & dataStorage(object) %in% f)}, f=fls, idx)
-    object[unlist(keep)]
-  })
+          function(object, filter=character(), ...,BPPARAM = bpparam()) {
+            fls <- unique(object@spectraData$dataStorage)
+            idx <- BiocParallel::bplapply(fls, FUN=.RawFileReader_filter, filter = filter, BPPARAM = BPPARAM)
+            keep <- mapply(FUN=function(f, i){which(scanIndex(object) %in% i & dataStorage(object) %in% f)}, f=fls, idx)
+            object[unlist(keep)]
+          })
 
+
+
+#' @rdname MsBackendRawFileReader 
 #' @exportMethod scanType
 setMethod("scanType", "MsBackendRawFileReader",
           function(object, ...) {
             if (!length(object))
               return(list())
-            
             object@spectraData$scanType
           })

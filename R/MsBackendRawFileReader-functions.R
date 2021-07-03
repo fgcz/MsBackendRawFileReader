@@ -103,7 +103,7 @@ MsBackendRawFileReader <- function() {
 }
 
 .RawFileReader_read_peaks <- function(x = character(), scanIndex = integer(),
-                           BPPARAM) {
+                           BPPARAM = bpparam()) {
   if (length(x) != 1)
     stop("'x' should have length 1")
   if (!length(scanIndex))
