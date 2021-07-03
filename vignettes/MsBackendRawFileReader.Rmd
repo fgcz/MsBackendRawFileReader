@@ -124,10 +124,11 @@ setGeneric("filterIons", function(object, ...) standardGeneric("filterIons"))
 setMethod("filterIons", "MsBackend",
           function(object, mZ=numeric(), tol=numeric(), ...) {
             
-            keep <- lapply(peaksData(object),
+            keep <- lapply(peaksData(object, BPPARAM = bpparam()),
                            FUN=function(x){
                              NN <- protViz::findNN(mZ, x[, 1])
-                             hit <- (error <- mZ - x[NN, 1]) < tol
+                             hit <- (error <- mZ - x[NN, 1]) < tol & x[NN, 2] >= quantile(x[, 2], .9)
+                             #print(hit)
                              if (sum(hit) == length(mZ))
                                TRUE
                              else
@@ -145,6 +146,34 @@ beRaw |>
   filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") |>
   filterIons(yIonSeries, tol = 0.0005) |> 
   plotSpectra()
+```
+```{r filterIons, fig.retina=3, fig.height=12}
+beRaw |> 
+  filterScan("ms2") |>
+  filterIons(yIonSeries, tol = 0.0005) |> 
+  plotSpectra()
+```
+
+# Benchmark on determine break-even of split size
+
+```{r benchmark}
+
+b <- lapply(n<-c(8,16,32,64,128,256,8,16,32,64,128,256,8,16,32,64,128,256), function(size){
+  start_time <- Sys.time()
+  n<-10000
+  
+  rv <- MsBackendRawFileReader:::.RawFileReader_read_peaks(rawfileEH4547, 1:n, maxGroupSize = size)
+  end_time <- Sys.time()
+  d <- end_time - start_time
+  message(sprintf("%d - %s", size, d))
+  data.frame(size=size, time=d/n, n=n)
+})
+
+```
+
+
+```{r}
+boxplot(time ~ size, data=do.call('rbind', b))
 ```
 
 # Session information

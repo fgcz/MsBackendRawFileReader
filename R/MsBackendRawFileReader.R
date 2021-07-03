@@ -89,7 +89,7 @@ setMethod("peaksData", "MsBackendRawFileReader",
   fls <- unique(object@spectraData$dataStorage)
   if (length(fls) > 1) {
     f <- factor(dataStorage(object), levels = fls)
-    unsplit(mapply(FUN = function(x, scanIndex){.RawFileReader_read_peaks(x, scanIndex, BPPARAM)},
+    unsplit(mapply(FUN = function(x, scanIndex){.RawFileReader_read_peaks(x, scanIndex, BPPARAM=BPPARAM)},
                    x = fls,
                    scanIndex = split(scanIndex(object), f),
                    SIMPLIFY = FALSE, USE.NAMES = FALSE), f)

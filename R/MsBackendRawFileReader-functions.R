@@ -102,20 +102,31 @@ MsBackendRawFileReader <- function() {
   new("MsBackendRawFileReader")
 }
 
+
 .RawFileReader_read_peaks <- function(x = character(), scanIndex = integer(),
-                           BPPARAM = bpparam()) {
+                                       maxGroupSize = 50,
+                                       BPPARAM = bpparam()) {
   if (length(x) != 1)
     stop("'x' should have length 1")
   if (!length(scanIndex))
     return(list(matrix(ncol = 2, nrow = 0,
                        dimnames = list(character(), c("mz", "intensity")))))
   requireNamespace("rawrr", quietly = TRUE)
-  #message('.RawFileReader_read_peaks ...')
-  #message(sprintf("scanIndex: %s", paste(scanIndex, collapse = ", ")))
-  BiocParallel::bplapply(rawrr::readSpectrum(x, scanIndex), function(p){
-    m <- as.matrix(cbind(p$mZ, p$intensity))
-    colnames(m) <- c("mz", "intensity")
-    m}, BPPARAM = BPPARAM)
+ 
+  if (length(scanIndex) < maxGroupSize)
+    maxGroupSize <- length(scanIndex)
+  
+  BiocParallel::bplapply(FUN = function(i){
+    # print(i)
+    lapply(rawrr::readSpectrum(x, i, tmpdir='/scratch/cpanse/RRR'), function(p){
+      m <- as.matrix(cbind(p$mZ, p$intensity))
+      colnames(m) <- c("mz", "intensity")
+      m
+    })
+  },
+  split(scanIndex, ceiling(seq_along(scanIndex) / maxGroupSize)),
+  BPPARAM = BPPARAM) |>
+    unlist(recursive = FALSE)
 }
 
 .RawFileReader_filter <- function(x = character(), filter = character()){
