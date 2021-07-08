@@ -97,8 +97,24 @@ The `r BiocStyle::Githubpkg("fgcz/MsBackendRawFileReader")` ships with a
 `filterScan` method  using functionality provided by the C# libraries by 
 Thermo Fisher Scientific @rawfilereader.
 
+
+```{r filterTest, eval=FALSE}
+SF1 <- (beRaw |>  
+   filterScan("ms2 487.2567"))
+
+SF2 <- beRaw |>  
+   filterScan("ms2 487.25") |>
+   sparceVector() |> 
+   dotProduct(list(mZ=c(1, 2, 3), intensity=c(10, 100, 100)))
+
+# output 
+
+# dotProduct and index vom backend
+
+```
+
 ```{r rawrrFigure2, fig.retina=3}
-(S <- (beRaw |> 
+(S <- (beRaw |>  
    filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") )[437]) |> 
   plotSpectra()
 
@@ -141,42 +157,47 @@ setMethod("filterIons", "MsBackend",
 
 apply the defined `filterIons` method
 
-```{r filterIons, fig.retina=3, fig.height=12}
+```{r filterIons2, fig.retina=3, fig.height=12, echo=FALSE}
 beRaw |> 
   filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") |>
   filterIons(yIonSeries, tol = 0.0005) |> 
   plotSpectra()
 ```
-```{r filterIons, fig.retina=3, fig.height=12}
-beRaw |> 
-  filterScan("ms2") |>
-  filterIons(yIonSeries, tol = 0.0005) |> 
-  plotSpectra()
-```
+
 
 # Benchmark on determine break-even of split size
 
-```{r benchmark}
-
-
-b <- lapply(c(1000,10000), function(n){
-  
-  
-  lapply(c(8,16,32,64,128,256,8,16,32,64,128,256,8,16,32,64,128,256), function(size){
+```{r benchmark, eval=FALSE, echo=FALSE}
+b <- lapply(c(1000,5000,10000), function(n){
+  lapply(c(8,16,32,64,128,256,8,16,32,64,128,256,8,16,32,64,128,256,8,16,32,64,128,256,8,16,32,64,128,256,8,16,32,64,128,256), function(size){
     start_time <- Sys.time()
     rv <- MsBackendRawFileReader:::.RawFileReader_read_peaks(rawfileEH4547, 1:n, maxGroupSize = size)
     end_time <- Sys.time()
     d <- end_time - start_time
     message(sprintf("%d - %s", size, d))
-    data.frame(size=size, time=d/n, n=n)
+    data.frame(size=size, time=d/n, n=n, workers=bpparam()$workers)
   })
 })
 
 ```
 
 
-```{r}
-lattice::bwplot(time ~ size | n, data=do.call('rbind', unlist(b, recursive = FALSE)), allow.multiple=T, horizontal=F)
+```{r readSpecs}
+fn <- file.path(system.file(package = 'MsBackendRawFileReader'),
+               'extdata', 'specs.csv')
+specs.readSpectra <- read.csv2(fn, header=TRUE)
+```
+
+
+```{r lattice::xyplot, echo=FALSE, fig.retina=3}
+lattice::xyplot((as.numeric(time)) * workers~ size | factor(n) ,
+                group= host,
+                data=specs.readSpectra,
+                horizontal=F,
+                auto.key = TRUE,
+                layout=c(3,1),
+                ylab='time [seconds] to read a spectrum',
+                xlab='number of spectra / file')
 ```
 
 # Session information

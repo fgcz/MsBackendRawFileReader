@@ -103,8 +103,10 @@ MsBackendRawFileReader <- function() {
 }
 
 
+# read peaks =======
 .RawFileReader_read_peaks <- function(x = character(), scanIndex = integer(),
-                                       maxGroupSize = 50,
+                                       maxGroupSize = 150,
+                                       tmpdir=tempdir(),
                                        BPPARAM = bpparam()) {
   if (length(x) != 1)
     stop("'x' should have length 1")
@@ -118,7 +120,7 @@ MsBackendRawFileReader <- function() {
   
   BiocParallel::bplapply(FUN = function(i){
     # print(i)
-    lapply(rawrr::readSpectrum(x, i, tmpdir='/scratch/cpanse/RRR'), function(p){
+    lapply(rawrr::readSpectrum(x, i, tmpdir=tmpdir), function(p){
       m <- as.matrix(cbind(p$mZ, p$intensity))
       colnames(m) <- c("mz", "intensity")
       m
