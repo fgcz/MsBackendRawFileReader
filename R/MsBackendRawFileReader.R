@@ -84,18 +84,27 @@ setMethod("show", "MsBackendRawFileReader", function(object) {
 #' @rdname hidden_aliases
 setMethod("peaksData", "MsBackendRawFileReader",
           function(object, ..., BPPARAM = bpparam()) {
-  if (!length(object))
-    return(list())
-  fls <- unique(object@spectraData$dataStorage)
-  if (length(fls) > 1) {
-    f <- factor(dataStorage(object), levels = fls)
-    unsplit(mapply(FUN = function(x, scanIndex){.RawFileReader_read_peaks(x, scanIndex, BPPARAM=BPPARAM)},
-                   x = fls,
-                   scanIndex = split(scanIndex(object), f),
-                   SIMPLIFY = FALSE, USE.NAMES = FALSE), f)
-  } else
-    .RawFileReader_read_peaks(fls, scanIndex(object), BPPARAM = BPPARAM)
-})
+            message("DEBUG")
+            if (!length(object))
+              return(list())
+            fls <- unique(object@spectraData$dataStorage)
+            
+            f <- factor(dataStorage(object), levels = fls)
+            unsplit(mapply(FUN = function(x, scanIndex){
+              
+              pls <- MsBackendRawFileReader:::.RawFileReader_read_peaks2(x, scanIndex, BPPARAM=BPPARAM)
+              
+              rv <- lapply(pls, function(p){
+                m <- as.matrix(cbind(p$mZ, p$intensity))
+                colnames(m) <- c("mz", "intensity")
+                m
+              })
+              rv 
+            },
+            x = fls,
+            scanIndex = split(scanIndex(object), f),
+            SIMPLIFY = FALSE, USE.NAMES = FALSE), f)
+          })
 
 #' subset
 #' 

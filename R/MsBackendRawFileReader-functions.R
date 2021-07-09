@@ -131,6 +131,29 @@ MsBackendRawFileReader <- function() {
     unlist(recursive = FALSE)
 }
 
+# read peaks =======
+.RawFileReader_read_peaks2 <- function(x = character(), scanIndex = integer(),
+                                      maxGroupSize = 150,
+                                      tmpdir=tempdir(),
+                                      BPPARAM = bpparam()) {
+  if (length(x) != 1)
+    stop("'x' should have length 1")
+  if (!length(scanIndex))
+    return(list(matrix(ncol = 2, nrow = 0,
+                       dimnames = list(character(), c("mz", "intensity")))))
+  requireNamespace("rawrr", quietly = TRUE)
+  
+  if (length(scanIndex) < maxGroupSize)
+    maxGroupSize <- length(scanIndex)
+  
+  BiocParallel::bplapply(FUN = function(i){
+    rawrr::readSpectrum(x, i, tmpdir=tmpdir)
+    },
+  split(scanIndex, ceiling(seq_along(scanIndex) / maxGroupSize)),
+  BPPARAM = BPPARAM) |>
+    unlist(recursive = FALSE)
+}
+
 .RawFileReader_filter <- function(x = character(), filter = character()){
   if (length(x) != 1)
     stop("'x' should have length 1")
