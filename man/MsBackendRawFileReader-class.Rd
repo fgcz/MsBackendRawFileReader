@@ -17,5 +17,5 @@ The `backendInitialize` method reads the header data from the raw files and
 hence fills the `spectraData` slot.
 }
 \author{
-Johannes Rainer, Christian Panse (2019-2021)
+Christian Panse (2019-2021)
 }

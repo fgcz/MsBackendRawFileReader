@@ -9,9 +9,16 @@
 \usage{
 MsBackendRawFileReader()
 
-\S4method{filterScan}{MsBackendRawFileReader}(object, filter = character(), ..., BPPARAM = bpparam())
+\S4method{filterScan}{MsBackendRawFileReader}(object, filter = character(), ...)
 
 \S4method{scanType}{MsBackendRawFileReader}(object, ...)
+}
+\arguments{
+\item{object}{MsBackendRawFileReader object}
+
+\item{filter}{filter string}
+
+\item{...}{Arguments to be passed to methods.}
 }
 \description{
 MsBackendRawFileReader
