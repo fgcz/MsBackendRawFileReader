@@ -20,10 +20,18 @@ MsBackendRawFileReader()
 
 \item{...}{Arguments to be passed to methods.}
 }
+\value{
+a MsBackendRawFileReader object.
+
+a character vector of scan types.
+}
 \description{
 MsBackendRawFileReader
 }
 \examples{
+beRaw <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(),
+  files = rawrr::sampleFilePath())
+beRaw |> MsBackendRawFileReader::filterScan('Ms')
 beRaw <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(),
   files = rawrr::sampleFilePath())
 scanType(beRaw) |> head()

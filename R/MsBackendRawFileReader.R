@@ -187,6 +187,11 @@ setMethod("intensity", "MsBackendRawFileReader", function(object, ..., BPPARAM =
 #' @param object MsBackendRawFileReader object
 #' @param filter filter string
 #' @param ... Arguments to be passed to methods.
+#' @return a MsBackendRawFileReader object.
+#' @examples 
+#' beRaw <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(),
+#'   files = rawrr::sampleFilePath())
+#' beRaw |> MsBackendRawFileReader::filterScan('Ms')
 setMethod("filterScan", "MsBackendRawFileReader",
           function(object, filter=character(), ...) {
             BPPARAM = bpparam()
@@ -199,6 +204,7 @@ setMethod("filterScan", "MsBackendRawFileReader",
 
 #' @exportMethod scanType
 #' @rdname MsBackendRawFileReader
+#' @return a character vector of scan types.
 #' @examples 
 #' beRaw <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(),
 #'   files = rawrr::sampleFilePath())
