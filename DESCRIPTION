@@ -36,7 +36,7 @@ BugReports: https://github.com/fgcz/MsBackendRawFileReader/issues
 Encoding: UTF-8
 NeedsCompilation: yes
 biocViews: MassSpectrometry, Proteomics, Metabolomics
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 License: GPL-3
 VignetteBuilder: knitr
 Collate: 

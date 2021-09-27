@@ -31,4 +31,9 @@ scanType(object, ...)
 \description{
 For S4 methods that require a documentation entry but only clutter the index.
 }
+\examples{
+beRaw <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(),
+  files = rawrr::sampleFilePath())
+beRaw
+}
 \keyword{internal}

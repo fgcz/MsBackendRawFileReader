@@ -16,6 +16,12 @@ column names are present.
 The `backendInitialize` method reads the header data from the raw files and
 hence fills the `spectraData` slot.
 }
+\examples{
+beRaw <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(),
+  files = rawrr::sampleFilePath())
+beRaw
+Spectra::msLevel(beRaw)
+}
 \author{
 Christian Panse (2019-2021)
 }

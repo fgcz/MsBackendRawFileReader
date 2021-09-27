@@ -17,6 +17,11 @@ NULL
 #'
 #' @author Christian Panse (2019-2021)
 #' @import Spectra
+#' @examples 
+#' beRaw <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(),
+#'   files = rawrr::sampleFilePath())
+#' beRaw
+#' Spectra::msLevel(beRaw)
 setClass("MsBackendRawFileReader",
          contains = "MsBackendDataFrame",
          prototype = prototype(version = "0.1", readonly = TRUE))
@@ -194,6 +199,10 @@ setMethod("filterScan", "MsBackendRawFileReader",
 
 #' @exportMethod scanType
 #' @rdname MsBackendRawFileReader
+#' @examples 
+#' beRaw <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(),
+#'   files = rawrr::sampleFilePath())
+#' scanType(beRaw) |> head()
 setMethod("scanType", "MsBackendRawFileReader",
           function(object, ...) {
             if (!length(object))

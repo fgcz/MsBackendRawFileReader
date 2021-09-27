@@ -23,3 +23,8 @@ MsBackendRawFileReader()
 \description{
 MsBackendRawFileReader
 }
+\examples{
+beRaw <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(),
+  files = rawrr::sampleFilePath())
+scanType(beRaw) |> head()
+}
