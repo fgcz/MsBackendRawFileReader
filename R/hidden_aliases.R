@@ -10,6 +10,7 @@
 #' @format NULL
 #' @keywords internal
 #' @docType methods 
+#' @return Not applicable
 #' @examples 
 #' beRaw <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(),
 #'   files = rawrr::sampleFilePath())

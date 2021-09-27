@@ -37,6 +37,17 @@ stopifnot(require(Spectra),
           require(BiocParallel))
 ```
 
+```{r installAssemblies, echo=TRUE}
+if (isFALSE(rawrr::.checkDllInMonoPath())){
+  rawrr::installRawFileReaderDLLs()
+}
+
+if (isFALSE(file.exists(rawrr:::.rawrrAssembly()))){
+ rawrr::installRawrrExe()
+}
+```
+
+
 # Load data
 
 ```{r tartareEH4547, warning=FALSE, message=FALSE, eval=TRUE}

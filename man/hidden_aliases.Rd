@@ -28,6 +28,9 @@ scanType(object, ...)
 
 \S4method{intensity}{MsBackendRawFileReader}(object, ..., BPPARAM = bpparam())
 }
+\value{
+Not applicable
+}
 \description{
 For S4 methods that require a documentation entry but only clutter the index.
 }
