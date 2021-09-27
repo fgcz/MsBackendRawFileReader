@@ -1,5 +1,5 @@
 ---
-title: "On using and extending the `MsBackendRawFileReader`?"
+title: "On using and extending the `MsBackendRawFileReader`"
 author:
 - name: Tobias Kockmann
   affiliation:
@@ -19,7 +19,7 @@ abstract: |
   Thermo Fisher Scientific's NewRawFileReader .Net libraries.
   The package is generalizing the functionallity provided by the
   `r BiocStyle::Biocpkg("rawrr")`. The vignette utilizes data provided through
-  the `r BiocStyle::Biocpkg("tartare")` package.
+  the `r BiocStyle::Biocpkg("tartare")` package. 
 vignette: |
   %\VignetteIndexEntry{Howto use and extend the package?}
   %\VignetteEngine{knitr::rmarkdown}
@@ -131,31 +131,35 @@ axis(3, yIonSeries, names(yIonSeries))
 # Extend Class
 
 For demonstration reasons, we extent the `MsBackend` class by a simple filter method.
-`filterIons` returns spectra iff all fragment ions, given as argument, match. We use `r BiocStyle::CRANpkg("protViz")``::findNN` binary search
-method for determining the nearest mZ peak for each ion. If the mass error between an ion and an mz value is less than the given mass tolerance, an ion is considered a hit.
+The `filterIons` function returns spectra if and only if all fragment ions,
+given as argument, match. We use `r BiocStyle::CRANpkg("protViz")``::findNN`
+binary search
+method for determining the nearest mZ peak for each ion.
+If the mass error between an ion and an mz value is less than the given mass
+tolerance, an ion is considered a hit.
  
-```{r defineFilterIon, echo=FALSE}
+```{r defineFilterIon, echo=TRUE}
 setGeneric("filterIons", function(object, ...) standardGeneric("filterIons"))
 
 setMethod("filterIons", "MsBackend",
-          function(object, mZ=numeric(), tol=numeric(), ...) {
-            
-            keep <- lapply(peaksData(object, BPPARAM = bpparam()),
-                           FUN=function(x){
-                             NN <- protViz::findNN(mZ, x[, 1])
-                             hit <- (error <- mZ - x[NN, 1]) < tol & x[NN, 2] >= quantile(x[, 2], .9)
-                             #print(hit)
-                             if (sum(hit) == length(mZ))
-                               TRUE
-                             else
-                               FALSE
-                           })
-            
-            object[unlist(keep)]
-          })
+  function(object, mZ=numeric(), tol=numeric(), ...) {
+    
+    keep <- lapply(peaksData(object, BPPARAM = bpparam()),
+                   FUN=function(x){
+       NN <- protViz::findNN(mZ, x[, 1])
+       hit <- (error <- mZ - x[NN, 1]) < tol & x[NN, 2] >= quantile(x[, 2], .9)
+       #print(hit)
+       if (sum(hit) == length(mZ))
+         TRUE
+       else
+         FALSE
+                   })
+    
+    object[unlist(keep)]
+  })
 ```
 
-apply the defined `filterIons` method
+The code snippet below applies the defined `filterIons` method and finds two spectra.
 
 ```{r filterIons2, fig.retina=3, fig.height=12, echo=FALSE}
 beRaw |> 
@@ -165,9 +169,10 @@ beRaw |>
 ```
 
 
-# Benchmark on determine break-even of split size
 
 ```{r benchmark, eval=FALSE, echo=FALSE}
+# Benchmark on determine break-even of split size
+
 b <- lapply(c(1000,5000,10000), function(n){
   lapply(c(8,16,32,64,128,256,8,16,32,64,128,256,8,16,32,64,128,256,8,16,32,64,128,256,8,16,32,64,128,256,8,16,32,64,128,256), function(size){
     start_time <- Sys.time()
@@ -182,14 +187,14 @@ b <- lapply(c(1000,5000,10000), function(n){
 ```
 
 
-```{r readSpecs}
+```{r readSpecs,eval=FALSE, echo=FALSE}
 fn <- file.path(system.file(package = 'MsBackendRawFileReader'),
                'extdata', 'specs.csv')
 specs.readSpectra <- read.csv2(fn, header=TRUE)
 ```
 
 
-```{r lattice::xyplot, echo=FALSE, fig.retina=3}
+```{r lattice::xyplot, echo=FALSE, fig.retina=3, eval=FALSE}
 lattice::xyplot((as.numeric(time)) * workers~ size | factor(n) ,
                 group= host,
                 data=specs.readSpectra,

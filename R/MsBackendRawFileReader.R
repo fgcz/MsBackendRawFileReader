@@ -82,7 +82,6 @@ setMethod("show", "MsBackendRawFileReader", function(object) {
 #' @rdname hidden_aliases
 setMethod("peaksData", "MsBackendRawFileReader",
           function(object, ..., BPPARAM = bpparam()) {
-            message("DEBUG")
             if (!length(object))
               return(list())
             fls <- unique(object@spectraData$dataStorage)
