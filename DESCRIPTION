@@ -1,7 +1,7 @@
 Package: MsBackendRawFileReader
 Type: Package
-Title: Bridging Spectra and Thermo Fisher Scientific raw files
-Version: 0.99.0
+Title: Mass Spectrometry Backend for Reading Thermo Fisher Scientific raw Files
+Version: 0.99.1
 Authors@R: c(person(given = "Christian",
     family = "Panse", email = "cp@fgcz.ethz.ch", role = c("aut", "cre"),
     comment = c(ORCID = "0000-0003-1975-3064")),
@@ -13,7 +13,7 @@ Imports:
     MsCoreUtils,
     S4Vectors,
     IRanges,
-    rawrr (>= 1.1.10),
+    rawrr (>= 1.1.14),
     utils,
     BiocParallel
 Suggests:
@@ -21,14 +21,14 @@ Suggests:
     ExperimentHub,
     knitr,
     lattice,
-    protViz (>= 0.6),
+    protViz (>= 0.7),
     rmarkdown,
     tartare (>= 1.5),
     testthat
 Description: implements a MsBackend for the Spectra package using
   Thermo Fisher Scientific's NewRawFileReader .Net libraries.
-  The package is generalizing the functionality introduced by the
-  rawrr package (Kockmann, 2021 <doi:10.1021/acs.jproteome.0c00866 >).
+  The package is generalizing the functionality introduced by the rawrr package
+  (Kockmann T. et al. (2020) <doi:10.1101/2020.10.30.362533>)
   Methods defined in this package are supposed to extend the Spectra
   Bioconductor package. 
 URL: https://github.com/fgcz/MsBackendRawFileReader
@@ -38,6 +38,8 @@ NeedsCompilation: yes
 biocViews: MassSpectrometry, Proteomics, Metabolomics
 RoxygenNote: 7.1.2
 License: GPL-3
+SystemRequirements: mono-runtime 4.x or higher (including System.Data library)
+    on Linux/macOS, .Net Framework (>= 4.5.1) on Microsoft Windows.
 VignetteBuilder: knitr
 Collate: 
     'hidden_aliases.R'

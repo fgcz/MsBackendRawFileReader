@@ -1,5 +1,5 @@
 ---
-title: "On using and extending the `MsBackendRawFileReader`"
+title: "On Using and Extending the `MsBackendRawFileReader` Backend"
 author:
 - name: Tobias Kockmann
   affiliation:
@@ -21,7 +21,7 @@ abstract: |
   `r BiocStyle::Biocpkg("rawrr")`. The vignette utilizes data provided through
   the `r BiocStyle::Biocpkg("tartare")` package. 
 vignette: |
-  %\VignetteIndexEntry{Howto use and extend the package?}
+  %\VignetteIndexEntry{On Using and Extending the `MsBackendRawFileReader` Backend.}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography:
@@ -36,6 +36,17 @@ stopifnot(require(Spectra),
           require(tartare),
           require(BiocParallel))
 ```
+
+```{r installAssemblies, echo=TRUE}
+if (isFALSE(rawrr::.checkDllInMonoPath())){
+  rawrr::installRawFileReaderDLLs()
+}
+
+if (isFALSE(file.exists(rawrr:::.rawrrAssembly()))){
+ rawrr::installRawrrExe(sourceUrl = "http://fgcz-ms.uzh.ch/~cpanse/rawrr/rawrr.1.1.12.exe")
+}
+```
+
 
 # Load data
 
@@ -89,7 +100,6 @@ beRaw <- Spectra::backendInitialize(
 beRaw
 ```
 
-
 # Application example
 
 Here we reproduce the Figure 2 of @rawrr `r BiocStyle::Biocpkg("rawrr")`.
@@ -106,11 +116,6 @@ SF2 <- beRaw |>
    filterScan("ms2 487.25") |>
    sparceVector() |> 
    dotProduct(list(mZ=c(1, 2, 3), intensity=c(10, 100, 100)))
-
-# output 
-
-# dotProduct and index vom backend
-
 ```
 
 ```{r rawrrFigure2, fig.retina=3}
