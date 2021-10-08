@@ -1,7 +1,8 @@
-bakTestsMsBackendRawfileReader <- function(){
+skip_if(isFALSE(file.exists(sample_mzXML_file)))
+skip_if_not_installed('mzR')
 
 test_that("msLevel", {
-	expect_identical(msLevel(sample_raw), msLevel(sample_mzr))
+  expect_identical(msLevel(sample_raw), msLevel(sample_mzr))
 })
 
 test_that("rtime", {
@@ -17,23 +18,23 @@ test_that("precursorCharge", {
 })
 
 test_that("centroided", {
-    expect_identical(centroided(sample_raw), centroided(sample_mzr))
+  expect_identical(centroided(sample_raw), centroided(sample_mzr))
 })
 
 test_that("polarity", {
-    expect_identical(polarity(sample_raw), polarity(sample_mzr))
+  expect_identical(polarity(sample_raw), polarity(sample_mzr))
 })
 
 test_that("collisionEnergy", {
-    expect_equal(collisionEnergy(sample_raw),
-                     collisionEnergy(sample_mzr))
+  expect_equal(collisionEnergy(sample_raw),
+               collisionEnergy(sample_mzr))
 })
 
 #test_that("isolationWindowTargetMz", {
 #    expect_equal(isolationWindowTargetMz(sample_raw),
 #                     isolationWindowTargetMz(sample_mzr))
 #})
- 
+
 
 test_that("intensity", {
   expect_equal(sum(sum(intensity(sample_raw))), sum(sum(intensity(sample_mzr))))
@@ -55,4 +56,4 @@ test_that("peaks", {
   })
   
 })
-}
+
