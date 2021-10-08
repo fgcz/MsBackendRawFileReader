@@ -12,7 +12,8 @@ author:
   email: cp@fgcz.ethz.ch
 ppackage: MsBackendRawFileReader
 output:
-  BiocStyle::html_document
+  BiocStyle::html_document:
+    toc_float: true
 abstract: |
   `r BiocStyle::Githubpkg("fgcz/MsBackendRawFileReader")` implements an
   MsBackend for the `r BiocStyle::Biocpkg("Spectra")` package using
@@ -36,6 +37,11 @@ stopifnot(require(Spectra),
           require(tartare),
           require(BiocParallel))
 ```
+
+assemblies aka Common Intermediate Language bytecode 
+The download and install can be done on all platforms using the command:
+`rawrr::installRawFileReaderDLLs()`
+
 
 ```{r installAssemblies, echo=TRUE}
 if (isFALSE(rawrr::.checkDllInMonoPath())){
@@ -165,12 +171,19 @@ setMethod("filterIons", "MsBackend",
 ```
 
 The code snippet below applies the defined `filterIons` method and finds two spectra.
+Both spectra are combined into one singe spectrum. The output ist shown below.
 
-```{r filterIons2, fig.retina=3, fig.height=12, echo=FALSE}
+```{r filterIons2, fig.retina=3, echo=TRUE}
 beRaw |> 
   filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") |>
-  filterIons(yIonSeries, tol = 0.0005) |> 
-  plotSpectra()
+  filterIons(yIonSeries, tol = 0.005) |> 
+  Spectra() |>
+  peaksData() |>
+  combinePeaks(ppm=10) |>
+  plot(type='h')
+
+abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
+axis(3, yIonSeries, names(yIonSeries))
 ```
 
 
@@ -203,7 +216,7 @@ specs.readSpectra <- read.csv2(fn, header=TRUE)
 lattice::xyplot((as.numeric(time)) * workers~ size | factor(n) ,
                 group= host,
                 data=specs.readSpectra,
-                horizontal=F,
+                horizontal=FALSE,
                 auto.key = TRUE,
                 layout=c(3,1),
                 ylab='time [seconds] to read a spectrum',
