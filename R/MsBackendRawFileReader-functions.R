@@ -61,6 +61,10 @@ NULL
   #hdr$isolationWindowUpperOffset <- NULL
   #hdr$isolationWindowLowerOffset <- NULL
   ## Remove core spectra variables that contain only `NA`
+  hdr$msLevel[hdr$msLevel == "Ms"] <- 1
+  hdr$msLevel[hdr$msLevel == "Ms2"] <- 2
+  hdr$msLevel[hdr$msLevel == "Ms3"] <- 3
+  hdr$msLevel <- as.integer(hdr$msLevel)
   S4Vectors::DataFrame(hdr[, !(MsCoreUtils::vapply1l(hdr, function(z) all(is.na(z))) &
                                  colnames(hdr) %in%
                                  names(.SPECTRA_DATA_COLUMNS))
