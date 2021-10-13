@@ -121,52 +121,6 @@ setMethod("peaksData", "MsBackendRawFileReader",
             SIMPLIFY = FALSE, USE.NAMES = FALSE), f)
           })
 
-#' @rdname hidden_aliases
-#setMethod("exportSparceVector", "MsBackendRawFileReader",
-#          function(object, ..., BPPARAM = bpparam()) {
-#            #message("DEBUG")
-#            if (!length(object))
-#              return(list())
-#            fls <- unique(object@spectraData$dataStorage)
-#            
-#            f <- factor(dataStorage(object), levels = fls)
-#            unsplit(mapply(FUN = function(x, scanIndex){
-#              
-##              pls <- MsBackendRawFileReader:::.RawFileReader_read_peaks2(x, scanIndex, BPPARAM=BPPARAM)
-#              
-#              rv <- lapply(pls, function(p){
-#                if (all(c("mz", "intensity", "noises", "resolutions", "baselines") %in% colnames(p))){
-#                  
-#                  ### 1. construct data frame that contains the peak list
-#                  ### Note: a barebones version of cut() is .bincode() which retuns integer vector
-#                  
-#                  df <- data.frame(pos = p$centroid.mZ,
-#                                   int = p$centroid.intensity,
-#                                   z = p$charges,
-#                                   n = p$noises,
-#                                   r = p$resolutions,
-#                                   b = p$baselines,
-#                                   bin = cut(p$centroid.mZ,
-#                                             breaks = seq(mzRange[1], mzRange[2],
-#                                                          by = mzBinSize)
-#                                   ),
-#                                   sn = p$centroid.intensity / p$noises,
-#                                   order = order(p$centroid.intensity / p$noises, decreasing = FALSE))
-#                  
-#                  
-#                  return (df)
-#                }else{
-#                  return (NULL)
-#                }
-#                m
-#              })
-#              rv 
-#            },
-#            x = fls,
-#            scanIndex = split(scanIndex(object), f),
-#            SIMPLIFY = FALSE, USE.NAMES = FALSE), f)
-#          })
-
 
 #' @importFrom IRanges NumericList
 #' @exportMethod [
