@@ -68,6 +68,8 @@ eh <- ExperimentHub::ExperimentHub()
 query(eh, c('tartare'))
 ```
 
+The RawFileReader libraries require a file extension ending with `.raw`.
+
 ```{r EH3220, message=FALSE, warning=FALSE}
 EH3220 <- normalizePath(eh[["EH3220"]])
 (rawfileEH3220 <- paste0(EH3220, ".raw"))
@@ -88,12 +90,6 @@ if (!file.exists(rawfileEH4547 )){
 }
 ```
 
-```{r EH3219}
-EH3219 <- normalizePath(eh[["EH3219"]])
-EH3221 <- normalizePath(eh[["EH3221"]])
-EH4547 <- normalizePath(eh[["EH4547"]])
-```
-
 # Usage
 
 Call the constructor
@@ -105,6 +101,7 @@ beRaw <- Spectra::backendInitialize(
 ```
 
 Listing
+
 ```{r show}
 beRaw
 ```
@@ -178,8 +175,9 @@ abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
 axis(3, yIonSeries, names(yIonSeries))
 ```
 
+# Evaluation
 
-# I/O Benchmark
+## I/O Benchmark
 
 When reading spectra the
 `MsBackendRawFileReader:::.RawFileReader_read_peaks`
