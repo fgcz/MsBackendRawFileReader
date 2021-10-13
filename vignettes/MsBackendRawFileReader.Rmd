@@ -32,10 +32,12 @@ bibliography:
 # Requirements
 
 ```{r require}
-stopifnot(require(Spectra),
-          require(MsBackendRawFileReader),
-          require(tartare),
-          require(BiocParallel))
+suppressMessages(
+  stopifnot(require(Spectra),
+            require(MsBackendRawFileReader),
+            require(tartare),
+            require(BiocParallel))
+)
 ```
 
 assemblies aka Common Intermediate Language bytecode 
@@ -66,7 +68,7 @@ eh <- ExperimentHub::ExperimentHub()
 query(eh, c('tartare'))
 ```
 
-```{r EH3220, message=FALSE, warning=FALSE, echo=FALSE}
+```{r EH3220, message=FALSE, warning=FALSE}
 EH3220 <- normalizePath(eh[["EH3220"]])
 (rawfileEH3220 <- paste0(EH3220, ".raw"))
 if (!file.exists(rawfileEH3220)){
@@ -92,9 +94,9 @@ EH3221 <- normalizePath(eh[["EH3221"]])
 EH4547 <- normalizePath(eh[["EH4547"]])
 ```
 
-# On using the `MsBackendRawFileReader`
+# Usage
 
-call the constructor
+Call the constructor
 
 ```{r backendInitialize, message=FALSE}
 beRaw <- Spectra::backendInitialize(
@@ -102,6 +104,7 @@ beRaw <- Spectra::backendInitialize(
   files = c(rawfileEH3220, rawfileEH3222, rawfileEH4547))
 ```
 
+Listing
 ```{r show}
 beRaw
 ```
@@ -113,18 +116,7 @@ The `r BiocStyle::Githubpkg("fgcz/MsBackendRawFileReader")` ships with a
 `filterScan` method  using functionality provided by the C# libraries by 
 Thermo Fisher Scientific @rawfilereader.
 
-
-```{r filterTest, eval=FALSE}
-SF1 <- (beRaw |>  
-   filterScan("ms2 487.2567"))
-
-SF2 <- beRaw |>  
-   filterScan("ms2 487.25") |>
-   sparceVector() |> 
-   dotProduct(list(mZ=c(1, 2, 3), intensity=c(10, 100, 100)))
-```
-
-```{r rawrrFigure2, fig.retina=3}
+```{r rawrrFigure2, fig.retina=3, fig.cap = "Peptide spectrum match. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor LGGNEQVTR++ as calculated by the [protViz]( https://CRAN.R-project.org/package=protViz) package [@protViz]."}
 (S <- (beRaw |>  
    filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") )[437]) |> 
   plotSpectra()
@@ -139,9 +131,9 @@ abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
 axis(3, yIonSeries, names(yIonSeries))
 ```
 
-# Extend Class
+# Extend the class
 
-For demonstration reasons, we extent the `MsBackend` class by a simple filter method.
+For demonstration reasons, we extent the `MsBackend` class by a filter method.
 The `filterIons` function returns spectra if and only if all fragment ions,
 given as argument, match. We use `r BiocStyle::CRANpkg("protViz")``::findNN`
 binary search
@@ -149,7 +141,7 @@ method for determining the nearest mZ peak for each ion.
 If the mass error between an ion and an mz value is less than the given mass
 tolerance, an ion is considered a hit.
  
-```{r defineFilterIon, echo=TRUE}
+```{r defineFilterIon}
 setGeneric("filterIons", function(object, ...) standardGeneric("filterIons"))
 
 setMethod("filterIons", "MsBackend",
@@ -173,7 +165,7 @@ setMethod("filterIons", "MsBackend",
 The code snippet below applies the defined `filterIons` method and finds two spectra.
 Both spectra are combined into one singe spectrum. The output ist shown below.
 
-```{r filterIons2, fig.retina=3, echo=TRUE}
+```{r filterIons2, fig.retina=3, fig.cap = "Combined peptide spectrum plot. "}
 beRaw |> 
   filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") |>
   filterIons(yIonSeries, tol = 0.005) |> 
@@ -187,33 +179,23 @@ axis(3, yIonSeries, names(yIonSeries))
 ```
 
 
+# I/O Benchmark
 
-```{r benchmark, eval=FALSE, echo=FALSE}
-# Benchmark on determine break-even of split size
+When reading spectra the
+`MsBackendRawFileReader:::.RawFileReader_read_peaks`
+method is calling the 
+`rawrr::readSpectrum`
+method.
 
-b <- lapply(c(1000,5000,10000), function(n){
-  lapply(c(8,16,32,64,128,256,8,16,32,64,128,256,8,16,32,64,128,256,8,16,32,64,128,256,8,16,32,64,128,256,8,16,32,64,128,256), function(size){
-    start_time <- Sys.time()
-    rv <- MsBackendRawFileReader:::.RawFileReader_read_peaks(rawfileEH4547, 1:n, maxGroupSize = size)
-    end_time <- Sys.time()
-    d <- end_time - start_time
-    message(sprintf("%d - %s", size, d))
-    data.frame(size=size, time=d/n, n=n, workers=bpparam()$workers)
-  })
-})
+The figure below displays the time performance in dependency from the chunk size (how many spectra are read in one function call) for different.
 
-```
+```{r readBenchmarkData, fig.retina=3, fig.cap="I/O Benchmark. The XY plot graphs the time versus the chunk size of the rawrr::readSpectrum method for different compute architectures."}
 
+specs.readSpectra <- file.path(system.file(package = 'MsBackendRawFileReader'),
+               'extdata', 'specs.csv') |>
+  read.csv2(header=TRUE)
 
-```{r readSpecs,eval=FALSE, echo=FALSE}
-fn <- file.path(system.file(package = 'MsBackendRawFileReader'),
-               'extdata', 'specs.csv')
-specs.readSpectra <- read.csv2(fn, header=TRUE)
-```
-
-
-```{r lattice::xyplot, echo=FALSE, fig.retina=3, eval=FALSE}
-lattice::xyplot((as.numeric(time)) * workers~ size | factor(n) ,
+lattice::xyplot((as.numeric(time)) * workers ~ size | factor(n) ,
                 group= host,
                 data=specs.readSpectra,
                 horizontal=FALSE,
