@@ -100,7 +100,7 @@ beRaw <- Spectra::backendInitialize(
   files = c(rawfileEH3220, rawfileEH3222, rawfileEH4547))
 ```
 
-Listing
+Call the print method
 
 ```{r show}
 beRaw
