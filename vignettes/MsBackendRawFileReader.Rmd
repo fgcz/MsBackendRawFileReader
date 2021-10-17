@@ -231,8 +231,7 @@ method is calling the
 `rawrr::readSpectrum`
 method.
 
-The figure below displays the time performance in dependency from the chunk size
-(how many spectra are read in one function call) for different.
+The figure below displays the time performance for reading a single spectrum in dependency from the chunk size (how many spectra are read in one function call) for reading different numbers of overall spectra.
 
 ```{r readBenchmarkData, fig.retina=3, fig.cap="I/O Benchmark. The XY plot graphs the time versus the chunk size of the rawrr::readSpectrum method for different compute architectures."}
 
