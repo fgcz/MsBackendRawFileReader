@@ -15,7 +15,7 @@ output:
   BiocStyle::html_document:
     toc_float: true
 abstract: |
-  `r BiocStyle::Githubpkg("fgcz/MsBackendRawFileReader")` implements an
+  `r BiocStyle::Biocpkg("MsBackendRawFileReader")` implements an
   MsBackend for the `r BiocStyle::Biocpkg("Spectra")` package using
   Thermo Fisher Scientific's NewRawFileReader .Net libraries.
   The package is generalizing the functionallity provided by the
@@ -93,7 +93,7 @@ if (!file.exists(rawfileEH4547 )){
 
 Call the constructor
 
-```{r backendInitialize, message=FALSE}
+```{r backendInitializeMsBackendRawFileReader, message=FALSE}
 beRaw <- Spectra::backendInitialize(
   MsBackendRawFileReader::MsBackendRawFileReader(),
   files = c(rawfileEH3220, rawfileEH3222, rawfileEH4547))
@@ -158,7 +158,7 @@ setMethod("filterIons", "MsBackend",
 
 The lines below implement a simple targeted peptide search engine.
 The R code snippet takes as input a `MsBackendRawFileReader` object
-containing `r length(beRaw)` spectra and y-fragment-ions mZ values calculated 
+containing `r length(beRaw)` spectra and y-fragment-ion mZ values determined 
 for `LGGNEQVTR++`.
 
 ```{r applyFilterIons}
@@ -179,8 +179,8 @@ The runtime is shown below.
 end_time - start_time
 ```
 
-Next, we define and apply a method for graphing `LGGNEQVTR` peptide spectrum matches.
-Also, the function returns some statistics of the match.
+Next, we define and apply a method for graphing `LGGNEQVTR` peptide spectrum
+matches. Also, the function returns some statistics of the match.
 
 ```{r definePlotLGGNEQVTR}
 .plot.LGGNEQVTR <- function(x){
@@ -239,7 +239,9 @@ method is calling the
 `rawrr::readSpectrum`
 method.
 
-The figure below displays the time performance for reading a single spectrum in dependency from the chunk size (how many spectra are read in one function call) for reading different numbers of overall spectra.
+The figure below displays the time performance for reading a single spectrum in
+dependency from the chunk size (how many spectra are read in one function call)
+for reading different numbers of overall spectra.
 
 ```{r readBenchmarkData, fig.retina=3, fig.cap="I/O Benchmark. The XY plot graphs the time versus the chunk size of the rawrr::readSpectrum method for different compute architectures."}
 
@@ -259,15 +261,35 @@ lattice::xyplot((as.numeric(time)) * workers ~ size | factor(n) ,
 
 ## Effectiveness
 
-TODO(cp): We compare the output of the Termo Fischer Scientif raw files versus
-their corresponding mzXML files using
-`Spectra::MsBackendMzR` relying on the
+We compare the output of the Thermo Fischer Scientific raw files versus
+their corresponding mzXML files using `Spectra::MsBackendMzR` relying on the
 `r BiocStyle::Biocpkg("mzR")` package.
 
-```{r mzXML, eval=FALSE}
-EH3219 <- normalizePath(eh[["EH3219"]])
-EH3221 <- normalizePath(eh[["EH3221"]])
+```{r mzXML}
+mzXMLEH3219 <- normalizePath(eh[["EH3219"]])
+mzXMLEH3221 <- normalizePath(eh[["EH3221"]])
 ```
+
+
+```{r backendInitialize, message=FALSE, fig.retina=3, fig.cap='Aggregated intensities mzXML versus raw of the 1st 100 spectra.', message=FALSE, warning=FALSE}
+if (require(mzR)){
+  beRaw <- Spectra::backendInitialize(
+    MsBackendRawFileReader::MsBackendRawFileReader(),
+    files = c(rawfileEH3220, rawfileEH3222))
+  
+  beMzXML <- Spectra::backendInitialize(
+    Spectra::MsBackendMzR(),
+    files = c(mzXMLEH3219, mzXMLEH3221))
+  
+  intensity.raw <- sapply(intensity(beRaw[1:100]), sum)
+  intensity.xml <- sapply(intensity(beMzXML[1:100]), sum)
+  
+  plot(intensity.xml ~ intensity.raw, pch=16, col=rgb(0.5, 0.5, 0.5, alpha=0.5))
+  abline(lm(intensity.xml ~ intensity.raw))
+}
+```
+
+
 
 # Session information
 
