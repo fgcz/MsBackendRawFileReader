@@ -10,7 +10,7 @@ author:
     - *id
     - Swiss Institute of Bioinformatics
   email: cp@fgcz.ethz.ch
-ppackage: MsBackendRawFileReader
+package: MsBackendRawFileReader
 output:
   BiocStyle::html_document:
     toc_float: true
@@ -43,7 +43,6 @@ suppressMessages(
 assemblies aka Common Intermediate Language bytecode 
 The download and install can be done on all platforms using the command:
 `rawrr::installRawFileReaderDLLs()`
-
 
 ```{r installAssemblies, echo=TRUE}
 if (isFALSE(rawrr::.checkDllInMonoPath())){
@@ -159,25 +158,72 @@ setMethod("filterIons", "MsBackend",
   })
 ```
 
-The code snippet below applies the defined `filterIons` method and finds two spectra.
-Both spectra are combined into one singe spectrum. The output ist shown below.
+The lines below implement a simple targeted peptide search engine.
 
-```{r filterIons2, fig.retina=3, fig.cap = "Combined peptide spectrum plot. "}
-beRaw |> 
-  filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") |>
+```{r applyFilterIons}
+X <- beRaw |> 
+  MsBackendRawFileReader::filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") |>
   filterIons(yIonSeries, tol = 0.005) |> 
-  Spectra() |>
-  peaksData() |>
-  combinePeaks(ppm=10) |>
-  plot(type='h')
+  Spectra::Spectra() |>
+  Spectra::peaksData() 
+```
 
-abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
-axis(3, yIonSeries, names(yIonSeries))
+The code snippet above applies the defined `filterIons` method and returns `r length(X)` spectra.
+The output is shown below.
+
+Next, we define and apply a method for graphing `LGGNEQVTR` peptide spectrum matches.
+Also, the function returns some statistics of the match.
+
+```{r definePlotLGGNEQVTR}
+.plot.LGGNEQVTR <- function(x){
+  
+  yIonSeries <- protViz::fragmentIon("LGGNEQVTR")[[1]]$y[1:8]
+  names(yIonSeries) <- paste0("y", seq(1, length(yIonSeries)))
+  
+  plot(x, type ='h', xlim=range(yIonSeries))
+  abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
+  axis(3, yIonSeries, names(yIonSeries))
+  
+  # find nearest mZ value
+  idx <- protViz::findNN(yIonSeries, x[,1])
+  
+  data.frame(
+    ion = names(yIonSeries),
+    mZYIon = yIonSeries,
+    mZ = x[idx, 1],
+    intensity = x[idx, 2]
+  )
+}
+```
+
+```{r filterIons2, fig.retina=3, fig.height=8, fig.cap = "Visualizing of the LGGNEQVTR spectrum matches.", echo=FALSE}
+op <- par(mfrow=c(4, 1), mar=c(4,4,4,1))
+rv <- X |>
+  lapply(FUN = .plot.LGGNEQVTR) |>
+  Reduce(f=rbind) 
+```
+
+
+```{r sanityCheck}
+stats::aggregate(formula = mZ  ~ ion, FUN = base::mean, data=rv)
+stats::aggregate(formula = intensity ~ ion, FUN = base::max, data=rv)
+```
+
+For the sake of demonstration we apply the `Spectra::combinePeaks` method and
+aggregate the `r length(X)` spectra into a singe peak matrix.
+
+The statistics returned by `.plot.LGGNEQVTR()` should be identical with the
+output of the aggregation code snippet above.
+
+```{r combinePeaks, fig.retina=3, fig.cap = "Combined peptide spectrum plot."}
+X |>
+  Spectra::combinePeaks(ppm=10, intensityFun=base::max) |>
+  .plot.LGGNEQVTR()
 ```
 
 # Evaluation
 
-## I/O Benchmark
+## Efficiency - I/O Benchmark
 
 When reading spectra the
 `MsBackendRawFileReader:::.RawFileReader_read_peaks`
@@ -185,7 +231,8 @@ method is calling the
 `rawrr::readSpectrum`
 method.
 
-The figure below displays the time performance in dependency from the chunk size (how many spectra are read in one function call) for different.
+The figure below displays the time performance in dependency from the chunk size
+(how many spectra are read in one function call) for different.
 
 ```{r readBenchmarkData, fig.retina=3, fig.cap="I/O Benchmark. The XY plot graphs the time versus the chunk size of the rawrr::readSpectrum method for different compute architectures."}
 
@@ -201,6 +248,18 @@ lattice::xyplot((as.numeric(time)) * workers ~ size | factor(n) ,
                 layout=c(3,1),
                 ylab='time [seconds] to read a spectrum',
                 xlab='number of spectra / file')
+```
+
+## Effectiveness
+
+TODO(cp): We compare the output of the Termo Fischer Scientif raw files versus
+their corresponding mzXML files using
+`Spectra::MsBackendMzR` relying on the
+`r BiocStyle::Biocpkg("mzR")` package.
+
+```{r mzXML, eval=FALSE}
+EH3219 <- normalizePath(eh[["EH3219"]])
+EH3221 <- normalizePath(eh[["EH3221"]])
 ```
 
 # Session information
