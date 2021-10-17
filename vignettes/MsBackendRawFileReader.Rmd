@@ -147,29 +147,37 @@ setMethod("filterIons", "MsBackend",
                    FUN=function(x){
        NN <- protViz::findNN(mZ, x[, 1])
        hit <- (error <- mZ - x[NN, 1]) < tol & x[NN, 2] >= quantile(x[, 2], .9)
-       #print(hit)
        if (sum(hit) == length(mZ))
          TRUE
        else
          FALSE
                    })
-    
     object[unlist(keep)]
   })
 ```
 
 The lines below implement a simple targeted peptide search engine.
+The R code snippet takes as input a `MsBackendRawFileReader` object
+containing `r length(beRaw)` spectra and y-fragment-ions mZ values calculated 
+for `LGGNEQVTR++`.
 
 ```{r applyFilterIons}
+start_time <- Sys.time()
 X <- beRaw |> 
   MsBackendRawFileReader::filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") |>
   filterIons(yIonSeries, tol = 0.005) |> 
   Spectra::Spectra() |>
   Spectra::peaksData() 
+end_time <- Sys.time()
 ```
 
-The code snippet above applies the defined `filterIons` method and returns `r length(X)` spectra.
-The output is shown below.
+The defined `filterIons` method runs on 
+`r length(beRaw |> MsBackendRawFileReader::filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]"))` input spectra and returns `r length(X)` spectra.
+
+The runtime is shown below.
+```{r runTime}
+end_time - start_time
+```
 
 Next, we define and apply a method for graphing `LGGNEQVTR` peptide spectrum matches.
 Also, the function returns some statistics of the match.
@@ -189,7 +197,7 @@ Also, the function returns some statistics of the match.
   
   data.frame(
     ion = names(yIonSeries),
-    mZYIon = yIonSeries,
+    mZ.yIon = yIonSeries,
     mZ = x[idx, 1],
     intensity = x[idx, 2]
   )
@@ -215,7 +223,7 @@ aggregate the `r length(X)` spectra into a singe peak matrix.
 The statistics returned by `.plot.LGGNEQVTR()` should be identical with the
 output of the aggregation code snippet above.
 
-```{r combinePeaks, fig.retina=3, fig.cap = "Combined peptide spectrum plot."}
+```{r combinePeaks, fig.retina=3, fig.cap = "Combined LGGNEQVTR peptide spectrum match plot."}
 X |>
   Spectra::combinePeaks(ppm=10, intensityFun=base::max) |>
   .plot.LGGNEQVTR()
