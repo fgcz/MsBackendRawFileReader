@@ -4,6 +4,5 @@
 
 
 \section{Version 1.0.0}{\itemize{
-\item
-First bioconductor release of the MsBackendRawFileReader package.
+\item First bioconductor release of the MsBackendRawFileReader package.
 }}

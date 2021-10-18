@@ -270,26 +270,31 @@ mzXMLEH3219 <- normalizePath(eh[["EH3219"]])
 mzXMLEH3221 <- normalizePath(eh[["EH3221"]])
 ```
 
-
 ```{r backendInitialize, message=FALSE, fig.retina=3, fig.cap='Aggregated intensities mzXML versus raw of the 1st 100 spectra.', message=FALSE, warning=FALSE}
 if (require(mzR)){
-  beRaw <- Spectra::backendInitialize(
-    MsBackendRawFileReader::MsBackendRawFileReader(),
-    files = c(rawfileEH3220, rawfileEH3222))
-  
   beMzXML <- Spectra::backendInitialize(
     Spectra::MsBackendMzR(),
-    files = c(mzXMLEH3219, mzXMLEH3221))
+    files = c(mzXMLEH3219))
   
-  intensity.raw <- sapply(intensity(beRaw[1:100]), sum)
+  beRaw <- Spectra::backendInitialize(
+    MsBackendRawFileReader::MsBackendRawFileReader(),
+    files = c(rawfileEH3220))
+  
   intensity.xml <- sapply(intensity(beMzXML[1:100]), sum)
+  intensity.raw <- sapply(intensity(beRaw[1:100]), sum)
   
-  plot(intensity.xml ~ intensity.raw, pch=16, col=rgb(0.5, 0.5, 0.5, alpha=0.5))
-  abline(lm(intensity.xml ~ intensity.raw))
+  plot(intensity.xml ~ intensity.raw, log = 'xy', asp = 1,
+    pch = 16, col = rgb(0.5, 0.5, 0.5, alpha=0.5), cex=2)
+  abline(lm(intensity.xml ~ intensity.raw), 
+  	col='red')
 }
 ```
 
+Are all scans of the raw file in the mzXML file?
 
+```{r}
+table(scanIndex(beRaw) %in% scanIndex(beMzXML))
+```
 
 # Session information
 
