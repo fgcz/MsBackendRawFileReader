@@ -121,7 +121,7 @@ The `r BiocStyle::Githubpkg("fgcz/MsBackendRawFileReader")` ships with a
 `filterScan` method  using functionality provided by the C# libraries by 
 Thermo Fisher Scientific @rawfilereader.
 
-```{r rawrrFigure2, fig.cap = "Peptide spectrum match. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor LGGNEQVTR++ as calculated by the [protViz]( https://CRAN.R-project.org/package=protViz) package [@protViz]."}
+```{r rawrrFigure2, fig.cap = "Peptide spectrum match. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor LGGNEQVTR++ as calculated by the [protViz]( https://CRAN.R-project.org/package=protViz) package."}
 (S <- (beRaw |>  
    filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") )[437]) |> 
   plotSpectra()
