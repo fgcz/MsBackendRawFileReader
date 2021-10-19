@@ -21,6 +21,7 @@ Suggests:
     ExperimentHub,
     knitr,
     lattice,
+    mzR,
     protViz (>= 0.7),
     rmarkdown,
     tartare (>= 1.5),
