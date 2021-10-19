@@ -29,6 +29,15 @@ bibliography:
   - MsBackendRawFileReader.bib
 ---
 
+```{r style, echo = FALSE, results = 'asis'}
+BiocStyle::markdown()
+knitr::opts_chunk$set(fig.wide = TRUE, fig.retina = 3)
+```
+
+```{r arch, echo=FALSE, out.width="80%", eval=TRUE, fig.cap="Integration of rawDiag and rawrr into the Spectra ecosystem."}
+  knitr::include_graphics("arch.jpg")
+```
+
 # Requirements
 
 ```{r require}
@@ -112,7 +121,7 @@ The `r BiocStyle::Githubpkg("fgcz/MsBackendRawFileReader")` ships with a
 `filterScan` method  using functionality provided by the C# libraries by 
 Thermo Fisher Scientific @rawfilereader.
 
-```{r rawrrFigure2, fig.retina=3, fig.cap = "Peptide spectrum match. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor LGGNEQVTR++ as calculated by the [protViz]( https://CRAN.R-project.org/package=protViz) package [@protViz]."}
+```{r rawrrFigure2, fig.cap = "Peptide spectrum match. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor LGGNEQVTR++ as calculated by the [protViz]( https://CRAN.R-project.org/package=protViz) package [@protViz]."}
 (S <- (beRaw |>  
    filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") )[437]) |> 
   plotSpectra()
@@ -204,7 +213,7 @@ matches. Also, the function returns some statistics of the match.
 }
 ```
 
-```{r filterIons2, fig.retina=3, fig.height=8, fig.cap = "Visualizing of the LGGNEQVTR spectrum matches.", echo=FALSE}
+```{r filterIons2, fig.height=8, fig.cap = "Visualizing of the LGGNEQVTR spectrum matches.", echo=FALSE}
 op <- par(mfrow=c(4, 1), mar=c(4,4,4,1))
 rv <- X |>
   lapply(FUN = .plot.LGGNEQVTR) |>
@@ -223,7 +232,7 @@ aggregate the `r length(X)` spectra into a singe peak matrix.
 The statistics returned by `.plot.LGGNEQVTR()` should be identical with the
 output of the aggregation code snippet above.
 
-```{r combinePeaks, fig.retina=3, fig.cap = "Combined LGGNEQVTR peptide spectrum match plot."}
+```{r combinePeaks, fig.cap = "Combined LGGNEQVTR peptide spectrum match plot."}
 X |>
   Spectra::combinePeaks(ppm=10, intensityFun=base::max) |>
   .plot.LGGNEQVTR()
@@ -243,7 +252,7 @@ The figure below displays the time performance for reading a single spectrum in
 dependency from the chunk size (how many spectra are read in one function call)
 for reading different numbers of overall spectra.
 
-```{r readBenchmarkData, fig.retina=3, fig.cap="I/O Benchmark. The XY plot graphs the time versus the chunk size of the rawrr::readSpectrum method for different compute architectures."}
+```{r readBenchmarkData, fig.cap="I/O Benchmark. The XY plot graphs the time versus the chunk size of the rawrr::readSpectrum method for different compute architectures."}
 
 ioBm <- file.path(system.file(package = 'MsBackendRawFileReader'),
                'extdata', 'specs.csv') |>
@@ -275,7 +284,7 @@ mzXMLEH3219 <- normalizePath(eh[["EH3219"]])
 mzXMLEH3221 <- normalizePath(eh[["EH3221"]])
 ```
 
-```{r backendInitialize, message=FALSE, fig.retina=3, fig.cap='Aggregated intensities mzXML versus raw of the 1st 100 spectra.', message=FALSE, warning=FALSE}
+```{r backendInitialize, message=FALSE, fig.cap='Aggregated intensities mzXML versus raw of the 1st 100 spectra.', message=FALSE, warning=FALSE}
 if (require(mzR)){
   beMzXML <- Spectra::backendInitialize(
     Spectra::MsBackendMzR(),
@@ -303,10 +312,11 @@ if (require(mzR)){
 }
 ```
 
-# Session information
+# Session information {-}
 
 ```{r sessionInfo}
 sessionInfo()
 ```
 
-# References
+
+# References {-}
