@@ -245,28 +245,23 @@ for reading different numbers of overall spectra.
 
 ```{r readBenchmarkData, fig.retina=3, fig.cap="I/O Benchmark. The XY plot graphs the time versus the chunk size of the rawrr::readSpectrum method for different compute architectures."}
 
-specs.readSpectra <- file.path(system.file(package = 'MsBackendRawFileReader'),
+ioBm <- file.path(system.file(package = 'MsBackendRawFileReader'),
                'extdata', 'specs.csv') |>
   read.csv2(header=TRUE)
 
-eh <- ExperimentHub::ExperimentHub()
-EH4547  <- normalizePath(eh[["EH4547"]])
-(rawfileEH4547  <- paste0(EH4547 , ".raw"))
-if (!file.exists(rawfileEH4547 )){
-  file.link(EH4547 , rawfileEH4547 
-  }
 
-bmLocal <- ioBenchmark(1000, c(128, 256, 128, 256), rawfile=rawfileEH4547)
+# perform and include a local IO benchmark
+ioBmLocal <- ioBenchmark(1000, c(32, 64, 128, 256), rawfile = rawfileEH4547)
 
 
 lattice::xyplot((as.numeric(time)) * workers ~ size | factor(n) ,
-                group= host,
-                data=rbind(specs.readSpectra, bmLocal),
-                horizontal=FALSE,
+                group = host,
+                data = rbind(ioBm, ioBmLocal),
+                horizontal = FALSE,
                 auto.key = TRUE,
-                layout=c(3,1),
-                ylab='time [seconds] to read a spectrum',
-                xlab='number of spectra / file')
+                layout = c(3,1),
+                ylab = 'time [seconds] to read a spectrum',
+                xlab = 'number of spectra / file')
 ```
 
 ## Effectiveness
