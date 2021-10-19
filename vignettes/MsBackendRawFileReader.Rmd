@@ -34,7 +34,7 @@ BiocStyle::markdown()
 knitr::opts_chunk$set(fig.wide = TRUE, fig.retina = 3)
 ```
 
-```{r arch, echo=FALSE, out.width="80%", eval=TRUE, fig.cap="Integration of rawDiag and rawrr into the Spectra ecosystem."}
+```{r arch, echo=FALSE, out.width="80%", eval=TRUE, fig.cap="Integration of rawDiag and rawrr into the Spectra ecosystem (by courtesy of Johannes Rainer)."}
   knitr::include_graphics("arch.jpg")
 ```
 
@@ -316,6 +316,5 @@ if (require(mzR)){
 ```{r sessionInfo}
 sessionInfo()
 ```
-
 
 # References {-}
