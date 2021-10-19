@@ -46,4 +46,5 @@ Collate:
     'AllGenerics.R'
     'MsBackendRawFileReader-functions.R'
     'MsBackendRawFileReader.R'
+    'benchmark.R'
     'zzz.R'
