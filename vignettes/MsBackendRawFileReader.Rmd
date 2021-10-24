@@ -252,7 +252,7 @@ The figure below displays the time performance for reading a single spectrum in
 dependency from the chunk size (how many spectra are read in one function call)
 for reading different numbers of overall spectra.
 
-```{r readBenchmarkData, fig.cap="I/O Benchmark. The XY plot graphs the time versus the chunk size of the rawrr::readSpectrum method for different compute architectures."}
+```{r readBenchmarkData, fig.cap="I/O Benchmark. The XY plot graphs how many spectra the backend can read in one second versus the chunk size of the rawrr::readSpectrum method for different compute architectures."}
 
 ioBm <- file.path(system.file(package = 'MsBackendRawFileReader'),
                'extdata', 'specs.csv') |>
@@ -262,13 +262,14 @@ ioBm <- file.path(system.file(package = 'MsBackendRawFileReader'),
 ioBmLocal <- ioBenchmark(1000, c(32, 64, 128, 256), rawfile = rawfileEH4547)
 
 
-lattice::xyplot((as.numeric(time)) * workers ~ size | factor(n) ,
+lattice::xyplot((1 / as.numeric(time)) * workers ~ size | factor(n) ,
                 group = host,
                 data = rbind(ioBm, ioBmLocal),
                 horizontal = FALSE,
+		scales=list(y = list(log = 10)),
                 auto.key = TRUE,
                 layout = c(3, 1),
-                ylab = 'time [seconds] to read a spectrum',
+                ylab = 'spectra read in one second',
                 xlab = 'number of spectra / file')
 ```
 
