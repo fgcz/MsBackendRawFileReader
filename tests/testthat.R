@@ -10,6 +10,8 @@ sample_mzXML_file <- file.path(path.package(package = 'MsBackendRawFileReader'),
 
 
 sample_raw <-  backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(), files = sample_raw_file)
+
+
 #sample_mzr <-  backendInitialize(MsBackendMzR(), files = sample_mzXML_file)
 
 
@@ -26,3 +28,16 @@ sample_raw_2 <- backendInitialize(MsBackendRawFileReader(),
 
 test_check("MsBackendRawFileReader")
 
+
+
+
+
+be <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(),
+                                 files = c(sample_raw_file))
+
+## Run the MsBackend spectra variable test suite
+test_suite <- system.file("test_backends", "test_MsBackend",
+                          package = "Spectra")
+
+res <- test_file(paste0(test_suite, "/test_spectra_variables.R"),
+                 reporter = check_reporter(), stop_on_failure = TRUE)
