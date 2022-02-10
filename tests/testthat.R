@@ -39,5 +39,9 @@ be <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(
 test_suite <- system.file("test_backends", "test_MsBackend",
                           package = "Spectra")
 
-res <- test_file(paste0(test_suite, "/test_spectra_variables.R"),
-                 reporter = check_reporter(), stop_on_failure = TRUE)
+#res <- test_file(paste0(test_suite, "/test_spectra_variables.R"),
+#                 reporter = check_reporter(), stop_on_failure = TRUE)
+
+
+## Run the whole suite.
+res <- test_dir(test_suite, stop_on_failure = TRUE)
