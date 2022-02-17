@@ -4,6 +4,13 @@ Provides an alternative `MsBackend` to [Spectra](https://bioconductor.org/packag
 
 Details of the backend concept are outlined in https://github.com/rformassspectrometry/Spectra/blob/master/man/MsBackend.Rd
 
+
+## Install
+
+Please follow the install instructions provided through 
+
+https://bioconductor.org/packages/MsBackendRawFileReader/
+
 ## Goal
 
 Integration of [rawDiag](https://github.com/fgcz/rawDiag) and [rawrr](https://bioconductor.org/packages/rawrr/) into the RforMassSpectrometry [Spectra](https://bioconductor.org/packages/Spectra) ecosystem.
