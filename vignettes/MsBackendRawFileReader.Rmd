@@ -116,6 +116,8 @@ beRaw
 
 # Application example
 
+## Peptide spectrum match
+
 Here we reproduce the Figure 2 of @rawrr `r BiocStyle::Biocpkg("rawrr")`.
 The `r BiocStyle::Githubpkg("fgcz/MsBackendRawFileReader")` ships with a 
 `filterScan` method  using functionality provided by the C# libraries by 
@@ -136,7 +138,9 @@ abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
 axis(3, yIonSeries, names(yIonSeries))
 ```
 
-# Extend the class
+
+
+## Extend the MsBackend class
 
 For demonstration reasons, we extent the `MsBackend` class by a filter method.
 The `filterIons` function returns spectra if and only if all fragment ions,
@@ -238,6 +242,43 @@ X |>
   .plot.LGGNEQVTR()
 ```
 
+## Write Mascot Generic File (mgf)
+
+Below we demonstrate the interaction with the `r Biocpkg('MsBackendMgf')` package while composing
+a Mascot Generic File (see also http://www.matrixscience.com/help/data_file_help.html#GEN)
+
+```{r mgf}
+map <- c(scanType = "TITLE",
+         msLevel = "CHARGE",
+         scanIndex = "SCANS",
+         precursorMz = "PEPMASS",
+         rtime = "RTINSECONDS")
+
+(mgf <- tempfile(fileext = '.mgf'))
+
+(beRaw |>
+  filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") )[437] |>
+  Spectra() |>
+  MsBackendMgf::export(backend = MsBackendMgf::MsBackendMgf(),
+                       file = mgf, map = map)
+readLines(mgf) |> head(12)
+readLines(mgf) |> tail()
+```
+
+
+
+To extract all MS2 spectra you can use the code snippet below
+
+```{r mgfall, eval=FALSE}
+Spectra::backendInitialize(
+  MsBackendRawFileReader::MsBackendRawFileReader(),
+  files = c(rawfileEH4547)) |>
+  filterScan("ms2") |>
+  Spectra() |>
+  MsBackendMgf::export(backend = MsBackendMgf::MsBackendMgf(),
+                       file = mgf,
+                       map = map)
+```
 # Evaluation
 
 ## Efficiency - I/O Benchmark
