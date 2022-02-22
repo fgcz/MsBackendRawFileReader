@@ -116,7 +116,7 @@ beRaw
 
 # Application example
 
-## Peptide spectrum match
+## Peptide Identification
 
 Here we reproduce the Figure 2 of @rawrr `r BiocStyle::Biocpkg("rawrr")`.
 The `r BiocStyle::Githubpkg("fgcz/MsBackendRawFileReader")` ships with a 
@@ -140,7 +140,7 @@ axis(3, yIonSeries, names(yIonSeries))
 
 
 
-## Extend the MsBackend class
+## Class extension
 
 For demonstration reasons, we extent the `MsBackend` class by a filter method.
 The `filterIons` function returns spectra if and only if all fragment ions,
@@ -196,13 +196,15 @@ Next, we define and apply a method for graphing `LGGNEQVTR` peptide spectrum
 matches. Also, the function returns some statistics of the match.
 
 ```{r definePlotLGGNEQVTR}
+## A helper plot function to visualize a peptide spectrum match for 
+## the LGGNEQVTR peptide.
 .plot.LGGNEQVTR <- function(x){
   
   yIonSeries <- protViz::fragmentIon("LGGNEQVTR")[[1]]$y[1:8]
   names(yIonSeries) <- paste0("y", seq(1, length(yIonSeries)))
   
-  plot(x, type ='h', xlim=range(yIonSeries))
-  abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
+  plot(x, type = 'h', xlim = range(yIonSeries))
+  abline(v = yIonSeries, col = '#DDDDDD88', lwd=5)
   axis(3, yIonSeries, names(yIonSeries))
   
   # find nearest mZ value
@@ -242,10 +244,10 @@ X |>
   .plot.LGGNEQVTR()
 ```
 
-## Write Mascot Generic File (mgf)
+## Export Mascot Generic Format File
 
 Below we demonstrate the interaction with the `r Biocpkg('MsBackendMgf')` package while composing
-a Mascot Generic File (see also http://www.matrixscience.com/help/data_file_help.html#GEN)
+a Mascot Generic Format [mgf](http://www.matrixscience.com/help/data_file_help.html#GEN) file.
 
 ```{r mgf}
 map <- c(scanType = "TITLE",
@@ -262,23 +264,79 @@ map <- c(scanType = "TITLE",
   MsBackendMgf::export(backend = MsBackendMgf::MsBackendMgf(),
                        file = mgf, map = map)
 readLines(mgf) |> head(12)
+```
+
+```{r mgfTail}
 readLines(mgf) |> tail()
 ```
 
 
 
-To extract all MS2 spectra you can use the code snippet below
+To extract all tandem spectra you can use the code snippets below
 
-```{r mgfall, eval=FALSE}
-Spectra::backendInitialize(
+```{r allMS2}
+S <- Spectra::backendInitialize(
   MsBackendRawFileReader::MsBackendRawFileReader(),
   files = c(rawfileEH4547)) |>
-  filterScan("ms2") |>
-  Spectra() |>
+  Spectra() 
+
+S
+```
+
+```{r writeMGF, eval=FALSE}
+S |>
   MsBackendMgf::export(backend = MsBackendMgf::MsBackendMgf(),
                        file = mgf,
                        map = map)
 ```
+
+## Procesing queue
+
+Given the task, we want to filter an MS2 of peak list recorded on an Orbitrap device to be interested only in the top peak within 100 Da mass windows. The following code snippet will 
+demonstrate a solution.
+
+```{r defineTopN}
+## Define a function that takes a matrix as input and derives
+## the top n most intense peaks within a mass window.
+## Of note, here, we require centroided data. (no profile mode!)
+top_n <- function(x, n = 10, mass_window = 100, ...){
+
+   idx <- lapply(seq(0, 2000, by = mass_window), function(mZ){
+       i <- (mZ < x[, 1] & x[, 1] <= mZ + mass_window) |> which()
+
+       r <- i[order(x[, 2][i], decreasing = TRUE)]
+
+       if (length(x[, 2]) > length(i))
+           return(r[1:n])
+
+       return(r)
+    }, ...) |> unlist()
+
+   x[idx[!is.na(idx)] |> sort(), ]
+}
+```
+
+We add our custom code to the processing queue of the Spectra object.
+Of note, we use `n = 1` in praxis `n = 10` for a 100 Da mass window, which seems to be a practical choice.
+
+```{r applyProcessing}
+S_2 <- Spectra::addProcessing(S, top_n, n = 1) 
+```
+
+The plot below displays a visual control of the custom filter function `top_n.`  On the top is the original spectrum, and the filtered one on the bottom. A point indicates peaks that match.
+
+```{r plotSpectraMirror9594, fig.retina=3, fig.cap = "Spectra mirror plot of the filtered and unfiltered (bottom) scan 9594."}
+Spectra::plotSpectraMirror(S[9594], S_2[9594], ppm = 50)
+```
+
+The next snippet prints the values of the filtered peaklist and the mZ values of the y-ions.
+
+```{r compare9594mZValues}
+S_2[9594] |> mz() |> unlist()
+yIonSeries
+```
+
+
 # Evaluation
 
 ## Efficiency - I/O Benchmark
