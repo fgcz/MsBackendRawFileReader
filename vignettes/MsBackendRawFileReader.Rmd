@@ -290,6 +290,68 @@ S |>
                        map = map)
 ```
 
+Next, we generate a mgf file for each scan type.
+
+```{r defineScanTypePattern}
+## Define scanType patterns
+scanTypePattern <- list(
+  EThcD.lowres = "ITMS.+sa Full ms2.+@etd.+@hcd.+",
+  ETciD.lowres = "ITMS.+sa Full ms2.+@etd.+@cid.+",
+  CID.lowres = "ITMS[^@]+@cid[^@]+$",
+  HCD.lowres = "ITMS[^@]+@hcd[^@]+$",
+  EThcD.highres = "FTMS.+sa Full ms2.+@etd.+@hcd.+",
+  HCD.highres = "FTMS[^@]+@hcd[^@]+$"
+)
+```
+
+
+```{r}
+beRaw <- Spectra::backendInitialize(
+  MsBackendRawFileReader::MsBackendRawFileReader(),
+  files = c(rawrr::sampleFilePath()))
+```
+
+```{r}
+beRaw <- Spectra::backendInitialize(
+  MsBackendRawFileReader::MsBackendRawFileReader(),
+  files = rawrr::sampleFilePath())
+
+beRaw$custom <- paste0("File: ", gsub("/srv/www/htdocs/Data2San/", "", beRaw$dataOrigin), " ; SpectrumID: ", beRaw$scanIndex)
+
+map <- c(custom = "TITLE",
+         msLevel = "CHARGE",
+         scanIndex = "SCANS",
+         precursorMz = "PEPMASS",
+         rtime = "RTINSECONDS")
+```
+
+```{r}
+.generate_mgf <- function(ext, pattern,  dir=tempdir(), ...){
+  mgf <- file.path(dir, paste0(sub("\\.raw", "", unique(basename(beRaw$dataOrigin))),
+                               ".", ext, ".mgf"))
+
+  idx <- beRaw$scanType |> grepl(patter=pattern)
+
+  if (sum(idx) == 0) return (NULL)
+
+  message(paste0("Extracting ", sum(idx), " ",
+                 pattern, " scans\n\t to file ", mgf, " ..."))
+
+  beRaw[which(idx)] |>
+    Spectra::Spectra() |>
+    MsBackendMgf::export(backend = MsBackendMgf::MsBackendMgf(),
+                         file = mgf,
+                         map = map)
+
+  mgf
+}
+
+#mapply(ext = names(scanTypePattern),
+#      scanTypePattern,
+#       FUN = .generate_mgf) |>
+#  lapply(FUN = function(f){if (file.exists(f)) {readLines(f) |> head()}})
+```
+
 ## Procesing queue
 
 Given the task, we want to filter an MS2 of peak list recorded on an Orbitrap device to be interested only in the top peak within 100 Da mass windows. The following code snippet will 
@@ -335,6 +397,7 @@ The next snippet prints the values of the filtered peaklist and the mZ values of
 S_2[9594] |> mz() |> unlist()
 yIonSeries
 ```
+
 
 
 # Evaluation
@@ -383,7 +446,7 @@ mzXMLEH3219 <- normalizePath(eh[["EH3219"]])
 mzXMLEH3221 <- normalizePath(eh[["EH3221"]])
 ```
 
-```{r backendInitialize, message=FALSE, fig.cap='Aggregated intensities mzXML versus raw of the 1st 100 spectra.', message=FALSE, warning=FALSE}
+```{r backendInitialize, message=FALSE, fig.cap='Aggregated intensities mzXML versus raw of the 1st 100 spectra.', message=FALSE, warning=FALSE, fig.width=5, fig.height=5}
 if (require(mzR)){
   beMzXML <- Spectra::backendInitialize(
     Spectra::MsBackendMzR(),
