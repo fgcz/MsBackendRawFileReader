@@ -247,20 +247,26 @@ X |>
 ## Export Mascot Generic Format File
 
 Below we demonstrate the interaction with the `r Biocpkg('MsBackendMgf')` package while composing
-a Mascot Generic Format [mgf](http://www.matrixscience.com/help/data_file_help.html#GEN) file.
+a Mascot Generic Format [mgf](http://www.matrixscience.com/help/data_file_help.html#GEN) file which is compatible for conducting an MS/MS Ions Search using Mascot Server (>=2.7) @Perkins1999.
 
 ```{r mgf}
-map <- c(scanType = "TITLE",
+## Map Spectra variables to Mascot Server compatible vocabulary.
+map <- c(custom = "TITLE",
          msLevel = "CHARGE",
          scanIndex = "SCANS",
          precursorMz = "PEPMASS",
          rtime = "RTINSECONDS")
+
+## Compose custom TITLE
+beRaw$custom <- paste0("File: ", beRaw$dataOrigin, " ; SpectrumID: ", S$scanIndex)
 
 (mgf <- tempfile(fileext = '.mgf'))
 
 (beRaw |>
   filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") )[437] |>
   Spectra() |>
+  Spectra::selectSpectraVariables(c("rtime", "precursorMz",
+    "precursorCharge", "msLevel", "scanIndex", "custom")) |>
   MsBackendMgf::export(backend = MsBackendMgf::MsBackendMgf(),
                        file = mgf, map = map)
 readLines(mgf) |> head(12)
@@ -269,7 +275,6 @@ readLines(mgf) |> head(12)
 ```{r mgfTail}
 readLines(mgf) |> tail()
 ```
-
 
 
 To extract all tandem spectra you can use the code snippets below
@@ -290,7 +295,7 @@ S |>
                        map = map)
 ```
 
-Next, we generate a mgf file for each scan type. This is helpful, e.g, for optimizing search settings tandem mass spectrometry sequence database search tool as comet @comet2012.
+Next, we generate a mgf file for each scan type. This is helpful, e.g, for optimizing search settings tandem mass spectrometry sequence database search tool as comet @comet2012 or mascot server @Perkins1999.
 
 ```{r defineScanTypePattern}
 ## Define scanType patterns
@@ -317,12 +322,6 @@ beRaw <- Spectra::backendInitialize(
   files = rawrr::sampleFilePath())
 
 beRaw$custom <- paste0("File: ", gsub("/srv/www/htdocs/Data2San/", "", beRaw$dataOrigin), " ; SpectrumID: ", beRaw$scanIndex)
-
-map <- c(custom = "TITLE",
-         msLevel = "CHARGE",
-         scanIndex = "SCANS",
-         precursorMz = "PEPMASS",
-         rtime = "RTINSECONDS")
 ```
 
 ```{r}
@@ -339,6 +338,8 @@ map <- c(custom = "TITLE",
 
   beRaw[which(idx)] |>
     Spectra::Spectra() |>
+    Spectra::selectSpectraVariables(c("rtime", "precursorMz",
+    "precursorCharge", "msLevel", "scanIndex", "custom")) |>
     MsBackendMgf::export(backend = MsBackendMgf::MsBackendMgf(),
                          file = mgf,
                          map = map)
