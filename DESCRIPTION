@@ -12,7 +12,7 @@ Depends: R (>= 4.1), methods, Spectra (>= 1.5.8)
 Imports:
     MsCoreUtils,
     S4Vectors,
-    IRanges
+    IRanges,
     rawrr (>= 1.2),
     utils,
     BiocParallel
