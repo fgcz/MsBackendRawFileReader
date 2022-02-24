@@ -220,16 +220,16 @@ matches. Also, the function returns some statistics of the match.
 ```
 
 ```{r filterIons2, fig.height=8, fig.cap = "Visualizing of the LGGNEQVTR spectrum matches.", echo=FALSE}
-op <- par(mfrow=c(4, 1), mar=c(4,4,4,1))
+op <- par(mfrow=c(4, 1), mar=c(4, 4, 4, 1))
 rv <- X |>
   lapply(FUN = .plot.LGGNEQVTR) |>
   Reduce(f=rbind) 
 ```
 
 
-```{r sanityCheck}
-stats::aggregate(formula = mZ  ~ ion, FUN = base::mean, data=rv)
-stats::aggregate(formula = intensity ~ ion, FUN = base::max, data=rv)
+```{r sanityCheck, error=TRUE}
+stats::aggregate(formula = mZ ~ ion, FUN = base::mean, data = rv)
+stats::aggregate(formula = intensity ~ ion, FUN = base::max, data = rv)
 ```
 
 For the sake of demonstration we apply the `Spectra::combinePeaks` method and
