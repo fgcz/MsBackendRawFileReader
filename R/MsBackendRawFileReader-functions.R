@@ -123,7 +123,6 @@ MsBackendRawFileReader <- function() {
     maxGroupSize <- length(scanIndex)
   
   BiocParallel::bplapply(FUN = function(i){
-    # print(i)
     lapply(rawrr::readSpectrum(x, i, tmpdir=tmpdir), function(p){
       m <- as.matrix(cbind(p$mZ, p$intensity))
       colnames(m) <- c("mz", "intensity")

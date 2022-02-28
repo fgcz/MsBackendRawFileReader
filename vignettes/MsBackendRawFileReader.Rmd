@@ -221,15 +221,15 @@ matches. Also, the function returns some statistics of the match.
 
 ```{r filterIons2, fig.height=8, fig.cap = "Visualizing of the LGGNEQVTR spectrum matches.", echo=FALSE}
 op <- par(mfrow=c(4, 1), mar=c(4, 4, 4, 1))
-rv <- X |>
+XC <- X |>
   lapply(FUN = .plot.LGGNEQVTR) |>
-  Reduce(f=rbind) 
+  Reduce(f = rbind) 
 ```
 
 
-```{r sanityCheck, error=TRUE}
-stats::aggregate(formula = mZ ~ ion, FUN = base::mean, data = rv)
-stats::aggregate(formula = intensity ~ ion, FUN = base::max, data = rv)
+```{r sanityCheck, error=FALSE}
+stats::aggregate(mZ ~ ion, data = XC, FUN = base::mean)
+stats::aggregate(intensity ~ ion, data = XC, FUN = base::max)
 ```
 
 For the sake of demonstration we apply the `Spectra::combinePeaks` method and
@@ -264,7 +264,7 @@ beRaw$custom <- paste0("File: ", beRaw$dataOrigin, " ; SpectrumID: ", S$scanInde
 
 (beRaw |>
   filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") )[437] |>
-  Spectra() |>
+  Spectra::Spectra() |>
   Spectra::selectSpectraVariables(c("rtime", "precursorMz",
     "precursorCharge", "msLevel", "scanIndex", "custom")) |>
   MsBackendMgf::export(backend = MsBackendMgf::MsBackendMgf(),
@@ -363,19 +363,20 @@ demonstrate a solution.
 ## the top n most intense peaks within a mass window.
 ## Of note, here, we require centroided data. (no profile mode!)
 top_n <- function(x, n = 10, mass_window = 100, ...){
-
-   idx <- lapply(seq(0, 2000, by = mass_window), function(mZ){
-       i <- (mZ < x[, 1] & x[, 1] <= mZ + mass_window) |> which()
-
-       r <- i[order(x[, 2][i], decreasing = TRUE)]
-
-       if (length(x[, 2]) > length(i))
-           return(r[1:n])
-
-       return(r)
-    }, ...) |> unlist()
-
-   x[idx[!is.na(idx)] |> sort(), ]
+  if (nrow(x) < n ) return (x);
+  
+  idx <- lapply(seq(0, max(x[, 1]), by = mass_window), function(mZ){
+    i <- (mZ < x[, 1] & x[, 1] <= mZ + mass_window) |> which()
+    
+    r <- i[order(x[, 2][i], decreasing = TRUE)]
+    
+    if (length(x[, 2]) > length(i))
+      return(r[1:n])
+    
+    return(r)
+  }, ...) |> unlist()
+  
+  x[idx[!is.na(idx)] |> sort(), ]
 }
 ```
 

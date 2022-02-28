@@ -97,7 +97,12 @@ setMethod("peaksData", "MsBackendRawFileReader",
               pls <- MsBackendRawFileReader:::.RawFileReader_read_peaks2(x, scanIndex, BPPARAM=BPPARAM)
               
               rv <- lapply(pls, function(p){
-                if (all(c("mz", "intensity", "noises", "resolutions", "baselines") %in% colnames(p))){
+                if (is.null(p$centroid.mZ)){
+                  warning(paste0("Scan ", p$scan, " has an empyt peaklist!"))
+                  # m <- as.matrix(cbind(0, 0))
+                  m <- matrix(, 0, 2)
+                  colnames(m) <- c("mz", "intensity")
+                } else if (all(c("mz", "intensity", "noises", "resolutions", "baselines") %in% colnames(p))){
                   
                   m <- as.matrix(cbind(p$centroid.mZ,
                                        p$centroid.intensity,
