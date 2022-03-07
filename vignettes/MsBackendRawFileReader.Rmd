@@ -362,29 +362,14 @@ demonstrate a solution.
 ## Define a function that takes a matrix as input and derives
 ## the top n most intense peaks within a mass window.
 ## Of note, here, we require centroided data. (no profile mode!)
-top_n <- function(x, n = 10, mass_window = 100, ...){
-  if (nrow(x) < n ) return (x);
-  
-  idx <- lapply(seq(0, max(x[, 1]), by = mass_window), function(mZ){
-    i <- (mZ < x[, 1] & x[, 1] <= mZ + mass_window) |> which()
-    
-    r <- i[order(x[, 2][i], decreasing = TRUE)]
-    
-    if (length(x[, 2]) > length(i))
-      return(r[1:n])
-    
-    return(r)
-  }, ...) |> unlist()
-  
-  x[idx[!is.na(idx)] |> sort(), ]
-}
+MsBackendRawFileReader:::.top_n
 ```
 
 We add our custom code to the processing queue of the Spectra object.
 Of note, we use `n = 1` in praxis `n = 10` for a 100 Da mass window, which seems to be a practical choice.
 
 ```{r applyProcessing}
-S_2 <- Spectra::addProcessing(S, top_n, n = 1) 
+S_2 <- Spectra::addProcessing(S, MsBackendRawFileReader:::.top_n, n = 1) 
 ```
 
 The plot below displays a visual control of the custom filter function `top_n.`  On the top is the original spectrum, and the filtered one on the bottom. A point indicates peaks that match.
