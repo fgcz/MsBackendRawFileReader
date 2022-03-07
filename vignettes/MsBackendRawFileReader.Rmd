@@ -389,7 +389,7 @@ S_2 <- Spectra::addProcessing(S, top_n, n = 1)
 
 The plot below displays a visual control of the custom filter function `top_n.`  On the top is the original spectrum, and the filtered one on the bottom. A point indicates peaks that match.
 
-```{r plotSpectraMirror9594, fig.retina=3, fig.cap = "Spectra mirror plot of the filtered  (bottom) and unfiltered scan 9594."}
+```{r plotSpectraMirror9594, fig.retina=3, fig.cap = "Spectra mirror plot of the filtered  (bottom) and unfiltered scan 9594.", error=TRUE}
 Spectra::plotSpectraMirror(S[9594], S_2[9594], ppm = 50)
 ```
 
