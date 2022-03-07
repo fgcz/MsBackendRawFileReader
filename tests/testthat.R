@@ -2,6 +2,7 @@ library("testthat")
 library("MsBackendRawFileReader")
 library("Spectra")
 
+
 sample_raw_file <- file.path(system.file(package = "rawrr"),
                                 'extdata', 'sample.raw')
 
@@ -15,6 +16,9 @@ sample_raw <-  backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(
 #sample_mzr <-  backendInitialize(MsBackendMzR(), files = sample_mzXML_file)
 
 
+mgf_file <- file.path(system.file(package = "MsBackendRawFileReader"),
+                             'extdata', '3159619b11ed_4590_9594.mgf')
+
 
 rv <- lapply(1:2, function(x){
   file.copy(from = sample_raw_file, to = tempfile(fileext='.raw'))})
@@ -27,9 +31,6 @@ sample_raw_2 <- backendInitialize(MsBackendRawFileReader(),
 
 
 test_check("MsBackendRawFileReader")
-
-
-
 
 
 be <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(),
