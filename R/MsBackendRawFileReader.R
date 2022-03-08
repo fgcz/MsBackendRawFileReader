@@ -94,15 +94,12 @@ setMethod("peaksData", "MsBackendRawFileReader",
             f <- factor(dataStorage(object), levels = fls)
             unsplit(mapply(FUN = function(x, scanIndex){
               
-              pls <- MsBackendRawFileReader:::.RawFileReader_read_peaks2(x, scanIndex, BPPARAM=BPPARAM)
+              pls <- MsBackendRawFileReader:::.RawFileReader_read_peaks2(x,
+                                                                         scanIndex, BPPARAM=BPPARAM)
               
               rv <- lapply(pls, function(p){
-                if (is.null(p$centroid.mZ)){
-                  warning(paste0("Scan ", p$scan, " has an empyt peaklist!"))
-                  # m <- as.matrix(cbind(0, 0))
-                  m <- matrix(, 0, 2)
-                  colnames(m) <- c("mz", "intensity")
-                } else if (all(c("mz", "intensity", "noises", "resolutions", "baselines") %in% colnames(p))){
+                if (all(c("centroid.mz", "centroid.intensity", "noises",
+                          "resolutions", "baselines") %in% colnames(p))){
                   
                   m <- as.matrix(cbind(p$centroid.mZ,
                                        p$centroid.intensity,
@@ -112,9 +109,17 @@ setMethod("peaksData", "MsBackendRawFileReader",
                   
                   colnames(m) <- c("mz", "intensity",
                                    "noises", "resolutions", "baselines")
-                }else{
-                  m <- as.matrix(cbind(p$centroid.mZ,
-                                       p$centroid.intensity))
+                }else if (all(c("centroid.mz", "centroid.intensity") %in% colnames(p) )){
+                  m <- as.matrix(cbind(p$centroid.mZ, p$centroid.intensity))
+                  colnames(m) <- c("mz", "intensity")
+                }else if (length(p$mZ) > 0){
+                  warning(paste0("No centroid stream set for ", p$scan, "."))
+                  m <- as.matrix(cbind(p$mZ, p$intensity))
+                  colnames(m) <- c("mz", "intensity")
+                }
+                else{
+                  warning(paste0("Scan ", p$scan, " has an empyt peaklist!"))
+                  m <- matrix(, 0, 2)
                   colnames(m) <- c("mz", "intensity")
                 }
                 m
