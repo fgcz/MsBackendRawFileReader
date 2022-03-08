@@ -169,3 +169,29 @@ MsBackendRawFileReader <- function() {
 
 
 
+
+## Define a function that takes a matrix as input and derives
+## the top n most intense peaks within a mass window.
+## Of note, here, we require centroided data. (no profile mode!)
+.top_n <- function(x, n = 10, mass_window = 100, ...){
+
+  # message(paste("DEBUG:", nrow(x), ncol(x), class(x), "\n"))
+
+  if (nrow(x) < n ){
+	  return (x)
+	  }
+
+  idx <- lapply(seq(0, 2000, by = mass_window), function(mZ){
+    i <- (mZ < x[, 1] & x[, 1] <= mZ + mass_window) |> which()
+
+    r <- i[order(x[, 2][i], decreasing = TRUE)]
+
+    if (length(x[, 2]) > length(i))
+      return(r[1:n])
+
+    return(r)
+  }, ...) |> unlist()
+
+  x[idx[!is.na(idx)] |> sort(), ]
+}
+
