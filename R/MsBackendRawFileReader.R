@@ -113,7 +113,7 @@ setMethod("peaksData", "MsBackendRawFileReader",
                   m <- as.matrix(cbind(p$centroid.mZ, p$centroid.intensity))
                   colnames(m) <- c("mz", "intensity")
                 }else if (length(p$mZ) > 0){
-                  warning(paste0("No centroid stream set for ", p$scan, "."))
+                  # warning(paste0("No centroid stream set for ", p$scan, "."))
                   m <- as.matrix(cbind(p$mZ, p$intensity))
                   colnames(m) <- c("mz", "intensity")
                 }
