@@ -59,7 +59,7 @@ if (isFALSE(rawrr::.checkDllInMonoPath())){
 }
 
 if (isFALSE(file.exists(rawrr:::.rawrrAssembly()))){
- rawrr::installRawrrExe(sourceUrl = "http://fgcz-ms.uzh.ch/~cpanse/rawrr/rawrr.1.1.12.exe")
+ rawrr::installRawrrExe()
 }
 ```
 
