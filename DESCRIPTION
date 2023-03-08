@@ -9,7 +9,7 @@ Authors@R: c(person(given = "Christian",
 	  email = "Tobias.Kockmann@fgcz.ethz.ch", role = "aut", 
       comment = c(ORCID = "0000-0002-1847-885X")),
     person(given = "Roger", family = "Gine Bertomeu",
-      email = "roger.gine@iispv.cat", role = "aut",
+      email = "roger.gine@iispv.cat", role = "ctb",
       comment = c(ORCID = "0000-0003-0288-9619")))
 Depends: R (>= 4.1), methods, Spectra (>= 1.5.8)
 Imports:
