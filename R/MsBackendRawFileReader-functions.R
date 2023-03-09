@@ -60,15 +60,86 @@ NULL
   #  hdr$isolationWindowUpperOffset
   #hdr$isolationWindowUpperOffset <- NULL
   #hdr$isolationWindowLowerOffset <- NULL
-  ## Remove core spectra variables that contain only `NA`
+  
   hdr$msLevel[hdr$msLevel == "Ms"] <- 1
   hdr$msLevel[hdr$msLevel == "Ms2"] <- 2
   hdr$msLevel[hdr$msLevel == "Ms3"] <- 3
   hdr$msLevel <- as.integer(hdr$msLevel)
-  S4Vectors::DataFrame(hdr[, !(MsCoreUtils::vapply1l(hdr, function(z) all(is.na(z))) &
+  
+  ## MS1 scans have no precursorMz
+  if (any(hdr$msLevel == 1)) hdr$precursorMz[hdr$msLevel == 1] <- NA
+  
+  hdr_full <- .get_spectrum_metadata(x)
+  
+  hdr <- cbind(hdr, hdr_full)
+  
+  ## Remove core spectra variables that contain only `NA`
+  hdr <- S4Vectors::DataFrame(hdr[, !(MsCoreUtils::vapply1l(hdr, function(z) all(is.na(z))) &
                                  colnames(hdr) %in%
                                  names(.SPECTRA_DATA_COLUMNS))
   ])
+  .post_process_header(hdr)
+}
+
+.SPECTRA_METADATA_COLS <- list(
+    "injectionTime" = "Ion Injection Time (ms):",
+    "collisionEnergyList" = "HCD Energy:",
+    "isolationWidth" = "MS2 Isolation Width:",
+    "isolationOffset" = "MS2 Isolation Offset:",
+    "totIonCurrent" = "TIC",
+    "resolution" = "FT Resolution:",
+    "AGC" = "AGC:",
+    "AGCTarget" = "AGC Target:",
+    "AGCFill" = "AGC Fill:"
+)
+
+
+.get_spectrum_metadata <- function(x){
+    varNames <- rawrr::readTrailer(x)
+    varNames <- varNames[varNames %in% .SPECTRA_METADATA_COLS]
+    if (!length(varNames)) return(S4Vectors::DataFrame())
+    DF <- lapply(varNames, function(x, var) rawrr::readTrailer(x, var), x = x)
+    names(DF) <- names(.SPECTRA_METADATA_COLS)[match(varNames,
+                                                     .SPECTRA_METADATA_COLS)]
+    DF <- lapply(DF, I) #Protect variables to allow lists of vectors
+    S4Vectors::DataFrame(do.call(cbind, DF))
+}
+
+
+.post_process_header <- function(header){
+    varsToNumeric <- c("isolationWidth", "isolationOffset", "injectionTime",
+                       "AGCTarget", "AGCFill")
+    if (any(colnames(header) %in% varsToNumeric)) {
+        found <- colnames(header)[colnames(header) %in% varsToNumeric]
+        for (var in found) {
+            header[[var]] <- as.numeric(header[[var]])
+        }
+    }
+    varsToRemoveSpace <- c("AGC", "collisionEnergyList")
+    if (any(colnames(header) %in% varsToRemoveSpace)) {
+        found <- colnames(header)[colnames(header) %in% varsToRemoveSpace]
+        for (var in found) {
+            header[[var]] <- gsub(" ", "", header[[var]])
+        }
+    }
+    if ("collisionEnergyList" %in% colnames(header)) {
+        header$collisionEnergyList <- lapply(header$collisionEnergyList, function(x){
+            as.numeric(strsplit(x, ",")[[1]])
+        })
+        header$isStepped <- lengths(header$collisionEnergyList) > 1
+        header$collisionEnergy <- as.numeric(sapply(header$collisionEnergyList,
+                                                    mean))
+    }
+    if (all(c("precursorMz", "isolationWidth", "isolationOffset") %in% 
+            colnames(header))) {
+        header$isolationWindowTargetMz <-
+            header$precursorMz + header$isolationOffset
+        header$isolationWindowLowerMz <-
+            header$isolationWindowTargetMz - header$isolationWidth / 2
+        header$isolationWindowUpperMz <-
+            header$isolationWindowTargetMz + header$isolationWidth / 2
+    }
+    header
 }
 
 
