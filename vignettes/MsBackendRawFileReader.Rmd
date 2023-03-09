@@ -33,6 +33,8 @@ bibliography:
 BiocStyle::markdown()
 knitr::opts_chunk$set(fig.wide = TRUE, fig.retina = 3)
 ```
+The figure below depicts the idea of the `r BiocStyle::Biocpkg("Spectra")` framework.
+For a detailed description, read [@Spectra].
 
 ```{r arch, echo=FALSE, out.width="80%", eval=TRUE, fig.cap="Integration of rawDiag and rawrr into the Spectra ecosystem (by courtesy of Johannes Rainer)."}
   knitr::include_graphics("arch.jpg")
@@ -49,8 +51,8 @@ suppressMessages(
 )
 ```
 
-assemblies aka Common Intermediate Language bytecode 
-The download and install can be done on all platforms using the command:
+assemblies aka Common Intermediate Language bytecode  The download and install
+can be done on all platforms using the command:
 `rawrr::installRawFileReaderDLLs()`
 
 ```{r installAssemblies, echo=TRUE}
@@ -100,7 +102,7 @@ if (!file.exists(rawfileEH4547 )){
 
 # Usage
 
-Call the constructor
+Call the constructor using `Spectra::backendInitialize`, see also [@Spectra].
 
 ```{r backendInitializeMsBackendRawFileReader, message=FALSE}
 beRaw <- Spectra::backendInitialize(
@@ -112,6 +114,10 @@ Call the print method
 
 ```{r show}
 beRaw
+```
+
+```{r spectraVariables}
+beRaw |> Spectra::spectraVariables()
 ```
 
 # Application example
@@ -169,10 +175,10 @@ setMethod("filterIons", "MsBackend",
   })
 ```
 
-The lines below implement a simple targeted peptide search engine.
-The R code snippet takes as input a `MsBackendRawFileReader` object
-containing `r length(beRaw)` spectra and y-fragment-ion mZ values determined 
-for `LGGNEQVTR++`.
+The lines below implement a simple targeted peptide search engine. The R code
+snippet takes as input a `MsBackendRawFileReader` object containing
+`r length(beRaw)` spectra and y-fragment-ion mZ values determined for
+`LGGNEQVTR++`.
 
 ```{r applyFilterIons}
 start_time <- Sys.time()
@@ -188,6 +194,7 @@ The defined `filterIons` method runs on
 `r length(beRaw |> MsBackendRawFileReader::filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]"))` input spectra and returns `r length(X)` spectra.
 
 The runtime is shown below.
+
 ```{r runTime}
 end_time - start_time
 ```
@@ -232,11 +239,9 @@ stats::aggregate(mZ ~ ion, data = XC, FUN = base::mean)
 stats::aggregate(intensity ~ ion, data = XC, FUN = base::max)
 ```
 
-For the sake of demonstration we apply the `Spectra::combinePeaks` method and
-aggregate the `r length(X)` spectra into a singe peak matrix.
-
-The statistics returned by `.plot.LGGNEQVTR()` should be identical with the
-output of the aggregation code snippet above.
+We demonstrate the `Spectra::combinePeaks` method and aggregate the four spectra
+into a single peak matrix. The statistics returned by `.plot.LGGNEQVTR()` should
+be identical to the aggregation code snippet output above.
 
 ```{r combinePeaks, fig.cap = "Combined LGGNEQVTR peptide spectrum match plot."}
 X |>
@@ -246,38 +251,39 @@ X |>
 
 ## Export Mascot Generic Format File
 
-Below we demonstrate the interaction with the `r Biocpkg('MsBackendMgf')` package while composing
-a Mascot Generic Format [mgf](http://www.matrixscience.com/help/data_file_help.html#GEN) file which is compatible for conducting an MS/MS Ions Search using Mascot Server (>=2.7) @Perkins1999.
+Below we demonstrate the interaction with the `r Biocpkg('MsBackendMgf')`
+package while composing a Mascot Generic Format
+[mgf](http://www.matrixscience.com/help/data_file_help.html#GEN) file which
+is compatible with conducting an MS/MS Ions Search using Mascot Server (>=2.7)
+@Perkins1999.
 
-```{r mgf}
-## Map Spectra variables to Mascot Server compatible vocabulary.
-map <- c(custom = "TITLE",
-         msLevel = "CHARGE",
-         scanIndex = "SCANS",
-         precursorMz = "PEPMASS",
-         rtime = "RTINSECONDS")
-
-## Compose custom TITLE
-beRaw$custom <- paste0("File: ", beRaw$dataOrigin, " ; SpectrumID: ", S$scanIndex)
-
-(mgf <- tempfile(fileext = '.mgf'))
-
-(beRaw |>
-  filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") )[437] |>
-  Spectra::Spectra() |>
-  Spectra::selectSpectraVariables(c("rtime", "precursorMz",
-    "precursorCharge", "msLevel", "scanIndex", "custom")) |>
-  MsBackendMgf::export(backend = MsBackendMgf::MsBackendMgf(),
-                       file = mgf, map = map)
-readLines(mgf) |> head(12)
+```{r MsBackendMgf}
+if (require(MsBackendMgf)){
+    ## Map Spectra variables to Mascot Server compatible vocabulary.
+    map <- c(custom = "TITLE",
+             msLevel = "CHARGE",
+             scanIndex = "SCANS",
+             precursorMz = "PEPMASS",
+             rtime = "RTINSECONDS")
+    
+    ## Compose custom TITLE
+    beRaw$custom <- paste0("File: ", beRaw$dataOrigin, " ; SpectrumID: ", S$scanIndex)
+    
+    (mgf <- tempfile(fileext = '.mgf'))
+    
+    (beRaw |>
+            filterScan("FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") )[437] |>
+        Spectra::Spectra() |>
+        Spectra::selectSpectraVariables(c("rtime", "precursorMz",
+                                          "precursorCharge", "msLevel", "scanIndex", "custom")) |>
+        MsBackendMgf::export(backend = MsBackendMgf::MsBackendMgf(),
+                             file = mgf, map = map)
+    readLines(mgf) |> head(12)
+    readLines(mgf) |> tail()
+}
 ```
 
-```{r mgfTail}
-readLines(mgf) |> tail()
-```
-
-
-To extract all tandem spectra you can use the code snippets below
+To extract all tandem spectra, you can use the code snippets below
 
 ```{r allMS2}
 S <- Spectra::backendInitialize(
@@ -295,7 +301,9 @@ S |>
                        map = map)
 ```
 
-Next, we generate a mgf file for each scan type. This is helpful, e.g, for optimizing search settings tandem mass spectrometry sequence database search tool as comet @comet2012 or mascot server @Perkins1999.
+Next, we generate an mgf file for each scan type. This is helpful,
+e.g., for optimizing search settings tandem mass spectrometry sequence
+database search tool as comet @comet2012 or mascot server @Perkins1999.
 
 ```{r defineScanTypePattern}
 ## Define scanType patterns
@@ -309,14 +317,13 @@ scanTypePattern <- list(
 )
 ```
 
-
-```{r}
+```{r custom0}
 beRaw <- Spectra::backendInitialize(
   MsBackendRawFileReader::MsBackendRawFileReader(),
   files = c(rawrr::sampleFilePath()))
 ```
 
-```{r}
+```{r custom1}
 beRaw <- Spectra::backendInitialize(
   MsBackendRawFileReader::MsBackendRawFileReader(),
   files = rawrr::sampleFilePath())
@@ -324,7 +331,7 @@ beRaw <- Spectra::backendInitialize(
 beRaw$custom <- paste0("File: ", gsub("/srv/www/htdocs/Data2San/", "", beRaw$dataOrigin), " ; SpectrumID: ", beRaw$scanIndex)
 ```
 
-```{r}
+```{r generate_mgf}
 .generate_mgf <- function(ext, pattern,  dir=tempdir(), ...){
   mgf <- file.path(dir, paste0(sub("\\.raw", "", unique(basename(beRaw$dataOrigin))),
                                ".", ext, ".mgf"))
@@ -355,8 +362,9 @@ beRaw$custom <- paste0("File: ", gsub("/srv/www/htdocs/Data2San/", "", beRaw$dat
 
 ## Procesing queue
 
-Given the task, we want to filter an MS2 of peak list recorded on an Orbitrap device to be interested only in the top peak within 100 Da mass windows. The following code snippet will 
-demonstrate a solution.
+Given the task, we want to filter an MS2 of peak list recorded on an Orbitrap
+device to be interested only in the top peak within 100 Da mass windows. The
+following code snippet will demonstrate a solution.
 
 ```{r defineTopN}
 ## Define a function that takes a matrix as input and derives
@@ -364,21 +372,25 @@ demonstrate a solution.
 ## Of note, here, we require centroided data. (no profile mode!)
 MsBackendRawFileReader:::.top_n
 ```
-
 We add our custom code to the processing queue of the Spectra object.
-Of note, we use `n = 1` in praxis `n = 10` for a 100 Da mass window, which seems to be a practical choice.
+Of note, we use `n = 1` in praxis `n = 10` for a 100 Da mass window, which seems
+to be a practical choice.
 
 ```{r applyProcessing}
 S_2 <- Spectra::addProcessing(S, MsBackendRawFileReader:::.top_n, n = 1) 
 ```
 
-The plot below displays a visual control of the custom filter function `top_n.`  On the top is the original spectrum, and the filtered one on the bottom. A point indicates peaks that match.
+The plot below displays a visual control of the custom filter function `top_n.`
+On the top is the original spectrum, and the filtered one is on the bottom.
+A point indicates peaks that match.
 
 ```{r plotSpectraMirror9594, fig.retina=3, fig.cap = "Spectra mirror plot of the filtered  (bottom) and unfiltered scan 9594.", error=TRUE}
 Spectra::plotSpectraMirror(S[9594], S_2[9594], ppm = 50)
 ```
 
-The next snippet prints the values of the filtered peaklist and the mZ values of the y-ions.
+
+The following snippet prints the values of the filtered peaklist and the mZ
+values of the y-ions.
 
 ```{r compare9594mZValues}
 S_2[9594] |> mz() |> unlist()
