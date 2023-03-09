@@ -69,10 +69,8 @@ NULL
   ## MS1 scans have no precursorMz
   if (any(hdr$msLevel == 1)) hdr$precursorMz[hdr$msLevel == 1] <- NA
   
-  hdr_full <- .spectrum_get(x,
-                            hdr$scanIndex,
-                            FUN = .get_spectrum_metadata,
-                            BPPARAM = BiocParallel::SerialParam())
+  hdr_full <- .get_spectrum_metadata(x)
+  
   hdr <- cbind(hdr, hdr_full)
   
   ## Remove core spectra variables that contain only `NA`
@@ -83,35 +81,9 @@ NULL
   .post_process_header(hdr)
 }
 
-## Reusable function to apply a function fun to each spectrum and get a table
-.spectrum_get <- function(x, 
-                          scanIndex = integer(),
-                          maxGroupSize = 150,
-                          tmpdir=tempdir(),
-                          FUN = .get_spectrum_metadata,
-                          BPPARAM = bpparam()){
-    if (length(x) != 1)
-        stop("'x' should have length 1")
-    if (!length(scanIndex))
-        stop("scanIndex must have length >0")
-    requireNamespace("rawrr", quietly = TRUE)
-    
-    if (length(scanIndex) < maxGroupSize)
-        maxGroupSize <- length(scanIndex)
-    
-    DF <- BiocParallel::bplapply(FUN = function(i){
-        lapply(rawrr::readSpectrum(x, i, tmpdir = tmpdir), FUN)
-    },
-    split(scanIndex, ceiling(seq_along(scanIndex) / maxGroupSize)),
-    BPPARAM = BPPARAM) |>
-        unlist(recursive = FALSE)
-    S4Vectors::DataFrame(do.call(rbind, DF))
-}
-
-
 .SPECTRA_METADATA_COLS <- list(
     "injectionTime" = "Ion Injection Time (ms):",
-    "collisionEnergy" = "HCD Energy:",
+    "collisionEnergyList" = "HCD Energy:",
     "isolationWidth" = "MS2 Isolation Width:",
     "isolationOffset" = "MS2 Isolation Offset:",
     "totIonCurrent" = "TIC",
@@ -121,11 +93,16 @@ NULL
     "AGCFill" = "AGC Fill:"
 )
 
-.get_spectrum_metadata <- function(scan){
-    scan <- scan[names(scan) %in% .SPECTRA_METADATA_COLS]
-    cols_found <- match(names(scan), .SPECTRA_METADATA_COLS)
-    names(scan) <- names(.SPECTRA_METADATA_COLS)[cols_found]
-    data.frame(lapply(scan, I)) #Protect variables to allow lists of vectors
+
+.get_spectrum_metadata <- function(x){
+    varNames <- rawrr::readTrailer(x)
+    varNames <- varNames[varNames %in% .SPECTRA_METADATA_COLS]
+    if (!length(varNames)) return(S4Vectors::DataFrame())
+    DF <- lapply(varNames, function(x, var) rawrr::readTrailer(x, var), x = x)
+    names(DF) <- names(.SPECTRA_METADATA_COLS)[match(varNames,
+                                                     .SPECTRA_METADATA_COLS)]
+    DF <- lapply(DF, I) #Protect variables to allow lists of vectors
+    S4Vectors::DataFrame(do.call(cbind, DF))
 }
 
 
@@ -138,17 +115,20 @@ NULL
             header[[var]] <- as.numeric(header[[var]])
         }
     }
-    varsToRemoveSpace <- c("AGC", "collisionEnergy")
+    varsToRemoveSpace <- c("AGC", "collisionEnergyList")
     if (any(colnames(header) %in% varsToRemoveSpace)) {
         found <- colnames(header)[colnames(header) %in% varsToRemoveSpace]
         for (var in found) {
             header[[var]] <- gsub(" ", "", header[[var]])
         }
     }
-    if ("collisionEnergy" %in% colnames(header)) {
-        header$collisionEnergy <- lapply(header$collisionEnergy, function(x){
+    if ("collisionEnergyList" %in% colnames(header)) {
+        header$collisionEnergyList <- lapply(header$collisionEnergyList, function(x){
             as.numeric(strsplit(x, ",")[[1]])
         })
+        header$isStepped <- lengths(header$collisionEnergyList) > 1
+        header$collisionEnergy <- as.numeric(sapply(header$collisionEnergyList,
+                                                    mean))
     }
     if (all(c("precursorMz", "isolationWidth", "isolationOffset") %in% 
             colnames(header))) {
