@@ -60,15 +60,106 @@ NULL
   #  hdr$isolationWindowUpperOffset
   #hdr$isolationWindowUpperOffset <- NULL
   #hdr$isolationWindowLowerOffset <- NULL
-  ## Remove core spectra variables that contain only `NA`
+  
   hdr$msLevel[hdr$msLevel == "Ms"] <- 1
   hdr$msLevel[hdr$msLevel == "Ms2"] <- 2
   hdr$msLevel[hdr$msLevel == "Ms3"] <- 3
   hdr$msLevel <- as.integer(hdr$msLevel)
-  S4Vectors::DataFrame(hdr[, !(MsCoreUtils::vapply1l(hdr, function(z) all(is.na(z))) &
+  
+  ## MS1 scans have no precursorMz
+  if (any(hdr$msLevel == 1)) hdr$precursorMz[hdr$msLevel == 1] <- NA
+  
+  hdr_full <- .spectrum_get(x,
+                            hdr$scanIndex,
+                            FUN = .get_spectrum_metadata,
+                            BPPARAM = BiocParallel::SerialParam())
+  hdr <- cbind(hdr, hdr_full)
+  
+  ## Remove core spectra variables that contain only `NA`
+  hdr <- S4Vectors::DataFrame(hdr[, !(MsCoreUtils::vapply1l(hdr, function(z) all(is.na(z))) &
                                  colnames(hdr) %in%
                                  names(.SPECTRA_DATA_COLUMNS))
   ])
+  .post_process_header(hdr)
+}
+
+## Reusable function to apply a function fun to each spectrum and get a table
+.spectrum_get <- function(x, 
+                          scanIndex = integer(),
+                          maxGroupSize = 150,
+                          tmpdir=tempdir(),
+                          FUN = .get_spectrum_metadata,
+                          BPPARAM = bpparam()){
+    if (length(x) != 1)
+        stop("'x' should have length 1")
+    if (!length(scanIndex))
+        stop("scanIndex must have length >0")
+    requireNamespace("rawrr", quietly = TRUE)
+    
+    if (length(scanIndex) < maxGroupSize)
+        maxGroupSize <- length(scanIndex)
+    
+    DF <- BiocParallel::bplapply(FUN = function(i){
+        lapply(rawrr::readSpectrum(x, i, tmpdir = tmpdir), FUN)
+    },
+    split(scanIndex, ceiling(seq_along(scanIndex) / maxGroupSize)),
+    BPPARAM = BPPARAM) |>
+        unlist(recursive = FALSE)
+    S4Vectors::DataFrame(do.call(rbind, DF))
+}
+
+
+.SPECTRA_METADATA_COLS <- list(
+    "injectionTime" = "Ion Injection Time (ms):",
+    "collisionEnergy" = "HCD Energy:",
+    "isolationWidth" = "MS2 Isolation Width:",
+    "isolationOffset" = "MS2 Isolation Offset:",
+    "totIonCurrent" = "TIC",
+    "resolution" = "FT Resolution:",
+    "AGC" = "AGC:",
+    "AGCTarget" = "AGC Target:",
+    "AGCFill" = "AGC Fill:"
+)
+
+.get_spectrum_metadata <- function(scan){
+    scan <- scan[names(scan) %in% .SPECTRA_METADATA_COLS]
+    cols_found <- match(names(scan), .SPECTRA_METADATA_COLS)
+    names(scan) <- names(.SPECTRA_METADATA_COLS)[cols_found]
+    data.frame(lapply(scan, I)) #Protect variables to allow lists of vectors
+}
+
+
+.post_process_header <- function(header){
+    varsToNumeric <- c("isolationWidth", "isolationOffset", "injectionTime",
+                       "AGCTarget", "AGCFill")
+    if (any(colnames(header) %in% varsToNumeric)) {
+        found <- colnames(header)[colnames(header) %in% varsToNumeric]
+        for (var in found) {
+            header[[var]] <- as.numeric(header[[var]])
+        }
+    }
+    varsToRemoveSpace <- c("AGC", "collisionEnergy")
+    if (any(colnames(header) %in% varsToRemoveSpace)) {
+        found <- colnames(header)[colnames(header) %in% varsToRemoveSpace]
+        for (var in found) {
+            header[[var]] <- gsub(" ", "", header[[var]])
+        }
+    }
+    if ("collisionEnergy" %in% colnames(header)) {
+        header$collisionEnergy <- lapply(header$collisionEnergy, function(x){
+            as.numeric(strsplit(x, ",")[[1]])
+        })
+    }
+    if (all(c("precursorMz", "isolationWidth", "isolationOffset") %in% 
+            colnames(header))) {
+        header$isolationWindowTargetMz <-
+            header$precursorMz + header$isolationOffset
+        header$isolationWindowLowerMz <-
+            header$isolationWindowTargetMz - header$isolationWidth / 2
+        header$isolationWindowUpperMz <-
+            header$isolationWindowTargetMz + header$isolationWidth / 2
+    }
+    header
 }
 
 

@@ -1,13 +1,16 @@
 Package: MsBackendRawFileReader
 Type: Package
 Title: Mass Spectrometry Backend for Reading Thermo Fisher Scientific raw Files
-Version: 1.5.1
+Version: 1.5.2
 Authors@R: c(person(given = "Christian",
     family = "Panse", email = "cp@fgcz.ethz.ch", role = c("aut", "cre"),
     comment = c(ORCID = "0000-0003-1975-3064")),
 	person(given = "Tobias", family = "Kockmann",
 	  email = "Tobias.Kockmann@fgcz.ethz.ch", role = "aut", 
-    comment = c(ORCID = "0000-0002-1847-885X")))
+      comment = c(ORCID = "0000-0002-1847-885X")),
+    person(given = "Roger", family = "Gine Bertomeu",
+      email = "roger.gine@iispv.cat", role = "aut",
+      comment = c(ORCID = "0000-0003-0288-9619")))
 Depends: R (>= 4.1), methods, Spectra (>= 1.5.8)
 Imports:
     MsCoreUtils,
