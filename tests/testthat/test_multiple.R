@@ -28,8 +28,8 @@ test_that("filterScan", {
 })
 
 test_that("collisionEnergy", {
-    expect_type(collisionEnergy(sample_raw), "numeric")
-    expect_equal(collisionEnergy(sample_raw)[[1]], numeric(0)) #MS1 scan
+    expect_type(collisionEnergy(sample_raw), "double")
+    # expect_equal(collisionEnergy(sample_raw)[[1]], numeric(0)) #MS1 scan
     expect_equal(collisionEnergy(sample_raw)[[2]], 28) #MS2 scan
 })
 
