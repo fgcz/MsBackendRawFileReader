@@ -1,5 +1,6 @@
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 [![JPR](https://img.shields.io/badge/JPR-10.1021%2Facs.jproteome.0c00866-brightgreen)](http://dx.doi.org/10.1021/acs.jproteome.0c00866)
+[![JPR](https://img.shields.io/badge/JPR-10.1021%2Facs.jproteome.8b00173-brightgreen)](http://dx.doi.org/10.1021/acs.jproteome.8b00173)
 
 # MsBackendRawFileReader
 
