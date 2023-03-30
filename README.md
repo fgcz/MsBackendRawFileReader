@@ -1,3 +1,6 @@
+[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.]
+[![JPR](https://img.shields.io/badge/JPR-10.1021%2Facs.jproteome.0c00866-brightgreen)](http://dx.doi.org/10.1021/acs.jproteome.0c00866)
+
 # MsBackendRawFileReader
 
 Provides an alternative `MsBackend` to [Spectra](https://bioconductor.org/packages/Spectra) through the [rawrr](https://bioconductor.org/packages/rawrr/) package. Ultimately this backend will allow direct access to spectral data logged in ThermoFischer Scientific .raw files using accessor functions defined in the `Spectra` package (on-disk backend). 
