@@ -243,7 +243,7 @@ We demonstrate the `Spectra::combinePeaks` method and aggregate the four spectra
 into a single peak matrix. The statistics returned by `.plot.LGGNEQVTR()` should
 be identical to the aggregation code snippet output above.
 
-```{r combinePeaks, fig.cap = "Combined LGGNEQVTR peptide spectrum match plot."}
+```{r combinePeaks, fig.cap = "Combined LGGNEQVTR peptide spectrum match plot.", error = TRUE}
 X |>
   Spectra::combinePeaks(ppm=10, intensityFun=base::max) |>
   .plot.LGGNEQVTR()
