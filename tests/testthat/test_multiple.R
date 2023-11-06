@@ -1,10 +1,11 @@
+
 test_that("peak", {
-  expect_true(length(Spectra((sample_raw_2))) == 1146)
+  expect_true(length(Spectra((sample_raw_2))) == 1148)
 })
 
 
 test_that("intensity", {
-  expect_equal(sum(sum(intensity(sample_raw))) , 2275696879)
+  expect_equal(sum(sum(intensity(sample_raw))) , 2275763078)
   
   expect_equal(sum(sum(intensity(sample_raw_2))),
                (2 * sum(sum(intensity(sample_raw)))))
@@ -14,17 +15,18 @@ test_that("intensity", {
 })
 
 test_that("msLevel", {
-  expect_true(all(table(msLevel(sample_raw)) == c(27, 546)))
+  expect_true(all(table(msLevel(sample_raw)) == c(27, 547)))
 })
 
 test_that("scanType", {
   expect_true(scanType(sample_raw)[1] == "FTMS + c NSI Full ms [350.0000-1800.0000]")
+  expect_true(scanType(sample_raw)[574] == "FTMS + c NSI Full ms2 487.2567@hcd28.00 [140.0000-1015.0000]")
 })
 
 test_that("filterScan", {
-  expect_true(all(table(scanType(sample_raw)) == c(27, rep(26,21))))
-  expect_true(all((lapply(c('ms', 'ms2', ''), FUN=filterScan, object=sample_raw) |>
-                     sapply(FUN=length)) == c(27, 546, 573)))
+  expect_true(all(table(scanType(sample_raw)) == c(rep(27,2), rep(26,20))))
+  expect_true(all((lapply(c('ms', 'ms2', ''), FUN = filterScan, object = sample_raw) |>
+                     sapply(FUN = length)) == c(27, 547, 574)))
 })
 
 test_that("collisionEnergy", {
