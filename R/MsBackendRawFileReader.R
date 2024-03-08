@@ -16,7 +16,9 @@ NULL
 #' 
 #'
 #' @author Christian Panse (2019-2021)
-#' @import Spectra
+#' 
+#' @importClassesFrom Spectra MsBackendDataFrame
+#' 
 #' @examples 
 #' beRaw <- Spectra::backendInitialize(MsBackendRawFileReader::MsBackendRawFileReader(),
 #'   files = rawrr::sampleFilePath())
@@ -44,6 +46,8 @@ setValidity("MsBackendRawFileReader", function(object) {
 #'
 #' @importMethodsFrom BiocParallel bpmapply bplapply
 #'
+#' @importMethodsFrom ProtGenerics backendInitialize
+#' 
 #' @importFrom BiocParallel bpparam 
 #' @importFrom rawrr readIndex
 setMethod("backendInitialize", "MsBackendRawFileReader",
@@ -85,6 +89,10 @@ setMethod("show", "MsBackendRawFileReader", function(object) {
 })
 
 #' @rdname hidden_aliases
+#'
+#' @importMethodsFrom ProtGenerics peaksData
+#'
+#' @importMethodsFrom ProtGenerics dataStorage
 setMethod("peaksData", "MsBackendRawFileReader",
           function(object, ..., BPPARAM = bpparam()) {
             if (!length(object))
@@ -140,6 +148,7 @@ setMethod("[", "MsBackendRawFileReader", function(x, i, j, ..., drop = FALSE) {
 
 #' @importClassesFrom IRanges NumericList
 #' @rdname hidden_aliases
+#' @importMethodsFrom ProtGenerics intensity
 #' @exportMethod intensity
 setMethod("intensity", "MsBackendRawFileReader", function(object, ..., BPPARAM = bpparam()) {
   IRanges::NumericList(lapply(peaksData(object, BPPARAM = BPPARAM), "[", , 2), compress = FALSE)
