@@ -41,6 +41,8 @@ NULL
 )
 
 
+#' @importFrom S4Vectors DataFrame
+#' 
 .MsBackendRawFileReader_header <- function(x = character()) {
   if (length(x) != 1)
     stop("'x' should have length 1")
@@ -75,8 +77,8 @@ NULL
   
   ## Remove core spectra variables that contain only `NA`
   hdr <- S4Vectors::DataFrame(hdr[, !(MsCoreUtils::vapply1l(hdr, function(z) all(is.na(z))) &
-                                 colnames(hdr) %in%
-                                 names(.SPECTRA_DATA_COLUMNS))
+                                      colnames(hdr) %in%
+                                      names(.SPECTRA_DATA_COLUMNS))
   ])
   .post_process_header(hdr)
 }
