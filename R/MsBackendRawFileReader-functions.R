@@ -148,12 +148,7 @@ NULL
 #' @importFrom S4Vectors extractROWS
 #' @importFrom MsCoreUtils i2index
 #' @importFrom methods slot<-
-.subset_backend_MsBackendRawFileReader <- function(x, i) {
-  if (missing(i))
-    return(x)
-  idx <- i
-  i <- MsCoreUtils::i2index(i, length(x), rownames(x@spectraData))
-  
+.subset_backend_MsBackendRawFileReader <- function(x, i = integer()) {
   slot(x, "spectraData", check = FALSE) <- S4Vectors::extractROWS(x@spectraData, i)
   
   # check if item is complete otherwise retrieval of data through using 

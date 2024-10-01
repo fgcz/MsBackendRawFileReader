@@ -10,6 +10,7 @@
 \alias{backendInitialize,MsBackendRawFileReader-method}
 \alias{show,MsBackendRawFileReader-method}
 \alias{peaksData,MsBackendRawFileReader-method}
+\alias{extractByIndex,MsBackendRawFileReader,ANY-method}
 \alias{intensity,MsBackendRawFileReader-method}
 \alias{mz,MsBackendRawFileReader-method}
 \title{Internal page for hidden aliases}
@@ -23,6 +24,8 @@ scanType(object, ...)
 \S4method{show}{MsBackendRawFileReader}(object)
 
 \S4method{peaksData}{MsBackendRawFileReader}(object, ..., BPPARAM = bpparam())
+
+\S4method{extractByIndex}{MsBackendRawFileReader,ANY}(object, i)
 
 \S4method{intensity}{MsBackendRawFileReader}(object, ..., BPPARAM = bpparam())
 

@@ -144,8 +144,17 @@ setMethod("peaksData", "MsBackendRawFileReader",
 #' @importFrom IRanges NumericList
 #' @exportMethod [
 setMethod("[", "MsBackendRawFileReader", function(x, i, j, ..., drop = FALSE) {
-  .subset_backend_MsBackendRawFileReader(x, i)
+    i <- MsCoreUtils::i2index(i, length(x), rownames(x@spectraData))
+    extractByIndex(x, i)
 })
+
+#' @rdname hidden_aliases
+#' @importMethodsFrom Spectra extractByIndex
+#' @export
+setMethod("extractByIndex", c("MsBackendRawFileReader", "ANY"),
+          function(object, i) {
+              .subset_backend_MsBackendRawFileReader(object, i)
+          })
 
 #' @importClassesFrom IRanges NumericList
 #' @rdname hidden_aliases
